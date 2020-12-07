@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:service_app/application_page/application_page.dart';
 import 'package:service_app/models/application.dart';
 import 'package:service_app/repo/repo.dart';
+import 'package:service_app/service_page/service_page.dart';
 
-class ApplicationsPage extends StatelessWidget {
+class ServicesPage extends StatelessWidget {
   Widget _buildRow(BuildContext context, Application application) {
     return ListTile(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationPage(application: application)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(service: application)));
       },
       title: Text(
         application.name,

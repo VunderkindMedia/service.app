@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:service_app/applications_page/applications_page.dart';
+import 'package:service_app/services_page/services_page.dart';
 
 class LoginPage extends StatelessWidget {
   void _handleSubmitTapped(BuildContext context) {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ApplicationsPage()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ServicesPage()));
   }
 
   @override
