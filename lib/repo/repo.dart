@@ -1,9 +1,22 @@
-import 'package:service_app/models/application.dart';
+import 'package:service_app/models/service.dart';
 
-final applications = <Application>[
-  new Application(1, 'Тестовая заявка 1', 'Какой то там адресс 1'),
-  new Application(2, 'Тестовая заявка 2', 'Какой то там адресс 2'),
-  new Application(3, 'Тестовая заявка 3', 'Какой то там адресс 3'),
-  new Application(4, 'Тестовая заявка 4', 'Какой то там адресс 4'),
+final services = <Service>[
+  new Service(
+    id: 1,
+    customer: 'Иван',
+    customerAddress:  'Пермь, Ленина 10',
+    phone: '880020030023',
+    comment: 'Какой то коментарий клиента',
+    brandId: 'Стеклодом',
+    number: 'Сервис Адм_0003232'
+  ),
+  new Service(
+    id: 2,
+    customer: 'Гашков Петр Васильевич',
+    customerAddress: 'Пермь, Мира 22',
+    phone: '880030030023',
+    comment: 'Какой то коментарий клиента',
+    brandId: 'Погода в доме',
+      number: 'Сервис Адм_0004327'
+  ),
 ];
-

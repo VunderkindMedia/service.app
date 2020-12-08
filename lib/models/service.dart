@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
+
 class Service {
-  int id;
+  final int id;
   String cratedAt;
   String updatedAt;
   String externalId;
@@ -28,8 +30,13 @@ class Service {
   int sumPayment;
   int sumDiscount;
 
-  static Service create() {
-    final service = new Service();
-    return service;
-  }
+  Service({
+    @required this.id,
+    this.customer,
+    this.customerAddress,
+    this.phone,
+    this.comment,
+    this.brandId,
+    this.number
+  });
 }

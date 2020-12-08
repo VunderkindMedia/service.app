@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:service_app/models/application.dart';
+import 'package:service_app/repo/repo.dart';
 
 class ServicePage extends StatelessWidget {
-  final Application service;
+  final int serviceId;
 
-  ServicePage({Key key, @required this.service}) : super(key: key);
+  ServicePage({Key key, @required this.serviceId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(service.name),
+        title: Text(services.firstWhere((service) => service.id == serviceId)?.customer),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
