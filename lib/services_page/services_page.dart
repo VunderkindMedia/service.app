@@ -20,16 +20,18 @@ class ServicesPage extends StatelessWidget {
                 margin: EdgeInsets.only(right: 8),
                 child: FlutterLogo(size: 24.0)
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${service.brandId}, ${service.number}'),
-                  Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(service.comment),
-                  SizedBox(height: 8),
-                  Text(service.customerAddress),
-                ],
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${service.brandId}, ${service.number}', overflow: TextOverflow.ellipsis, maxLines: 1),
+                    Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(service.comment),
+                    SizedBox(height: 8),
+                    Text(service.customerAddress),
+                  ],
+                )
               )
             ],
           ),
