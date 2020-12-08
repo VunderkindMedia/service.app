@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/repo/repo.dart';
+import 'package:service_app/service-to-page-view/service-to-page-view.dart';
 
 class ServicePage extends StatelessWidget {
   Service _service;
@@ -8,6 +9,7 @@ class ServicePage extends StatelessWidget {
   final controller = PageController(
     initialPage: 0
   );
+  
   ServicePage({Key key, @required int serviceId}) : super(key: key) {
     this._service = services.firstWhere((service) => service.id == serviceId);
   }
@@ -51,46 +53,8 @@ class ServicePage extends StatelessWidget {
               child: PageView(
                 controller: controller,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Услуги ТО-1', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(height: 8),
-                        FlatButton.icon(
-                            onPressed: () {},
-                            color: Colors.blue,
-                            textColor: Colors.white,
-                            icon: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            ),
-                            label: Text('Подобрать')
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Услуги ТО-2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(height: 8),
-                        FlatButton.icon(
-                            onPressed: () {},
-                            color: Colors.blue,
-                            textColor: Colors.white,
-                            icon: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            ),
-                            label: Text('Подобрать')
-                        )
-                      ],
-                    ),
-                  ),
+                  ServiceTOPageView(title: 'Услуги ТО-1'),
+                  ServiceTOPageView(title: 'Услуги ТО-2'),
                 ],
               ),
             ),
