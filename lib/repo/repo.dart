@@ -4,7 +4,7 @@ import 'package:service_app/models/service.dart';
 final services = <Service>[
   new Service(
     id: 1,
-    customer: 'Иван',
+    customer: 'Ивнов Иван Ивнович',
     customerAddress:  'Пермь, Ленина 10',
     phone: '880020030023',
     comment: 'Какой то коментарий клиента, клиент прсоил не беспкоить раньше 12 часов дня',
@@ -51,7 +51,7 @@ final services = <Service>[
   ),
   new Service(
     id: 6,
-    customer: 'Гашков Петр Васильевич',
+    customer: 'Тихонов Мирон Александрвич',
     customerAddress: 'Пермь, Мира 22',
     phone: '880030030023',
     comment: 'Какой то коментарий клиента',
@@ -61,7 +61,7 @@ final services = <Service>[
   ),
   new Service(
     id: 7,
-    customer: 'Гашков Петр Васильевич',
+    customer: 'Кузнецов Олег Евгенич',
     customerAddress: 'Пермь, Мира 22',
     phone: '880030030023',
     comment: 'Какой то коментарий клиента',
@@ -70,7 +70,7 @@ final services = <Service>[
   ),
   new Service(
     id: 8,
-    customer: 'Гашков Петр Васильевич',
+    customer: 'Федоров Михаил Попович',
     customerAddress: 'Пермь, Мира 22',
     phone: '880030030023',
     comment: 'Какой то коментарий клиента',
@@ -80,7 +80,7 @@ final services = <Service>[
   ),
   new Service(
     id: 9,
-    customer: 'Гашков Петр Васильевич',
+    customer: 'Нестеров Сергей Михайлович',
     customerAddress: 'Пермь, Мира 22',
     phone: '880030030023',
     comment: 'Какой то коментарий клиента',
@@ -89,7 +89,7 @@ final services = <Service>[
   ),
   new Service(
     id: 10,
-    customer: 'Гашков Петр Васильевич',
+    customer: 'Королев Александр Олегович',
     customerAddress: 'Пермь, Мира 22',
     phone: '880030030023',
     comment: 'Какой то коментарий клиента',
