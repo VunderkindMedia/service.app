@@ -37,6 +37,7 @@ class Service {
     this.phone,
     this.comment,
     this.brandId,
-    this.number
+    this.number,
+    this.status
   });
 }
