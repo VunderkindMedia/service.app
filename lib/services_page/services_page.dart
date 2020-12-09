@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:service_app/call_button/call_button.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/repo/repo.dart';
 import 'package:service_app/service_page/service_page.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ServicesPage extends StatelessWidget {
   Widget _buildRow(BuildContext context, Service service) {
@@ -36,22 +36,7 @@ class ServicesPage extends StatelessWidget {
               ),
               Container(
                 margin: EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        launch('tel://${service.phone}');
-                        print('Call some phone');
-                      },
-                      child: Icon(
-                        Icons.phone,
-                        color: Colors.green,
-                        size: 36.0
-                      ),
-                    )
-                  ],
-                ),
+                child: PhoneButton(phone: service.phone),
               )
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:service_app/call_button/call_button.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/repo/repo.dart';
 import 'package:service_app/service-to-page-view/service-to-page-view.dart';
@@ -29,6 +30,7 @@ class ServicePage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
@@ -42,7 +44,10 @@ class ServicePage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Column()
+                    Container(
+                      margin: EdgeInsets.only(left: 8),
+                      child: PhoneButton(phone: this._service.phone),
+                    )
                   ],
                 ),
               )
