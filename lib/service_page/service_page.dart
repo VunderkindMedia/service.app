@@ -21,50 +21,52 @@ class ServicePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(this._service.number),
       ),
-      body: Column(
-        children: [
-          ExpansionTile(
-            initiallyExpanded: true,
-            title: Text('Данные по заявке'),
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(this._service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8),
-                          Text('Адрес: ${this._service.customerAddress}'),
-                          SizedBox(height: 8),
-                          Text('Информация клиента: ${this._service.comment}'),
-                        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            ExpansionTile(
+              initiallyExpanded: true,
+              title: Text('Данные по заявке'),
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(this._service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(height: 8),
+                            Text('Адрес: ${this._service.customerAddress}'),
+                            SizedBox(height: 8),
+                            Text('Информация клиента: ${this._service.comment}'),
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 8),
-                      child: PhoneButton(phone: this._service.phone),
-                    )
+                      Container(
+                        margin: EdgeInsets.only(left: 8),
+                        child: PhoneButton(phone: this._service.phone),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Container(
+              child: Expanded(
+                child: PageView(
+                  controller: controller,
+                  children: [
+                    ServiceTOPageView(title: 'Услуги ТО-1'),
+                    ServiceTOPageView(title: 'Услуги ТО-2'),
                   ],
                 ),
-              )
-            ],
-          ),
-          Container(
-            child: Expanded(
-              child: PageView(
-                controller: controller,
-                children: [
-                  ServiceTOPageView(title: 'Услуги ТО-1'),
-                  ServiceTOPageView(title: 'Услуги ТО-2'),
-                ],
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

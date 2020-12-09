@@ -3,6 +3,7 @@ import 'package:service_app/call_button/call_button.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/repo/repo.dart';
 import 'package:service_app/service_page/service_page.dart';
+import 'package:service_app/sync_button/sync_button.dart';
 
 class ServicesPage extends StatelessWidget {
   Widget _buildRow(BuildContext context, Service service) {
@@ -51,14 +52,38 @@ class ServicesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Заявки'),
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemBuilder: (context, i) {
-          if (i >= services.length) {
-            return null;
-          }
-          return _buildRow(context, services[i]);
-        },
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.all(16.0),
+                  itemBuilder: (context, i) {
+                    if (i >= services.length) {
+                      return null;
+                    }
+                    return _buildRow(context, services[i]);
+                  },
+                )
+            ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(width: 1.0, color: Colors.grey),
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    SyncButton()
+                  ],
+                ),
+              ),
+            )
+
+          ],
+        ),
       ),
     );
   }
