@@ -100,7 +100,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     child: Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
+                          padding: EdgeInsets.only(left: 16, right: 16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -124,12 +124,43 @@ class _PaymentPageState extends State<PaymentPage> {
                             ],
                           ),
                         ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Сумма'), Text('12.00')],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(width: 1.0, color: Colors.grey),
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FlatButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        color: Colors.blue,
+                        textColor: Colors.white,
+                        child: Text('Принять оплату'),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
           ],
         ),
       ),
