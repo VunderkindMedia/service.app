@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ReschedulePage extends StatefulWidget {
   @override
@@ -7,18 +8,23 @@ class ReschedulePage extends StatefulWidget {
 }
 
 class _ReschedulePageState extends State<ReschedulePage> {
-  var selectedDate = DateTime.now();
+  DateTime _selectedDate = DateTime.now();
+
+  String formattedDate(DateTime date) {
+    final DateFormat formatter = DateFormat('dd.MM.yyyy');
+    return formatter.format(date);
+  }
 
   _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate, // Refer step 1
+      initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
-    if (picked != null && picked != selectedDate)
+    if (picked != null && picked != _selectedDate)
       setState(() {
-        selectedDate = picked;
+        _selectedDate = picked;
       });
   }
 
@@ -37,6 +43,26 @@ class _ReschedulePageState extends State<ReschedulePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        children: [
+                          Text('Дата переноса: '),
+                          Container(
+                            child: Text(formattedDate(_selectedDate)),
+                            margin: EdgeInsets.only(right: 16),
+                          ),
+                          FlatButton(
+                            onPressed: () {
+                              _selectDate(context);
+                            },
+                            color: Colors.blue,
+                            textColor: Colors.white,
+                            child: Text('Выбрать дату'),
+                          )
+                        ],
+                      ),
+                    ),
                     Text('Коментарий', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16),
                     TextField(
