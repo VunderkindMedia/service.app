@@ -1,7 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class PaymentPage extends StatelessWidget {
+class PaymentPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _PaymentPageState();
+}
+
+class _PaymentPageState extends State<PaymentPage> {
+  String _selectedValue = 'Наличные';
+  List<String> _paymentOptions = ['Наличные', 'Безнал Сбербанк', 'Безнал ВТБ'];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +103,25 @@ class PaymentPage extends StatelessWidget {
                           padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [Text('Вариант'), Text('Наличиные')],
+                            children: [
+                              Text('Вариант'),
+                              DropdownButton(
+                                  value: _selectedValue,
+                                  underline: Container(
+                                    height: 0,
+                                  ),
+                                  items: _paymentOptions.map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String newValue) {
+                                    setState(() {
+                                      _selectedValue = newValue;
+                                    });
+                                  })
+                            ],
                           ),
                         ),
                       ],
