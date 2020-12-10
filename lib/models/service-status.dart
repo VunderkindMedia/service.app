@@ -1,3 +1,1 @@
-enum ServiceStatus {
-  Finished
-}
+enum ServiceStatus { Finished }

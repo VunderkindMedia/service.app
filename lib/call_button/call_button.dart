@@ -14,11 +14,7 @@ class PhoneButton extends StatelessWidget {
         launch('tel://${this.phone}');
         print('Call some phone');
       },
-      child: Icon(
-          Icons.phone,
-          color: Colors.green,
-          size: 36.0
-      ),
+      child: Icon(Icons.phone, color: Colors.green, size: 36.0),
     );
   }
 }

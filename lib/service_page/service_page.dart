@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:service_app/call_button/call_button.dart';
 import 'package:service_app/models/service.dart';
+import 'package:service_app/payment_page/payment_page.dart';
 import 'package:service_app/refuse_page/refuse_page.dart';
 import 'package:service_app/repo/repo.dart';
 import 'package:service_app/service-to-page-view/service-to-page-view.dart';
@@ -8,10 +9,8 @@ import 'package:service_app/service-to-page-view/service-to-page-view.dart';
 class ServicePage extends StatelessWidget {
   Service _service;
 
-  final controller = PageController(
-    initialPage: 0
-  );
-  
+  final controller = PageController(initialPage: 0);
+
   ServicePage({Key key, @required int serviceId}) : super(key: key) {
     this._service = services.firstWhere((service) => service.id == serviceId);
   }
@@ -92,11 +91,7 @@ class ServicePage extends StatelessWidget {
                           children: [
                             Container(
                               margin: EdgeInsets.only(right: 8),
-                              child: Icon(
-                                  Icons.cancel,
-                                  color: Colors.red,
-                                  size: 24.0
-                              ),
+                              child: Icon(Icons.cancel, color: Colors.red, size: 24.0),
                             ),
                             Text('Отказ')
                           ],
@@ -109,11 +104,7 @@ class ServicePage extends StatelessWidget {
                           children: [
                             Container(
                               margin: EdgeInsets.only(right: 8),
-                              child: Icon(
-                                  Icons.calendar_today_rounded,
-                                  color: Colors.blue,
-                                  size: 24.0
-                              ),
+                              child: Icon(Icons.calendar_today_rounded, color: Colors.blue, size: 24.0),
                             ),
                             Text('Перенести дату')
                           ],
@@ -122,15 +113,14 @@ class ServicePage extends StatelessWidget {
                     ),
                     Container(
                       child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage()));
+                        },
                         child: Row(
                           children: [
                             Container(
                               margin: EdgeInsets.only(right: 8),
-                              child: Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 24.0
-                              ),
+                              child: Icon(Icons.check_circle, color: Colors.green, size: 24.0),
                             ),
                             Text('Завершить')
                           ],

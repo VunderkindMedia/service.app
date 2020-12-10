@@ -23,8 +23,7 @@ class ServiceTOPageView extends StatelessWidget {
                 Icons.add,
                 color: Colors.white,
               ),
-              label: Text('Подобрать')
-          )
+              label: Text('Подобрать'))
         ],
       ),
     );

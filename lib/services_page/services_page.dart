@@ -26,23 +26,19 @@ class _ServicePageState extends State<ServicesPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                  margin: EdgeInsets.only(right: 8),
-                  child: FlutterLogo(size: 24.0)
-              ),
+              Container(margin: EdgeInsets.only(right: 8), child: FlutterLogo(size: 24.0)),
               Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${service.brandId}, ${service.number}', overflow: TextOverflow.ellipsis, maxLines: 1),
-                      Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(service.comment),
-                      SizedBox(height: 8),
-                      Text(service.customerAddress),
-                    ],
-                  )
-              ),
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${service.brandId}, ${service.number}', overflow: TextOverflow.ellipsis, maxLines: 1),
+                  Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(service.comment),
+                  SizedBox(height: 8),
+                  Text(service.customerAddress),
+                ],
+              )),
               Container(
                 margin: EdgeInsets.only(left: 8),
                 child: PhoneButton(phone: service.phone),
@@ -65,20 +61,18 @@ class _ServicePageState extends State<ServicesPage> {
           children: [
             Expanded(
                 child: ListView.builder(
-                  padding: EdgeInsets.all(16.0),
-                  itemBuilder: (context, i) {
-                    final filteredServices = services
-                        .where((service) => this._hideFinished ? service.status != ServiceStatus.Finished.toString() : true)
-                        .toList();
+              padding: EdgeInsets.all(16.0),
+              itemBuilder: (context, i) {
+                final filteredServices =
+                    services.where((service) => this._hideFinished ? service.status != ServiceStatus.Finished.toString() : true).toList();
 
-                    if (i >= filteredServices.length) {
-                      return null;
-                    }
+                if (i >= filteredServices.length) {
+                  return null;
+                }
 
-                    return _buildRow(context, filteredServices[i]);
-                  },
-                )
-            ),
+                return _buildRow(context, filteredServices[i]);
+              },
+            )),
             Container(
               decoration: BoxDecoration(
                 border: Border(
@@ -97,11 +91,13 @@ class _ServicePageState extends State<ServicesPage> {
                           Text('Скрыть\nзаверешнные', style: TextStyle(fontWeight: FontWeight.bold)),
                           Container(
                             margin: EdgeInsets.only(left: 8),
-                            child: Switch(value: this._hideFinished, onChanged: (value) => {
-                              setState(() {
-                                this._hideFinished = value;
-                              })
-                            }),
+                            child: Switch(
+                                value: this._hideFinished,
+                                onChanged: (value) => {
+                                      setState(() {
+                                        this._hideFinished = value;
+                                      })
+                                    }),
                           )
                         ],
                       ),

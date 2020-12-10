@@ -45,8 +45,7 @@ class LoginPage extends StatelessWidget {
                     },
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
-                    child: Text('Войти')
-                ),
+                    child: Text('Войти')),
               )
             ],
           ),

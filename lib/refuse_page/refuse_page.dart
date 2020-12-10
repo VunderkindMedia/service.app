@@ -8,13 +8,7 @@ class RefusePage extends StatefulWidget {
 
 class _RefusePageState extends State<RefusePage> {
   String _selectedValue = '';
-  List<String> _reasons = [
-    'Высокая цена',
-    'Не берет трубку',
-    'Отремонтировали сами',
-    'Ушел к конкуренту',
-    'Нет потребности'
-  ];
+  List<String> _reasons = ['Высокая цена', 'Не берет трубку', 'Отремонтировали сами', 'Ушел к конкуренту', 'Нет потребности'];
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +22,13 @@ class _RefusePageState extends State<RefusePage> {
           children: [
             Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Причина отказа', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 16),
-                      ...this._reasons.map((reason) => GestureDetector(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Причина отказа', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+                  ...this._reasons.map((reason) => GestureDetector(
                         onTap: () {
                           setState(() {
                             this._selectedValue = reason;
@@ -55,17 +49,16 @@ class _RefusePageState extends State<RefusePage> {
                           ],
                         ),
                       )),
-                      SizedBox(height: 16),
-                      Text('Коментарий', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 16),
-                      TextField(
-                        maxLines: null,
-                        decoration: InputDecoration.collapsed(hintText: 'Пару слов о причине отказа'),
-                      )
-                    ],
-                  ),
-                )
-            ),
+                  SizedBox(height: 16),
+                  Text('Коментарий', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+                  TextField(
+                    maxLines: null,
+                    decoration: InputDecoration.collapsed(hintText: 'Пару слов о причине отказа'),
+                  )
+                ],
+              ),
+            )),
             Container(
               decoration: BoxDecoration(
                 border: Border(

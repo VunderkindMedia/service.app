@@ -30,14 +30,5 @@ class Service {
   int sumPayment;
   int sumDiscount;
 
-  Service({
-    @required this.id,
-    this.customer,
-    this.customerAddress,
-    this.phone,
-    this.comment,
-    this.brandId,
-    this.number,
-    this.status
-  });
+  Service({@required this.id, this.customer, this.customerAddress, this.phone, this.comment, this.brandId, this.number, this.status});
 }

@@ -38,11 +38,7 @@ class _SyncButtonState extends State<SyncButton> {
           children: [
             Container(
               margin: EdgeInsets.only(right: 8),
-              child: Icon(
-                  Icons.sync,
-                  color: Colors.green,
-                  size: 24.0
-              ),
+              child: Icon(Icons.sync, color: Colors.green, size: 24.0),
             ),
             Container(
               child: Text(this._isLoading ? 'Данные обновляются...' : 'Обновлено ${formattedDate(this._currentDate)}'),
