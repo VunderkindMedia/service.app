@@ -83,8 +83,8 @@ class _ServicePageState extends State<ServicesPage> {
                 padding: EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    SyncButton(),
-                    Container(
+                    Flexible(flex: 1,child:  SyncButton()),
+                    Flexible(flex: 1,child:  Container(
                       margin: EdgeInsets.only(left: 16),
                       child: Row(
                         children: [
@@ -94,14 +94,14 @@ class _ServicePageState extends State<ServicesPage> {
                             child: Switch(
                                 value: this._hideFinished,
                                 onChanged: (value) => {
-                                      setState(() {
-                                        this._hideFinished = value;
-                                      })
-                                    }),
+                                  setState(() {
+                                    this._hideFinished = value;
+                                  })
+                                }),
                           )
                         ],
                       ),
-                    )
+                    )),
                   ],
                 ),
               ),
