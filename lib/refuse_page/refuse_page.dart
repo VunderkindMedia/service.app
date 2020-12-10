@@ -76,7 +76,7 @@ class _RefusePageState extends State<RefusePage> {
                         },
                         color: Colors.blue,
                         textColor: Colors.white,
-                        child: Text('Потвредить'),
+                        child: Text('Потвредить отказ'),
                       ),
                     )
                   ],

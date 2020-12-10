@@ -4,6 +4,7 @@ import 'package:service_app/models/service.dart';
 import 'package:service_app/payment_page/payment_page.dart';
 import 'package:service_app/refuse_page/refuse_page.dart';
 import 'package:service_app/repo/repo.dart';
+import 'package:service_app/reschedule_page/reschedule_page.dart';
 import 'package:service_app/service-to-page-view/service-to-page-view.dart';
 
 class ServicePage extends StatelessWidget {
@@ -100,6 +101,9 @@ class ServicePage extends StatelessWidget {
                     ),
                     Container(
                       child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ReschedulePage()));
+                        },
                         child: Row(
                           children: [
                             Container(
