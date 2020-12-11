@@ -49,8 +49,8 @@ class ServicesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, AppState>(
-      converter: (store) => store.state,
+    return StoreConnector<AppState, List<Service>>(
+      converter: (store) => store.state.services,
       builder: (context, appState) {
         return Scaffold(
           appBar: AppBar(
@@ -64,7 +64,7 @@ class ServicesPage extends StatelessWidget {
                       padding: EdgeInsets.all(16.0),
                       itemBuilder: (context, i) {
                         final filteredServices =
-                        appState.services.where((service) => this._hideFinished ? service.status != ServiceStatus.Finished.toString() : true).toList();
+                        services.where((service) => this._hideFinished ? service.status != ServiceStatus.Finished.toString() : true).toList();
 
                         if (i >= filteredServices.length) {
                           return null;
