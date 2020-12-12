@@ -30,14 +30,14 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                     child: Column(
                       children: [
-                        Padding(
+                        Container(
                           padding: EdgeInsets.all(16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [Text('Сумма ТО-1'), Text('12.00')],
                           ),
                         ),
-                        Padding(
+                        Container(
                           padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -47,7 +47,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       ],
                     ),
                   ),
-                  Padding(
+                  Container(
                     padding: EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +68,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                     child: Column(
                       children: [
-                        Padding(
+                        Container(
                           padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,7 +78,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       ],
                     ),
                   ),
-                  Padding(
+                  Container(
                     padding: EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,7 +99,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                     child: Column(
                       children: [
-                        Padding(
+                        Container(
                           padding: EdgeInsets.only(left: 16, right: 16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,7 +124,7 @@ class _PaymentPageState extends State<PaymentPage> {
                             ],
                           ),
                         ),
-                        Padding(
+                        Container(
                           padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,27 +138,25 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
             ),
             Container(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(width: 1.0, color: Colors.grey),
                 ),
               ),
-              child: Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FlatButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        child: Text('Принять оплату'),
-                      ),
-                    )
-                  ],
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      child: Text('Принять оплату'),
+                    ),
+                  )
+                ],
               ),
             )
           ],

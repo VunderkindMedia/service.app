@@ -21,7 +21,7 @@ class _RefusePageState extends State<RefusePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-                child: Padding(
+                child: Container(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,27 +60,25 @@ class _RefusePageState extends State<RefusePage> {
               ),
             )),
             Container(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(width: 1.0, color: Colors.grey),
                 ),
               ),
-              child: Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FlatButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        child: Text('Потвредить отказ'),
-                      ),
-                    )
-                  ],
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      child: Text('Потвредить отказ'),
+                    ),
+                  )
+                ],
               ),
             )
           ],

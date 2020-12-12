@@ -38,12 +38,12 @@ class _ReschedulePageState extends State<ReschedulePage> {
         child: Column(
           children: [
             Expanded(
-              child: Padding(
+              child: Container(
                 padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
+                    Container(
                       padding: EdgeInsets.only(bottom: 16),
                       child: Row(
                         children: [
@@ -74,27 +74,25 @@ class _ReschedulePageState extends State<ReschedulePage> {
               ),
             ),
             Container(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(width: 1.0, color: Colors.grey),
                 ),
               ),
-              child: Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FlatButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        child: Text('Перенести дату'),
-                      ),
-                    )
-                  ],
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      child: Text('Перенести дату'),
+                    ),
+                  )
+                ],
               ),
             )
           ],

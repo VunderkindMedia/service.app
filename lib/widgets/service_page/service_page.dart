@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:service_app/call_button/call_button.dart';
 import 'package:service_app/models/service.dart';
-import 'package:service_app/payment_page/payment_page.dart';
 import 'package:service_app/redux/root_reducer.dart';
-import 'package:service_app/refuse_page/refuse_page.dart';
-import 'package:service_app/repo/repo.dart';
-import 'package:service_app/reschedule_page/reschedule_page.dart';
-import 'package:service_app/service-to-page-view/service-to-page-view.dart';
+import 'package:service_app/widgets/call_button/call_button.dart';
+import 'package:service_app/widgets/payment_page/payment_page.dart';
+import 'package:service_app/widgets/refuse_page/refuse_page.dart';
+import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
+import 'package:service_app/widgets/service-to-page-view/service-to-page-view.dart';
 
 class ServicePage extends StatelessWidget {
   final int serviceId;
@@ -35,7 +34,7 @@ class ServicePage extends StatelessWidget {
                         initiallyExpanded: true,
                         title: Text('Данные по заявке'),
                         children: [
-                          Padding(
+                          Container(
                             padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,66 +75,64 @@ class ServicePage extends StatelessWidget {
                   ),
                 ),
                 Container(
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(width: 1.0, color: Colors.grey),
                     ),
                   ),
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => RefusePage()));
-                            },
-                            child: Row(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(right: 8),
-                                  child: Icon(Icons.cancel, color: Colors.red, size: 24.0),
-                                ),
-                                Text('Отказ')
-                              ],
-                            ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => RefusePage()));
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 8),
+                                child: Icon(Icons.cancel, color: Colors.red, size: 24.0),
+                              ),
+                              Text('Отказ')
+                            ],
                           ),
                         ),
-                        Container(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ReschedulePage()));
-                            },
-                            child: Row(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(right: 8),
-                                  child: Icon(Icons.calendar_today_rounded, color: Colors.blue, size: 24.0),
-                                ),
-                                Text('Перенести дату')
-                              ],
-                            ),
+                      ),
+                      Container(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ReschedulePage()));
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 8),
+                                child: Icon(Icons.calendar_today_rounded, color: Colors.blue, size: 24.0),
+                              ),
+                              Text('Перенести дату')
+                            ],
                           ),
                         ),
-                        Container(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage()));
-                            },
-                            child: Row(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(right: 8),
-                                  child: Icon(Icons.check_circle, color: Colors.green, size: 24.0),
-                                ),
-                                Text('Завершить')
-                              ],
-                            ),
+                      ),
+                      Container(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage()));
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 8),
+                                child: Icon(Icons.check_circle, color: Colors.green, size: 24.0),
+                              ),
+                              Text('Завершить')
+                            ],
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                 )
               ],

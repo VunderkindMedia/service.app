@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:service_app/login_page/login_page.dart';
 import 'package:service_app/redux/root_reducer.dart';
 import 'package:service_app/repo/repo.dart';
+import 'package:service_app/widgets/login_page/login_page.dart';
 
 void main() {
   final store = Store<AppState>(

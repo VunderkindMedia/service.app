@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:service_app/services_page/services_page.dart';
+import 'package:service_app/widgets/services_page/services_page.dart';
 
 class LoginPage extends StatelessWidget {
   void _handleSubmitTapped(BuildContext context) {
@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Padding(
+        child: Container(
           padding: EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
