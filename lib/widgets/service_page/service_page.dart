@@ -18,7 +18,7 @@ class ServicePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, Service>(
-      converter: (store) => store.state.services.firstWhere((service) => service.id == serviceId),
+      converter: (store) => store.state.servicesState.services.firstWhere((service) => service.id == serviceId),
       builder: (context, service) {
         return Scaffold(
           appBar: AppBar(

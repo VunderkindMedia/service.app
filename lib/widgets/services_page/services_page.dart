@@ -3,7 +3,6 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:service_app/models/service-status.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/redux/root_reducer.dart';
-import 'package:service_app/repo/repo.dart';
 import 'package:service_app/widgets/call_button/call_button.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
 import 'package:service_app/widgets/sync_button/sync_button.dart';
@@ -50,8 +49,8 @@ class ServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, List<Service>>(
-      converter: (store) => store.state.services,
-      builder: (context, appState) {
+      converter: (store) => store.state.servicesState.services,
+      builder: (context, services) {
         return Scaffold(
           appBar: AppBar(
             title: Text('Заявки'),
