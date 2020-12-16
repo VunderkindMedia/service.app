@@ -54,7 +54,7 @@ class _ViewModel {
         isLoading: store.state.servicesState.isLoading,
         syncDate: store.state.servicesState.syncDate,
         syncServices: () {
-          store.dispatch(SyncServicesAction());
+          store.dispatch(syncServicesAction());
         });
   }
 }
