@@ -9,7 +9,12 @@ import 'package:service_app/widgets/call_button/call_button.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
 import 'package:service_app/widgets/sync_button/sync_button.dart';
 
-class ServicesPage extends StatelessWidget {
+class ServicesPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _ServicesPageState();
+}
+
+class _ServicesPageState extends State<ServicesPage> {
   bool _hideFinished = false;
 
   Widget _buildRow(BuildContext context, Service service, List<Brand> brands) {
@@ -28,16 +33,16 @@ class ServicesPage extends StatelessWidget {
               Container(margin: EdgeInsets.only(right: 8), child: FlutterLogo(size: 24.0)),
               Expanded(
                   child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('$brand, ${service.number}', overflow: TextOverflow.ellipsis, maxLines: 1),
-                  Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(service.comment),
-                  SizedBox(height: 8),
-                  Text(service.customerAddress),
-                ],
-              )),
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$brand, ${service.number}', overflow: TextOverflow.ellipsis, maxLines: 1),
+                      Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(service.comment),
+                      SizedBox(height: 8),
+                      Text(service.customerAddress),
+                    ],
+                  )),
               Container(
                 margin: EdgeInsets.only(left: 8),
                 child: PhoneButton(phone: service.phone),
@@ -63,18 +68,18 @@ class ServicesPage extends StatelessWidget {
               children: [
                 Expanded(
                     child: ListView.builder(
-                  padding: EdgeInsets.all(16.0),
-                  itemBuilder: (context, i) {
-                    final filteredServices =
-                    viewModel.services.where((service) => this._hideFinished ? service.status != ServiceStatus.Finished.toString() : true).toList();
+                      padding: EdgeInsets.all(16.0),
+                      itemBuilder: (context, i) {
+                        final filteredServices =
+                        viewModel.services.where((service) => this._hideFinished ? service.status != 'Завершен' : true).toList();
 
-                    if (i >= filteredServices.length) {
-                      return null;
-                    }
+                        if (i >= filteredServices.length) {
+                          return null;
+                        }
 
-                    return _buildRow(context, filteredServices[i], viewModel.brands);
-                  },
-                )),
+                        return _buildRow(context, filteredServices[i], viewModel.brands);
+                      },
+                    )),
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -97,9 +102,9 @@ class ServicesPage extends StatelessWidget {
                                   child: Switch(
                                       value: this._hideFinished,
                                       onChanged: (value) => {
-//                                  setState(() {
-//                                    this._hideFinished = value;
-//                                  })
+                                            setState(() {
+                                              this._hideFinished = value;
+                                            })
                                           }),
                                 )
                               ],
