@@ -3,7 +3,7 @@ import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
-import 'package:service_app/models/service-status.dart';
+import 'package:service_app/models/service_status.dart';
 import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
