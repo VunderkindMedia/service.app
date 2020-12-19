@@ -17,4 +17,25 @@ class Brand {
 
     return brand;
   }
+
+  factory Brand.fromMap(Map<String, dynamic> map) {
+    var brand = Brand(map['id']);
+
+    brand.externalId = map['externalId'];
+    brand.name = map['name'];
+    brand.code = map['code'];
+    brand.deleteMark = map['deleteMark'] == 1 ? true : false;
+
+    return brand;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'externalId': externalId,
+      'name': name,
+      'code': code,
+      'deleteMark': deleteMark,
+    };
+  }
 }

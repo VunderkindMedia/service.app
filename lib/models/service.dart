@@ -63,4 +63,71 @@ class Service {
 
     return service;
   }
+
+  factory Service.fromMap(Map<String, dynamic> map) {
+    var service = Service(map['id']);
+
+    service.createdAt = map['createdAt'];
+    service.updatedAt = map['updatedAt'];
+    service.externalId = map['externalId'];
+    service.number = map['number'];
+    service.deleteMark = map['deleteMark'] == 1 ? true : false;
+    service.status = map['status'];
+    service.dateStart = map['dateStart'];
+    service.dateEnd = map['dateEnd'];
+    service.cityId = map['cityId'];
+    service.brandId = map['brandId'];
+    service.customer = map['customer'];
+    service.customerAddress = map['customerAddress'];
+    service.floor = map['floor'];
+    service.intercom = map['intercom'] == 1 ? true : false;
+    service.thermalImager = map['thermalImager'] == 1 ? true : false;
+    service.phone = map['phone'];
+    service.comment = map['comment'];
+    service.userId = map['userId'];
+    service.sumTotal = map['sumTotal'];
+    service.sumPayment = map['sumPayment'];
+    service.sumDiscount = map['sumDiscount'];
+    service.paymentType = map['paymentType'];
+    service.customerDecision = map['customerDecision'];
+    service.refuseReason = map['refuseReason'];
+    service.userComment = map['userComment'];
+    service.dateStartNext = map['dateStartNext'];
+    service.dateEndNext = map['dateEndNext'];
+
+    return service;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'externalId': externalId,
+      'number': number,
+      'deleteMark': deleteMark,
+      'status': status,
+      'dateStart': dateStart,
+      'dateEnd': dateEnd,
+      'cityId': cityId,
+      'brandId': brandId,
+      'customer': customer,
+      'customerAddress': customerAddress,
+      'floor': floor,
+      'intercom': intercom,
+      'thermalImager': thermalImager,
+      'phone': phone,
+      'comment': comment,
+      'userId': userId,
+      'paymentType': paymentType,
+      'customerDecision': customerDecision,
+      'refuseReason': refuseReason,
+      'userComment': userComment,
+      'dateStartNext': dateStartNext,
+      'dateEndNext': dateEndNext,
+      'sumTotal': sumTotal,
+      'sumPayment': sumPayment,
+      'sumDiscount': sumDiscount
+    };
+  }
 }

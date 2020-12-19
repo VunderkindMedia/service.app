@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:service_app/get/services/api_service.dart';
+import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
@@ -22,6 +23,7 @@ class ServicesController extends GetxController {
   void syncServices() async {
     ApiService apiService = Get.find();
     SharedPreferencesService sharedPreferencesService = Get.find();
+    DbService dbService = Get.find();
 
     try {
       isLoading.value = true;
@@ -29,13 +31,20 @@ class ServicesController extends GetxController {
       var token = sharedPreferencesService.getAccessToken();
 
       //sync brands
+      var dbBrands = await apiService.getBrands(token);
+      this.brands.assignAll(dbBrands);
+
       var brands = await apiService.getBrands(token);
+      await dbService.saveBrands(brands);
       this.brands.assignAll(brands);
 
       //sync services
+      var dbServices = await dbService.getServices();
+      _setServices(dbServices);
+
       var services = await apiService.getServices(token);
-      _services.assignAll(services);
-      _updateFilteredServices();
+      await dbService.saveServices(services);
+      _setServices(services);
 
       lastSyncDate.value = DateTime.now();
       isSynchronized.value = true;
@@ -44,6 +53,11 @@ class ServicesController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void _setServices(List<Service> services) {
+    _services.assignAll(services);
+    _updateFilteredServices();
   }
 
   void _updateFilteredServices() {
