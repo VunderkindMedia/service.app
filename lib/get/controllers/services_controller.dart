@@ -3,6 +3,7 @@ import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/models/service-status.dart';
 import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
@@ -17,6 +18,10 @@ class ServicesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    hideFinished.listen((value) => _updateFilteredServices());
+    _services.listen((value) => _updateFilteredServices());
+
     syncServices();
   }
 
@@ -40,11 +45,11 @@ class ServicesController extends GetxController {
 
       //sync services
       var dbServices = await dbService.getServices();
-      _setServices(dbServices);
+      _services.assignAll(dbServices);
 
       var services = await apiService.getServices(token);
       await dbService.saveServices(services);
-      _setServices(services);
+      _services.assignAll(services);
 
       lastSyncDate.value = DateTime.now();
       isSynchronized.value = true;
@@ -55,12 +60,7 @@ class ServicesController extends GetxController {
     }
   }
 
-  void _setServices(List<Service> services) {
-    _services.assignAll(services);
-    _updateFilteredServices();
-  }
-
   void _updateFilteredServices() {
-    filteredServices.assignAll(_services.where((service) => hideFinished.value ? service.status != 'Завершен' : true).toList());
+    filteredServices.assignAll(_services.where((service) => hideFinished.value ? service.status != ServiceStatus.End : true).toList());
   }
 }

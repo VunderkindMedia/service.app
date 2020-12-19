@@ -35,7 +35,7 @@ class Brand {
       'externalId': externalId,
       'name': name,
       'code': code,
-      'deleteMark': deleteMark,
+      'deleteMark': deleteMark ? 1 : 0,
     };
   }
 }
