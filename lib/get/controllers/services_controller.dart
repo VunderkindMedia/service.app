@@ -15,41 +15,33 @@ class ServicesController extends GetxController {
   RxList<Service> _services = <Service>[].obs;
   RxList<Service> filteredServices = <Service>[].obs;
 
+  ApiService _apiService;
+  DbService _dbService;
+  SharedPreferencesService _sharedPreferencesService;
+  String _token;
+
   @override
   void onInit() {
     super.onInit();
 
+    _apiService = Get.find();
+    _dbService = Get.find();
+    _sharedPreferencesService = Get.find();
+    _token = _sharedPreferencesService.getAccessToken();
+
     hideFinished.listen((value) => _updateFilteredServices());
     _services.listen((value) => _updateFilteredServices());
 
-    syncServices();
+
+    sync();
   }
 
-  void syncServices() async {
-    ApiService apiService = Get.find();
-    SharedPreferencesService sharedPreferencesService = Get.find();
-    DbService dbService = Get.find();
-
+  void sync() async {
     try {
       isLoading.value = true;
 
-      var token = sharedPreferencesService.getAccessToken();
-
-      //sync brands
-      var dbBrands = await apiService.getBrands(token);
-      this.brands.assignAll(dbBrands);
-
-      var brands = await apiService.getBrands(token);
-      await dbService.saveBrands(brands);
-      this.brands.assignAll(brands);
-
-      //sync services
-      var dbServices = await dbService.getServices();
-      _services.assignAll(dbServices);
-
-      var services = await apiService.getServices(token);
-      await dbService.saveServices(services);
-      _services.assignAll(services);
+      await _syncBrands();
+      await _syncServices();
 
       lastSyncDate.value = DateTime.now();
       isSynchronized.value = true;
@@ -58,6 +50,24 @@ class ServicesController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> _syncServices() async {
+    var dbServices = await _dbService.getServices();
+    _services.assignAll(dbServices);
+
+    var services = await _apiService.getServices(_token);
+    await _dbService.saveServices(services);
+    _services.assignAll(services);
+  }
+
+  Future<void> _syncBrands() async {
+    var dbBrands = await _apiService.getBrands(_token);
+    this.brands.assignAll(dbBrands);
+
+    var brands = await _apiService.getBrands(_token);
+    await _dbService.saveBrands(brands);
+    this.brands.assignAll(brands);
   }
 
   void _updateFilteredServices() {

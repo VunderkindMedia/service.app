@@ -15,7 +15,7 @@ class SyncButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: servicesController.syncServices,
+      onTap: servicesController.sync,
       child: Container(
         child: Row(
           children: [

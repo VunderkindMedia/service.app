@@ -6,7 +6,10 @@ import 'package:path/path.dart';
 
 class DbService extends GetxService {
   static const SERVICES_TABLE_NAME = "services";
+  static const SERVICE_GOODS_NAME = "service_goods";
   static const BRANDS_TABLE_NAME = "brands";
+  static const GOODS_TABLE_NAME = "goods";
+  static const GOOD_PRICES_TABLE_NAME = "good_prices";
 
   static Database _database;
 
@@ -46,6 +49,17 @@ class DbService extends GetxService {
           'sumPayment INTEGER,'
           'sumDiscount INTEGER'
           ')');
+      await db.execute('CREATE TABLE $SERVICE_GOODS_NAME '
+          '('
+          'id INTEGER PRIMARY KEY,'
+          'workType TEXT,'
+          'serviceId INTEGER,'
+          'construction TEXT,'
+          'goodId TEXT,'
+          'price INTEGER,'
+          'qty INTEGER,'
+          'sum INTEGER'
+          ')');
       await db.execute('CREATE TABLE $BRANDS_TABLE_NAME '
           '('
           'id INTEGER PRIMARY KEY,'
@@ -54,18 +68,41 @@ class DbService extends GetxService {
           'code TEXT,'
           'deleteMark BOOLEAN'
           ')');
+      await db.execute('CREATE TABLE $GOODS_TABLE_NAME '
+          '('
+          'id INTEGER PRIMARY KEY,'
+          'externalId TEXT,'
+          'name TEXT,'
+          'parentID TEXT,'
+          'code TEXT,'
+          'deleteMark BOOLEAN,'
+          'article TEXT,'
+          'isGroup BOOLEAN,'
+          'minPrice INTEGER,'
+          'image TEXT'
+          ')');
+      await db.execute('CREATE TABLE $GOOD_PRICES_TABLE_NAME '
+          '('
+          'id INTEGER PRIMARY KEY,'
+          'period DATETIME,'
+          'goodID TEXT,'
+          'cityID TEXT,'
+          'brandID TEXT,'
+          'name BOOLEAN,'
+          'price INTEGER'
+          ')');
     });
     print('$runtimeType ready!');
     return this;
   }
 
   Future<void> saveServices(List<Service> services) async {
-    // await _database.transaction((txn) async {
-    //   services.forEach((service) async {
-    //     await txn.insert(SERVICES_TABLE_NAME, service.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-    //     print('inserted service ${service.number}');
-    //   });
-    // });
+    await _database.transaction((txn) async {
+      services.forEach((service) async {
+        await txn.insert(SERVICES_TABLE_NAME, service.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        print('inserted service ${service.number}');
+      });
+    });
   }
 
   Future<List<Service>> getServices() async {
@@ -74,12 +111,12 @@ class DbService extends GetxService {
   }
 
   Future<void> saveBrands(List<Brand> brands) async {
-    // await _database.transaction((txn) async {
-    //   brands.forEach((brand) async {
-    //     await txn.insert(BRANDS_TABLE_NAME, brand.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-    //     print('inserted brand ${brand.name}');
-    //   });
-    // });
+    await _database.transaction((txn) async {
+      brands.forEach((brand) async {
+        await txn.insert(BRANDS_TABLE_NAME, brand.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        print('inserted brand ${brand.name}');
+      });
+    });
   }
 
   Future<List<Brand>> getBrands() async {

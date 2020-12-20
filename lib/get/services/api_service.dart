@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:service_app/constants/api.dart';
 import 'package:service_app/models/account_info.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/models/good.dart';
+import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
 
 class ApiService extends GetxService {
@@ -22,9 +24,9 @@ class ApiService extends GetxService {
   Future<List<Service>> getServices(String accessToken) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var servicesResponse = await http.get(API_SERVICES, headers: headers);
-    var servicesResponseJson = jsonDecode(servicesResponse.body);
-    var servicesJson = List.from(servicesResponseJson['results']);
+    var response = await http.get(API_SERVICES, headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var servicesJson = List.from(responseJson['results']);
     var services = servicesJson.map((json) => Service.fromJson(json)).toList();
 
     return services;
@@ -33,11 +35,33 @@ class ApiService extends GetxService {
   Future<List<Brand>> getBrands(String accessToken) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var brandsResponse = await http.get(API_BRANDS, headers: headers);
-    var brandsResponseJson = jsonDecode(brandsResponse.body);
-    var brandsJson = List.from(brandsResponseJson['results']);
+    var response = await http.get(API_BRANDS, headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var brandsJson = List.from(responseJson['results']);
     var brands = brandsJson.map((json) => Brand.fromJson(json)).toList();
 
     return brands;
+  }
+
+  Future<List<Good>> getGoods(String accessToken) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get(API_GOODS, headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var goodsJson = List.from(responseJson['results']);
+    var goods = goodsJson.map((json) => Good.fromJson(json)).toList();
+
+    return goods;
+  }
+
+  Future<List<GoodPrice>> getGoodPrices(String accessToken) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get(API_GOOD_PRICES, headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var goodPricesJson = List.from(responseJson['results']);
+    var goodPrices = goodPricesJson.map((json) => GoodPrice.fromJson(json)).toList();
+
+    return goodPrices;
   }
 }

@@ -5,7 +5,7 @@ class ServiceGood {
   String construction;
   String goodId;
   int price;
-  String qty;
+  int qty;
   int sum;
 
   ServiceGood(this.id);
