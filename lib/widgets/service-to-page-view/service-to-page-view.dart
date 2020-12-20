@@ -2,10 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ServiceTOPageView extends StatelessWidget {
-  final String title;
-
-  ServiceTOPageView({Key key, @required this.title}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,8 +9,6 @@ class ServiceTOPageView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(this.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          SizedBox(height: 8),
           FlatButton.icon(
               onPressed: () {},
               color: Colors.blue,
