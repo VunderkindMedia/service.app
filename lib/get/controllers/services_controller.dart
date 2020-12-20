@@ -3,6 +3,8 @@ import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/models/good.dart';
+import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/models/service.dart';
 
@@ -14,6 +16,8 @@ class ServicesController extends GetxController {
   RxList<Brand> brands = <Brand>[].obs;
   RxList<Service> _services = <Service>[].obs;
   RxList<Service> filteredServices = <Service>[].obs;
+  RxList<Good> goods = <Good>[].obs;
+  RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
 
   ApiService _apiService;
   DbService _dbService;
@@ -41,6 +45,7 @@ class ServicesController extends GetxController {
       isLoading.value = true;
 
       await _syncBrands();
+      await _syncGoods();
       await _syncServices();
 
       lastSyncDate.value = DateTime.now();
@@ -68,6 +73,25 @@ class ServicesController extends GetxController {
     var brands = await _apiService.getBrands(_token);
     await _dbService.saveBrands(brands);
     this.brands.assignAll(brands);
+  }
+
+  Future<void> _syncGoods() async {
+    var goods = await _apiService.getGoods(_token);
+    await _dbService.saveGoods(goods);
+    this.goods.assignAll(goods);
+  }
+
+  Future<void> _syncGoodPrices() async {
+    var goodPrices = await _apiService.getGoodPrices(_token);
+    await _dbService.saveGoodPrices(goodPrices);
+    this.goodPrices.assignAll(goodPrices);
+  }
+
+  List<Good> getChildrenGoodsByParent(Good parent) {
+    if (parent == null) {
+      return goods.where((good) => goods.firstWhere((g) => g.externalId == good.parentId, orElse: () => null) == null).toList();
+    }
+    return goods.where((good) => good.parentId == parent.externalId).toList();
   }
 
   void _updateFilteredServices() {

@@ -8,7 +8,7 @@ import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
 import 'package:service_app/widgets/service-to-page-view/service-to-page-view.dart';
 
 class ServicePage extends StatelessWidget {
-  final ServicesController servicesController = Get.put(ServicesController());
+  final ServicesController servicesController = Get.find();
   final int serviceId;
 
   ServicePage({Key key, @required this.serviceId}) : super(key: key);

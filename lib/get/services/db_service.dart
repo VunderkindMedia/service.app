@@ -1,5 +1,7 @@
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/models/good.dart';
+import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -15,6 +17,7 @@ class DbService extends GetxService {
 
   Future<DbService> init() async {
     var databasesPath = await getDatabasesPath();
+    print(databasesPath);
     String path = join(databasesPath, 'app.db');
 
     _database = await openDatabase(path, version: 1, onCreate: (Database db, int version) async {
@@ -100,7 +103,7 @@ class DbService extends GetxService {
     await _database.transaction((txn) async {
       services.forEach((service) async {
         await txn.insert(SERVICES_TABLE_NAME, service.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-        print('inserted service ${service.number}');
+        // print('inserted service ${service.number}');
       });
     });
   }
@@ -114,7 +117,7 @@ class DbService extends GetxService {
     await _database.transaction((txn) async {
       brands.forEach((brand) async {
         await txn.insert(BRANDS_TABLE_NAME, brand.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-        print('inserted brand ${brand.name}');
+        // print('inserted brand ${brand.name}');
       });
     });
   }
@@ -122,6 +125,34 @@ class DbService extends GetxService {
   Future<List<Brand>> getBrands() async {
     final List<Map<String, dynamic>> maps = await _database.query(BRANDS_TABLE_NAME);
     return List.generate(maps.length, (i) => Brand.fromMap(maps[i]));
+  }
+
+  Future<void> saveGoods(List<Good> goods) async {
+    await _database.transaction((txn) async {
+      goods.forEach((good) async {
+        await txn.insert(GOODS_TABLE_NAME, good.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        // print('inserted good ${good.name}');
+      });
+    });
+  }
+
+  Future<List<Good>> getGoods() async {
+    final List<Map<String, dynamic>> maps = await _database.query(GOODS_TABLE_NAME);
+    return List.generate(maps.length, (i) => Good.fromMap(maps[i]));
+  }
+
+  Future<void> saveGoodPrices(List<GoodPrice> goodPrices) async {
+    await _database.transaction((txn) async {
+      goodPrices.forEach((goodPrice) async {
+        await txn.insert(GOOD_PRICES_TABLE_NAME, goodPrice.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        // print('inserted goodPrice ${goodPrice.name}');
+      });
+    });
+  }
+
+  Future<List<GoodPrice>> getGoodPrices() async {
+    final List<Map<String, dynamic>> maps = await _database.query(GOOD_PRICES_TABLE_NAME);
+    return List.generate(maps.length, (i) => GoodPrice.fromMap(maps[i]));
   }
 
   @override

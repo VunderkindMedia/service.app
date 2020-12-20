@@ -46,7 +46,7 @@ class ApiService extends GetxService {
   Future<List<Good>> getGoods(String accessToken) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http.get(API_GOODS, headers: headers);
+    var response = await http.get('$API_GOODS?limit=9999', headers: headers);
     var responseJson = jsonDecode(response.body);
     var goodsJson = List.from(responseJson['results']);
     var goods = goodsJson.map((json) => Good.fromJson(json)).toList();
@@ -57,7 +57,7 @@ class ApiService extends GetxService {
   Future<List<GoodPrice>> getGoodPrices(String accessToken) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http.get(API_GOOD_PRICES, headers: headers);
+    var response = await http.get('$API_GOOD_PRICES?limit=9999', headers: headers);
     var responseJson = jsonDecode(response.body);
     var goodPricesJson = List.from(responseJson['results']);
     var goodPrices = goodPricesJson.map((json) => GoodPrice.fromJson(json)).toList();
