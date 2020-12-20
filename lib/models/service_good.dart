@@ -23,4 +23,31 @@ class ServiceGood {
 
     return serviceGood;
   }
+
+  factory ServiceGood.fromMap(Map<String, dynamic> map) {
+    var serviceGood = ServiceGood(map['ID']);
+
+    serviceGood.workType = map['workType'];
+    serviceGood.serviceId = map['serviceId'];
+    serviceGood.construction = map['construction'];
+    serviceGood.goodId = map['goodId'];
+    serviceGood.price = map['price'];
+    serviceGood.qty = map['qty'];
+    serviceGood.sum = map['sum'];
+
+    return serviceGood;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'workType': workType,
+      'serviceId': serviceId,
+      'construction': construction,
+      'goodId': goodId,
+      'price': price,
+      'qty': qty,
+      'sum': sum,
+    };
+  }
 }
