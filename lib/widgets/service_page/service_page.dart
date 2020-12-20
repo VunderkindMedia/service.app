@@ -116,9 +116,7 @@ class ServicePage extends StatelessWidget {
                     children: [
                       Container(
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => RefusePage()));
-                          },
+                          onTap: () => Get.to(RefusePage()),
                           child: Row(
                             children: [
                               Container(
@@ -132,9 +130,7 @@ class ServicePage extends StatelessWidget {
                       ),
                       Container(
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ReschedulePage()));
-                          },
+                          onTap: () => Get.to(ReschedulePage()),
                           child: Row(
                             children: [
                               Container(
@@ -148,9 +144,7 @@ class ServicePage extends StatelessWidget {
                       ),
                       Container(
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage()));
-                          },
+                          onTap: () => Get.to(PaymentPage()),
                           child: Row(
                             children: [
                               Container(

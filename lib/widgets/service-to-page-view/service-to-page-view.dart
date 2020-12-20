@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:service_app/widgets/goods_page/goods_page.dart';
 
 class ServiceTOPageView extends StatelessWidget {
   @override
@@ -10,7 +12,7 @@ class ServiceTOPageView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FlatButton.icon(
-              onPressed: () {},
+              onPressed: () => Get.to(GoodsPage()),
               color: Colors.blue,
               textColor: Colors.white,
               icon: Icon(
