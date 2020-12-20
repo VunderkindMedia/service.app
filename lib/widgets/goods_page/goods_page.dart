@@ -38,21 +38,27 @@ class GoodList extends StatelessWidget {
       print('no parent');
     }
 
-    return Navigator(
-      key: Key(parentGood == null ? 'no' : parentGood.externalId),
-      onGenerateRoute: (RouteSettings settings) {
-        var builder = (BuildContext _) => ListView.builder(
-          padding: EdgeInsets.all(16.0),
-          itemCount: hasBack ? goods.length + 1 : goods.length,
-          itemBuilder: (context, i) {
-            if (hasBack && i == 0) {
-              return GoodItem(good: parentGood, isBack: true);
-            }
-            return GoodItem(good: goods[hasBack ? i - 1 : i]);
-          },
-        );
-        return MaterialPageRoute(builder: builder, settings: settings);
-      },
+    return Container(
+      child: Column(
+        children: [
+          if (hasBack) Container(
+            child: GoodItem(good: parentGood, isBack: true),
+          ),
+          Expanded(
+            child: Navigator(
+              onGenerateRoute: (RouteSettings settings) {
+                var builder = (BuildContext _) => ListView.builder(
+                  itemCount: goods.length,
+                  itemBuilder: (context, i) {
+                    return GoodItem(good: goods[i]);
+                  },
+                );
+                return MaterialPageRoute(builder: builder, settings: settings);
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -74,7 +80,7 @@ class GoodItem extends StatelessWidget {
         }
       },
       child: Container(
-        padding: EdgeInsets.only(top: 8, bottom: 8),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(width: 1.0, color: Colors.grey),
