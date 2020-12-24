@@ -1,18 +1,21 @@
 class Service {
   final int id;
-  String createdAt;
-  String updatedAt;
+  String state;
+  DateTime createdAt;
+  DateTime updatedAt;
   String externalId;
   String number;
   bool deleteMark;
   String status;
-  String dateStart;
-  String dateEnd;
+  DateTime dateStart;
+  DateTime dateEnd;
   String cityId;
   String brandId;
   String customer;
   String customerAddress;
   String floor;
+  String lat;
+  String lon;
   bool intercom;
   bool thermalImager;
   String phone;
@@ -22,8 +25,8 @@ class Service {
   String customerDecision;
   String refuseReason;
   String userComment;
-  String dateStartNext;
-  String dateEndNext;
+  DateTime dateStartNext;
+  DateTime dateEndNext;
   int sumTotal;
   int sumPayment;
   int sumDiscount;
@@ -33,19 +36,22 @@ class Service {
   factory Service.fromJson(Map<String, dynamic> json) {
     var service = Service(json['ID']);
 
-    service.createdAt = json['CreatedAt'];
-    service.updatedAt = json['UpdatedAt'];
+    service.state = json['state'];
+    service.createdAt = DateTime.parse(json['CreatedAt']);
+    service.updatedAt = DateTime.parse(json['UpdatedAt']);
     service.externalId = json['ExternalID'];
     service.number = json['Number'];
     service.deleteMark = json['DeleteMark'];
     service.status = json['Status'];
-    service.dateStart = json['DateStart'];
-    service.dateEnd = json['DateEnd'];
+    service.dateStart = DateTime.parse(json['DateStart']);
+    service.dateEnd = DateTime.parse(json['DateEnd']);
     service.cityId = json['CityID'];
     service.brandId = json['BrandID'];
     service.customer = json['Customer'];
     service.customerAddress = json['CustomerAddress'];
     service.floor = json['Floor'];
+    service.lat = json['Lat'];
+    service.lon = json['Lon'];
     service.intercom = json['Intercom'];
     service.thermalImager = json['ThermalImager'];
     service.phone = json['Phone'];
@@ -58,8 +64,8 @@ class Service {
     service.customerDecision = json['CustomerDecision'];
     service.refuseReason = json['RefuseReason'];
     service.userComment = json['UserComment'];
-    service.dateStartNext = json['DateStartNext'];
-    service.dateEndNext = json['DateEndNext'];
+    service.dateStartNext = DateTime.parse(json['DateStartNext']);
+    service.dateEndNext = DateTime.parse(json['DateEndNext']);
 
     return service;
   }
@@ -67,19 +73,22 @@ class Service {
   factory Service.fromMap(Map<String, dynamic> map) {
     var service = Service(map['id']);
 
-    service.createdAt = map['createdAt'];
-    service.updatedAt = map['updatedAt'];
+    service.state = map['state'];
+    service.createdAt = DateTime.parse(map['createdAt']);
+    service.updatedAt = DateTime.parse(map['updatedAt']);
     service.externalId = map['externalId'];
     service.number = map['number'];
     service.deleteMark = map['deleteMark'] == 1 ? true : false;
     service.status = map['status'];
-    service.dateStart = map['dateStart'];
-    service.dateEnd = map['dateEnd'];
+    service.dateStart = DateTime.parse(map['dateStart']);
+    service.dateEnd = DateTime.parse(map['dateEnd']);
     service.cityId = map['cityId'];
     service.brandId = map['brandId'];
     service.customer = map['customer'];
     service.customerAddress = map['customerAddress'];
     service.floor = map['floor'];
+    service.lat = map['lat'];
+    service.lon = map['lon'];
     service.intercom = map['intercom'] == 1 ? true : false;
     service.thermalImager = map['thermalImager'] == 1 ? true : false;
     service.phone = map['phone'];
@@ -92,8 +101,8 @@ class Service {
     service.customerDecision = map['customerDecision'];
     service.refuseReason = map['refuseReason'];
     service.userComment = map['userComment'];
-    service.dateStartNext = map['dateStartNext'];
-    service.dateEndNext = map['dateEndNext'];
+    service.dateStartNext = DateTime.parse(map['dateStartNext']);
+    service.dateEndNext = DateTime.parse(map['dateEndNext']);
 
     return service;
   }
@@ -101,19 +110,22 @@ class Service {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'state': state,
+      'createdAt': createdAt.toString(),
+      'updatedAt': updatedAt.toString(),
       'externalId': externalId,
       'number': number,
       'deleteMark': deleteMark ? 1 : 0,
       'status': status,
-      'dateStart': dateStart,
-      'dateEnd': dateEnd,
+      'dateStart': dateStart.toString(),
+      'dateEnd': dateEnd.toString(),
       'cityId': cityId,
       'brandId': brandId,
       'customer': customer,
       'customerAddress': customerAddress,
       'floor': floor,
+      'lat': lat,
+      'lon': lon,
       'intercom': intercom ? 1 : 0,
       'thermalImager': thermalImager ? 1 : 0,
       'phone': phone,
@@ -123,11 +135,30 @@ class Service {
       'customerDecision': customerDecision,
       'refuseReason': refuseReason,
       'userComment': userComment,
-      'dateStartNext': dateStartNext,
-      'dateEndNext': dateEndNext,
+      'dateStartNext': dateStartNext.toString(),
+      'dateEndNext': dateEndNext.toString(),
       'sumTotal': sumTotal,
       'sumPayment': sumPayment,
       'sumDiscount': sumDiscount
     };
+  }
+
+  bool checkStatus(List<String> filter) {
+    return filter.indexOf(status) != -1;
+  }
+
+  String getShortAddress() {
+    String outputAddress = customerAddress;
+
+    final iReg = RegExp(r',');
+    int cnt = iReg.allMatches(outputAddress).length;
+
+    if (cnt > 3) {
+      outputAddress = outputAddress.substring(outputAddress.indexOf(',') + 1);
+      outputAddress =
+          outputAddress.substring(outputAddress.indexOf(',') + 1).trimLeft();
+    }
+
+    return outputAddress;
   }
 }

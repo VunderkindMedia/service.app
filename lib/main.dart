@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
+import 'constants/app_colors.dart';
 import 'package:service_app/widgets/login_page/login_page.dart';
 import 'package:service_app/widgets/services_page/services_page.dart';
 
@@ -16,11 +17,10 @@ Future<void> main() async {
 
   runApp(GetMaterialApp(
       title: 'Service App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: sharedPreferencesService.getAccessToken().length == 0 ? LoginPage() : ServicesPage()));
+      theme: _appTheme,
+      home: sharedPreferencesService.getAccessToken().length == 0
+          ? LoginPage()
+          : ServicesPage()));
 }
 
 Future<void> initServices() async {
@@ -31,4 +31,17 @@ Future<void> initServices() async {
   await Get.putAsync(() => SharedPreferencesService().init());
 
   print('All services started...');
+}
+
+final ThemeData _appTheme = _buildAppTheme();
+
+ThemeData _buildAppTheme() {
+  final ThemeData base = ThemeData.dark();
+  return base.copyWith(
+      primaryColor: kMainColor,
+      buttonColor: kMainColor,
+      accentColor: kMainColor,
+      appBarTheme: AppBarTheme(color: kMainColor),
+      floatingActionButtonTheme:
+          FloatingActionButtonThemeData(backgroundColor: kMainColor));
 }

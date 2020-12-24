@@ -19,6 +19,14 @@ class SharedPreferencesService extends GetxService {
     this._preferences.setString(ACCESS_TOKEN, accessToken);
   }
 
+  String getPersonName() {
+    return this._preferences.getString(PERSON_NAME) ?? '';
+  }
+
+  void setPersonName(String personName) {
+    this._preferences.setString(PERSON_NAME, personName);
+  }
+
   String getPersonExternalId() {
     return this._preferences.getString(PERSON_EXTERNAL_ID) ?? '';
   }

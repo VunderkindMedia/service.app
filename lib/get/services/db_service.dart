@@ -9,6 +9,7 @@ import 'package:path/path.dart';
 class DbService extends GetxService {
   static const SERVICES_TABLE_NAME = "services";
   static const SERVICE_GOODS_NAME = "service_goods";
+  static const SERVICE_IMAGES_NAME = "service_images";
   static const BRANDS_TABLE_NAME = "brands";
   static const GOODS_TABLE_NAME = "goods";
   static const GOOD_PRICES_TABLE_NAME = "good_prices";
@@ -20,10 +21,12 @@ class DbService extends GetxService {
     print(databasesPath);
     String path = join(databasesPath, 'app.db');
 
-    _database = await openDatabase(path, version: 1, onCreate: (Database db, int version) async {
+    _database = await openDatabase(path, version: 1,
+        onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE $SERVICES_TABLE_NAME '
           '('
           'id INTEGER PRIMARY KEY,'
+          'state TEXT,'
           'createdAt DATETIME,'
           'updatedAt DATETIME,'
           'externalId TEXT,'
@@ -37,6 +40,8 @@ class DbService extends GetxService {
           'customer TEXT,'
           'customerAddress TEXT,'
           'floor TEXT,'
+          'lat TEXT,'
+          'lon TEXT,'
           'intercom BOOLEAN,'
           'thermalImager BOOLEAN,'
           'phone TEXT,'
@@ -63,13 +68,20 @@ class DbService extends GetxService {
           'qty INTEGER,'
           'sum INTEGER'
           ')');
+      await db.execute('CREATE TABLE $SERVICE_IMAGES_NAME '
+          '('
+          'fileId INTEGER PRIMARY KEY,'
+          'fileName TEXT,'
+          'uploaded BOOLEAN'
+          ')');
       await db.execute('CREATE TABLE $BRANDS_TABLE_NAME '
           '('
           'id INTEGER PRIMARY KEY,'
           'externalId TEXT,'
           'name TEXT,'
           'code TEXT,'
-          'deleteMark BOOLEAN'
+          'deleteMark BOOLEAN,'
+          'brandColor TEXT'
           ')');
       await db.execute('CREATE TABLE $GOODS_TABLE_NAME '
           '('
@@ -99,59 +111,99 @@ class DbService extends GetxService {
     return this;
   }
 
+  Future<void> disposeTables() async {
+    await _database.delete('$SERVICES_TABLE_NAME');
+    await _database.delete('$SERVICE_IMAGES_NAME');
+    await _database.delete('$SERVICE_GOODS_NAME');
+    await _database.delete('$BRANDS_TABLE_NAME');
+    await _database.delete('$GOODS_TABLE_NAME');
+    await _database.delete('$GOOD_PRICES_TABLE_NAME');
+  }
+
   Future<void> saveServices(List<Service> services) async {
     await _database.transaction((txn) async {
       services.forEach((service) async {
-        await txn.insert(SERVICES_TABLE_NAME, service.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        await txn.insert(SERVICES_TABLE_NAME, service.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
         // print('inserted service ${service.number}');
       });
     });
   }
 
-  Future<List<Service>> getServices() async {
-    final List<Map<String, dynamic>> maps = await _database.query(SERVICES_TABLE_NAME);
+  Future<List<Service>> getServices(
+      String userId, DateTime dStart, DateTime dEnd) async {
+    String _query =
+        "userId = ? AND (dateStart >= ? AND dateEnd <= ?) AND deleteMark ==0";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      SERVICES_TABLE_NAME,
+      where: _query,
+      whereArgs: [userId, dStart.toString(), dEnd.toString()],
+      orderBy: "dateStart",
+    );
+    return List.generate(maps.length, (i) => Service.fromMap(maps[i]));
+  }
+
+  Future<List<Service>> getServicesBySearch(
+      String userId, String search) async {
+    String _search = '%' + search + '%';
+    String _query =
+        "userId = ? AND (number LIKE ? OR customerAddress LIKE ?) AND deleteMark == 0";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      SERVICES_TABLE_NAME,
+      where: _query,
+      whereArgs: [userId, _search, _search],
+      orderBy: "dateStart DESC",
+    );
     return List.generate(maps.length, (i) => Service.fromMap(maps[i]));
   }
 
   Future<void> saveBrands(List<Brand> brands) async {
     await _database.transaction((txn) async {
       brands.forEach((brand) async {
-        await txn.insert(BRANDS_TABLE_NAME, brand.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        await txn.insert(BRANDS_TABLE_NAME, brand.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
         // print('inserted brand ${brand.name}');
       });
     });
   }
 
   Future<List<Brand>> getBrands() async {
-    final List<Map<String, dynamic>> maps = await _database.query(BRANDS_TABLE_NAME);
+    final List<Map<String, dynamic>> maps =
+        await _database.query(BRANDS_TABLE_NAME);
     return List.generate(maps.length, (i) => Brand.fromMap(maps[i]));
   }
 
   Future<void> saveGoods(List<Good> goods) async {
     await _database.transaction((txn) async {
       goods.forEach((good) async {
-        await txn.insert(GOODS_TABLE_NAME, good.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        await txn.insert(GOODS_TABLE_NAME, good.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
         // print('inserted good ${good.name}');
       });
     });
   }
 
   Future<List<Good>> getGoods() async {
-    final List<Map<String, dynamic>> maps = await _database.query(GOODS_TABLE_NAME);
+    final List<Map<String, dynamic>> maps =
+        await _database.query(GOODS_TABLE_NAME);
     return List.generate(maps.length, (i) => Good.fromMap(maps[i]));
   }
 
   Future<void> saveGoodPrices(List<GoodPrice> goodPrices) async {
     await _database.transaction((txn) async {
       goodPrices.forEach((goodPrice) async {
-        await txn.insert(GOOD_PRICES_TABLE_NAME, goodPrice.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        await txn.insert(GOOD_PRICES_TABLE_NAME, goodPrice.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
         // print('inserted goodPrice ${goodPrice.name}');
       });
     });
   }
 
   Future<List<GoodPrice>> getGoodPrices() async {
-    final List<Map<String, dynamic>> maps = await _database.query(GOOD_PRICES_TABLE_NAME);
+    final List<Map<String, dynamic>> maps =
+        await _database.query(GOOD_PRICES_TABLE_NAME);
     return List.generate(maps.length, (i) => GoodPrice.fromMap(maps[i]));
   }
 

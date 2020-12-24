@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/models/brand.dart';
 import 'package:service_app/widgets/call_button/call_button.dart';
 import 'package:service_app/widgets/payment_page/payment_page.dart';
 import 'package:service_app/widgets/refuse_page/refuse_page.dart';
@@ -10,8 +11,9 @@ import 'package:service_app/widgets/service-to-page-view/service-to-page-view.da
 class ServicePage extends StatelessWidget {
   final ServicesController servicesController = Get.find();
   final int serviceId;
+  final Brand brand;
 
-  ServicePage({Key key, @required this.serviceId}) : super(key: key);
+  ServicePage({Key key, @required this.serviceId, @required this.brand});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,9 @@ class ServicePage extends StatelessWidget {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: Obx(() => Text('${servicesController.filteredServices.firstWhere((s) => s.id == serviceId).number}')),
+            backgroundColor: brand.bColor(),
+            title: Obx(() => Text(
+                '${servicesController.filteredServices.firstWhere((s) => s.id == serviceId).number}')),
           ),
           body: SafeArea(
             child: Column(
@@ -32,22 +36,29 @@ class ServicePage extends StatelessWidget {
                         title: Text('Данные по заявке'),
                         children: [
                           Container(
-                            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                            padding: EdgeInsets.only(
+                                left: 16, right: 16, bottom: 16),
                             child: Obx(() {
-                              var service = servicesController.filteredServices.firstWhere((s) => s.id == serviceId);
+                              var service = servicesController.filteredServices
+                                  .firstWhere((s) => s.id == serviceId);
 
                               return Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
+                                        Text(service.customer,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
                                         SizedBox(height: 8),
-                                        Text('Адрес: ${service.customerAddress}'),
+                                        Text(
+                                            'Адрес: ${service.customerAddress}'),
                                         SizedBox(height: 8),
-                                        Text('Информация клиента: ${service.comment}'),
+                                        Text(
+                                            'Информация клиента: ${service.comment}'),
                                       ],
                                     ),
                                   ),
@@ -121,7 +132,8 @@ class ServicePage extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.cancel, color: Colors.red, size: 24.0),
+                                child: Icon(Icons.cancel,
+                                    color: Colors.red, size: 24.0),
                               ),
                               Text('Отказ')
                             ],
@@ -135,7 +147,8 @@ class ServicePage extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.calendar_today_rounded, color: Colors.blue, size: 24.0),
+                                child: Icon(Icons.calendar_today_rounded,
+                                    color: Colors.blue, size: 24.0),
                               ),
                               Text('Перенести дату')
                             ],
@@ -149,7 +162,8 @@ class ServicePage extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.check_circle, color: Colors.green, size: 24.0),
+                                child: Icon(Icons.check_circle,
+                                    color: Colors.green, size: 24.0),
                               ),
                               Text('Завершить')
                             ],
