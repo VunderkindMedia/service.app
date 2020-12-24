@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/models/brand.dart';
-import 'package:service_app/widgets/call_button/call_button.dart';
 import 'package:service_app/widgets/payment_page/payment_page.dart';
 import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
 import 'package:service_app/widgets/service-to-page-view/service-to-page-view.dart';
+import 'package:service_app/widgets/service_page/service_body.dart';
+import 'package:service_app/widgets/service_page/service_header.dart';
 
 class ServicePage extends StatelessWidget {
   final ServicesController servicesController = Get.find();
@@ -31,47 +32,12 @@ class ServicePage extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      ExpansionTile(
-                        initiallyExpanded: true,
-                        title: Text('Данные по заявке'),
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(
-                                left: 16, right: 16, bottom: 16),
-                            child: Obx(() {
-                              var service = servicesController.filteredServices
-                                  .firstWhere((s) => s.id == serviceId);
-
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(service.customer,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                        SizedBox(height: 8),
-                                        Text(
-                                            'Адрес: ${service.customerAddress}'),
-                                        SizedBox(height: 8),
-                                        Text(
-                                            'Информация клиента: ${service.comment}'),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(left: 8),
-                                    child: PhoneButton(phone: 'service.phone'),
-                                  )
-                                ],
-                              );
-                            }),
-                          )
-                        ],
-                      ),
+                      ServiceHeader(
+                          service: servicesController.filteredServices
+                              .firstWhere((s) => s.id == serviceId)),
+                      ServiceBody(
+                          service: servicesController.filteredServices
+                              .firstWhere((s) => s.id == serviceId)),
                       Expanded(
                         child: TabBarView(
                           children: [
