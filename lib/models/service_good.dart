@@ -3,7 +3,7 @@ class ServiceGood {
   String workType;
   int serviceId;
   String construction;
-  String goodId;
+  int goodId;
   int price;
   int qty;
   int sum;

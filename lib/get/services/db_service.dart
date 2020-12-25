@@ -3,6 +3,8 @@ import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
+import 'package:service_app/models/service_good.dart';
+import 'package:service_app/models/service_image.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -205,6 +207,40 @@ class DbService extends GetxService {
     final List<Map<String, dynamic>> maps =
         await _database.query(GOOD_PRICES_TABLE_NAME);
     return List.generate(maps.length, (i) => GoodPrice.fromMap(maps[i]));
+  }
+
+  Future<void> saveServiceGoods(List<ServiceGood> serviceGood) async {
+    await _database.transaction((txn) async {
+      serviceGood.forEach((sg) async {
+        await txn.insert(SERVICE_GOODS_NAME, sg.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<List<ServiceGood>> getServiceGoods(int serviceId) async {
+    final List<Map<String, dynamic>> maps = await _database.query(
+        SERVICE_GOODS_NAME,
+        where: "serviceId = ?",
+        whereArgs: [serviceId]);
+    return List.generate(maps.length, (i) => ServiceGood.fromMap(maps[i]));
+  }
+
+  Future<void> saveServiceImages(List<ServiceImage> serviceImage) async {
+    await _database.transaction((txn) async {
+      serviceImage.forEach((si) async {
+        await txn.insert(SERVICE_IMAGES_NAME, si.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<void> getServiceImages(int serviceId) async {
+    final List<Map<String, dynamic>> maps = await _database.query(
+        SERVICE_IMAGES_NAME,
+        where: "serviceId = ?",
+        whereArgs: [serviceId]);
+    return List.generate(maps.length, (i) => ServiceImage.fromMap(maps[i]));
   }
 
   @override

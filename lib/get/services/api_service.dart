@@ -10,6 +10,8 @@ import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
+import 'package:service_app/models/service_good.dart';
+import 'package:service_app/models/service_image.dart';
 
 class ApiService extends GetxService {
   ApiService init() {
@@ -46,6 +48,24 @@ class ApiService extends GetxService {
     var responseJson = jsonDecode(response.body);
     var servicesJson = List.from(responseJson['results']);
     var services = servicesJson.map((json) => Service.fromJson(json)).toList();
+
+    /* Нужно как-то вернуть списки услуг и изображений контроллеру для записи в базу */
+    /* var serviceGoods = <ServiceGood>[];
+    var serviceImages = <ServiceImage>[];
+
+    servicesJson.forEach((value) {
+      var sgJson = value['ServiceGoods'];
+      var siJson = value['ServiceImages'];
+
+      if (sgJson != null) {
+        serviceGoods
+            .addAll(sgJson.map((json) => ServiceGood.fromJson(json)).toList());
+      }
+      if (siJson != null) {
+        serviceImages
+            .addAll(siJson.map((json) => ServiceImage.fromJson(json)).toList());
+      }
+    }); */
 
     print("get services ${services.length}");
 
