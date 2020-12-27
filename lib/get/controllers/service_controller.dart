@@ -24,6 +24,8 @@ class ServiceController extends GetxController {
   String _token;
   String _personId;
 
+  String workType;
+
   @override
   void onInit() async {
     super.onInit();
@@ -62,6 +64,22 @@ class ServiceController extends GetxController {
   void _updateServiceGoods() {}
 
   void _updateServiceImages() {}
+
+  void addServiceGood(Good good, GoodPrice goodPrice, int qty) {
+    var price = goodPrice == null ? 0 : goodPrice.price;
+
+    //TODO: откуда брать ид?
+    var serviceGood = new ServiceGood(-1);
+    serviceGood.workType = workType;
+    serviceGood.serviceId = service.value.id;
+    serviceGood.construction = 'По умолчанию';
+    serviceGood.goodId = good.id;
+    serviceGood.price = price;
+    serviceGood.qty = qty;
+    serviceGood.sum = price * qty;
+
+    //TODO: тут по идее сохраняем в базу
+  }
 
   List<Good> getChildrenGoodsByParent(Good parent) {
     if (parent == null) {

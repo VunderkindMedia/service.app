@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:service_app/widgets/goods_page/goods_page.dart';
 
 class ServiceTOPageView extends StatelessWidget {
+  final Function onTap;
+
+  ServiceTOPageView({Key key, @required this.onTap}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -12,7 +14,9 @@ class ServiceTOPageView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FlatButton.icon(
-              onPressed: () => Get.to(GoodsPage()),
+              onPressed: () {
+                onTap();
+              },
               color: Colors.blue,
               textColor: Colors.white,
               icon: Icon(

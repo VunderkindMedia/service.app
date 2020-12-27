@@ -1,16 +1,17 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
-import 'package:service_app/models/good.dart';
 
 class GoodPage extends StatelessWidget {
   final ServiceController serviceController = Get.find();
   final int goodId;
 
-  GoodPage({Key key, @required this.goodId}) : super(key: key);
+  TextEditingController _countController;
+
+  GoodPage({Key key, @required this.goodId}) : super(key: key) {
+    _countController = new TextEditingController(text: '1');
+  }
 
   Widget _buildKeyValue(Widget w1, w2) {
     return Container(
@@ -66,16 +67,37 @@ class GoodPage extends StatelessWidget {
                             good.name,
                             style: TextStyle(color: Colors.grey),
                           )),
+                      if (goodPrice != null)
+                        _buildKeyValue(
+                            Text('Цена:'),
+                            Text(
+                              goodPrice.toString(),
+                              style: TextStyle(color: Colors.grey),
+                            )),
+                      //TODO:  место для картинки
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: Text('Изображение'),
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            height: 200,
+                          )
+                        ],
+                      ),
                       _buildKeyValue(
-                          Text('Цена:'),
-                          Text(
-                            goodPrice.toString(),
-                            style: TextStyle(color: Colors.grey),
-                          )),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 300,
-                      )
+                          Text('Количество:'),
+                          Container(
+                            height: 20,
+                            child: TextField(
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.start,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none
+                                ),
+                                controller: _countController,
+                          ))
+                      ),
                     ],
                   ),
                 ),
@@ -92,6 +114,7 @@ class GoodPage extends StatelessWidget {
                     Expanded(
                       child: FlatButton(
                         onPressed: () {
+                          serviceController.addServiceGood(good, goodPrice, int.parse(_countController.text));
                           Navigator.pop(context);
                         },
                         color: Colors.blue,

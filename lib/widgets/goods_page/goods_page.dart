@@ -15,7 +15,7 @@ class GoodsPage extends StatelessWidget {
       ),
       body: SafeArea(
           child: Builder(
-        builder: (BuildContext context) => GoodList(parentGood: null),
+        builder: (BuildContext context) => GoodList(parentGood: null,),
       )),
     );
   }

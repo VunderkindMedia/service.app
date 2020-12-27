@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/widgets/goods_page/goods_page.dart';
 import 'package:service_app/widgets/payment_page/payment_page.dart';
 import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
@@ -38,8 +39,14 @@ class ServicePage extends StatelessWidget {
                       Expanded(
                         child: TabBarView(
                           children: [
-                            ServiceTOPageView(),
-                            ServiceTOPageView(),
+                            ServiceTOPageView(onTap: () {
+                              serviceController.workType = 'ТО1';
+                              Get.to(GoodsPage());
+                            }),
+                            ServiceTOPageView(onTap: () {
+                              serviceController.workType = 'ТО2';
+                              Get.to(GoodsPage());
+                            }),
                             Container(
                               padding: EdgeInsets.all(16),
                               child: Text('Вложения'),
