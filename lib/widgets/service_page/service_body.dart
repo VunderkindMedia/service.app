@@ -12,10 +12,6 @@ class ServiceBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (service == null) {
-      return Text('');
-    }
-
     return Card(
       child: Padding(
         padding: EdgeInsets.all(8.0),

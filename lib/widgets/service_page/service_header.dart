@@ -12,10 +12,6 @@ class ServiceHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (service == null) {
-      return Text('');
-    }
-
     String measureDate = DateFormat('dd.MM').format(service.dateStart).toString();
     String measureInterval = DateFormat.Hm().format(service.dateStart).toString() + " - " + DateFormat.Hm().format(service.dateEnd).toString();
 

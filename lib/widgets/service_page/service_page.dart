@@ -26,7 +26,7 @@ class ServicePage extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: brand.bColor(),
-            title: Obx(() => Text('${serviceController.service?.value?.number ?? ''}')),
+            title: Obx(() => serviceController.service.value.id != -1 ? Text('${serviceController.service.value.number ?? ''}') : SizedBox(height: 1,)),
           ),
           body: SafeArea(
             child: Column(
@@ -34,8 +34,8 @@ class ServicePage extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      Obx(() => ServiceHeader(service: serviceController.service?.value ?? null)),
-                      Obx(() => ServiceBody(service: serviceController.service?.value ?? null)),
+                      Obx(() => serviceController.service.value.id != -1 ? ServiceHeader(service: serviceController.service.value) : SizedBox(height: 1,)),
+                      Obx(() => serviceController.service.value.id != -1 ? ServiceBody(service: serviceController.service.value) : SizedBox(height: 1,)),
                       Expanded(
                         child: TabBarView(
                           children: [

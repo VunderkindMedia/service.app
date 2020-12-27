@@ -16,7 +16,7 @@ class ServiceController extends GetxController {
   RxList<Good> goods = <Good>[].obs;
   RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
 
-  Rx<Service> service;
+  Rx<Service> service = Service(-1).obs;
 
   ApiService _apiService;
   DbService _dbService;
@@ -49,16 +49,12 @@ class ServiceController extends GetxController {
 
   void init(int serviceId) async {
     var dbService = await _dbService.getServiceById(serviceId);
-    this.service = dbService.obs;
+    this.service.value = dbService;
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  void setService(Service service) {
-    _service.value = service;
   }
 
   void _updateServiceGoods() {}
