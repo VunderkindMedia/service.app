@@ -5,7 +5,6 @@ import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/constants/app_colors.dart';
-import 'package:service_app/widgets/call_button/call_button.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
 import 'package:service_app/widgets/services_page/services_list_tile.dart';
 import 'package:service_app/widgets/services_page/services_filter_panel.dart';
@@ -18,17 +17,14 @@ class ServicesPage extends StatefulWidget {
 
 class _ServicesPageState extends State<ServicesPage> {
   final ServicesController servicesController = Get.put(ServicesController());
-  final GlobalKey<RefreshIndicatorState> _refKey =
-      GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refKey = GlobalKey<RefreshIndicatorState>();
   final PanelController _panelController = PanelController();
 
   DateTime selectedDate = DateTime.now();
   bool showFAB = true;
 
   Widget _buildRow(Service service, List<Brand> brands) {
-    var brand = brands.firstWhere(
-        (brand) => brand.externalId == service.brandId,
-        orElse: () => null);
+    var brand = brands.firstWhere((brand) => brand.externalId == service.brandId, orElse: () => null);
 
     return Card(
       child: InkWell(
@@ -46,8 +42,7 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   void _clearSearch() {
-    servicesController.isSearching.value =
-        !servicesController.isSearching.value;
+    servicesController.isSearching.value = !servicesController.isSearching.value;
 
     if (!servicesController.isSearching.value) {
       servicesController.searchString = "";
@@ -78,10 +73,7 @@ class _ServicesPageState extends State<ServicesPage> {
                 Obx(() => Text(" (${servicesController.servicesCount})")),
               ])
             : TextField(
-                decoration: InputDecoration(
-                    icon: Icon(Icons.search, color: kSecondColor),
-                    hintText: 'Поиск',
-                    hintStyle: kSearchBarTextStyle),
+                decoration: InputDecoration(icon: Icon(Icons.search, color: kSecondColor), hintText: 'Поиск', hintStyle: kSearchBarTextStyle),
                 style: kSearchBarTextStyle,
                 autofocus: true,
                 onChanged: (value) {
@@ -91,9 +83,7 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
         actions: [
           IconButton(
-            icon: !servicesController.isSearching.value
-                ? Icon(Icons.search)
-                : Icon(Icons.cancel),
+            icon: !servicesController.isSearching.value ? Icon(Icons.search) : Icon(Icons.cancel),
             onPressed: _clearSearch,
           )
         ],
@@ -119,12 +109,9 @@ class _ServicesPageState extends State<ServicesPage> {
                     Expanded(
                         child: Obx(() => ListView.builder(
                               padding: EdgeInsets.symmetric(vertical: 8.0),
-                              itemCount:
-                                  servicesController.filteredServices.length,
+                              itemCount: servicesController.filteredServices.length,
                               itemBuilder: (context, i) {
-                                return _buildRow(
-                                    servicesController.filteredServices[i],
-                                    servicesController.brands);
+                                return _buildRow(servicesController.filteredServices[i], servicesController.brands);
                               },
                             ))),
                   ],

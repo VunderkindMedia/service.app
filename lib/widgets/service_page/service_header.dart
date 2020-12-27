@@ -12,19 +12,18 @@ class ServiceHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String measureDate =
-        DateFormat('dd.MM').format(service.dateStart).toString();
-    String measureInterval =
-        DateFormat.Hm().format(service.dateStart).toString() +
-            " - " +
-            DateFormat.Hm().format(service.dateEnd).toString();
+    if (service == null) {
+      return Container();
+    }
+
+    String measureDate = DateFormat('dd.MM').format(service.dateStart).toString();
+    String measureInterval = DateFormat.Hm().format(service.dateStart).toString() + " - " + DateFormat.Hm().format(service.dateEnd).toString();
 
     return Card(
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: ListTile(
-          title: Text("Статус заявки: ${service.status}" +
-              "\n\nДата: $measureDate \t\t Время: $measureInterval"),
+          title: Text("Статус заявки: ${service.status}" + "\n\nДата: $measureDate \t\t Время: $measureInterval"),
           subtitle: Text("${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}" +
               "${(service.customerDecision != "") ? '\n Решение ТО-2: ' + service.customerDecision : ''}" +
               "${(service.sumTotal > 0) ? '\nОбщая сумма: ' + service.sumTotal.toString() : ''}" +

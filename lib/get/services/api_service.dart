@@ -10,8 +10,6 @@ import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
-import 'package:service_app/models/service_good.dart';
-import 'package:service_app/models/service_image.dart';
 
 class ApiService extends GetxService {
   ApiService init() {
@@ -20,8 +18,7 @@ class ApiService extends GetxService {
 
   String _getUpdtParam(DateTime lSync) {
     var updtParam = '';
-    if (lSync != null)
-      updtParam = '&updt=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(lSync)}';
+    if (lSync != null) updtParam = '&updt=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(lSync)}';
     return updtParam;
   }
 
@@ -34,38 +31,19 @@ class ApiService extends GetxService {
   }
 
   Future<AccountInfo> login(String username, String password) async {
-    var response = await http.post(API_LOGIN,
-        body: jsonEncode(
-            <String, String>{'username': username, 'password': password}));
+    var response = await http.post(API_LOGIN, body: jsonEncode(<String, String>{'username': username, 'password': password}));
     return AccountInfo.fromJson(jsonDecode(response.body));
   }
 
   Future<List<Service>> getServices(String accessToken, DateTime lSync) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http.get(_getUrlString(API_SERVICES, 150, 0, lSync),
-        headers: headers);
+    print(_getUrlString(API_SERVICES, 150, 0, lSync));
+
+    var response = await http.get(_getUrlString(API_SERVICES, 150, 0, lSync), headers: headers);
     var responseJson = jsonDecode(response.body);
     var servicesJson = List.from(responseJson['results']);
     var services = servicesJson.map((json) => Service.fromJson(json)).toList();
-
-    /* Нужно как-то вернуть списки услуг и изображений контроллеру для записи в базу */
-    /* var serviceGoods = <ServiceGood>[];
-    var serviceImages = <ServiceImage>[];
-
-    servicesJson.forEach((value) {
-      var sgJson = value['ServiceGoods'];
-      var siJson = value['ServiceImages'];
-
-      if (sgJson != null) {
-        serviceGoods
-            .addAll(sgJson.map((json) => ServiceGood.fromJson(json)).toList());
-      }
-      if (siJson != null) {
-        serviceImages
-            .addAll(siJson.map((json) => ServiceImage.fromJson(json)).toList());
-      }
-    }); */
 
     print("get services ${services.length}");
 
@@ -75,8 +53,7 @@ class ApiService extends GetxService {
   Future<List<Brand>> getBrands(String accessToken, DateTime lSync) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http.get(_getUrlString(API_BRANDS, 9999, 0, lSync),
-        headers: headers);
+    var response = await http.get(_getUrlString(API_BRANDS, 9999, 0, lSync), headers: headers);
     var responseJson = jsonDecode(response.body);
     var brandsJson = List.from(responseJson['results']);
     var brands = brandsJson.map((json) => Brand.fromJson(json)).toList();
@@ -89,8 +66,7 @@ class ApiService extends GetxService {
   Future<List<Good>> getGoods(String accessToken, DateTime lSync) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http.get(_getUrlString(API_GOODS, 9999, 0, lSync),
-        headers: headers);
+    var response = await http.get(_getUrlString(API_GOODS, 9999, 0, lSync), headers: headers);
     var responseJson = jsonDecode(response.body);
     var goodsJson = List.from(responseJson['results']);
     var goods = goodsJson.map((json) => Good.fromJson(json)).toList();
@@ -100,16 +76,13 @@ class ApiService extends GetxService {
     return goods;
   }
 
-  Future<List<GoodPrice>> getGoodPrices(
-      String accessToken, DateTime lSync) async {
+  Future<List<GoodPrice>> getGoodPrices(String accessToken, DateTime lSync) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http
-        .get(_getUrlString(API_GOOD_PRICES, 9999, 0, lSync), headers: headers);
+    var response = await http.get(_getUrlString(API_GOOD_PRICES, 9999, 0, lSync), headers: headers);
     var responseJson = jsonDecode(response.body);
     var goodPricesJson = List.from(responseJson['results']);
-    var goodPrices =
-        goodPricesJson.map((json) => GoodPrice.fromJson(json)).toList();
+    var goodPrices = goodPricesJson.map((json) => GoodPrice.fromJson(json)).toList();
 
     print("get goodPrices ${goodPrices.length}");
 

@@ -16,11 +16,7 @@ Future<void> main() async {
   SharedPreferencesService sharedPreferencesService = Get.find();
 
   runApp(GetMaterialApp(
-      title: 'Service App',
-      theme: _appTheme,
-      home: sharedPreferencesService.getAccessToken().length == 0
-          ? LoginPage()
-          : ServicesPage()));
+      title: 'Service App', theme: _appTheme, home: sharedPreferencesService.getAccessToken().length == 0 ? LoginPage() : ServicesPage()));
 }
 
 Future<void> initServices() async {
@@ -42,6 +38,5 @@ ThemeData _buildAppTheme() {
       buttonColor: kMainColor,
       accentColor: kMainColor,
       appBarTheme: AppBarTheme(color: kMainColor),
-      floatingActionButtonTheme:
-          FloatingActionButtonThemeData(backgroundColor: kMainColor));
+      floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: kMainColor));
 }

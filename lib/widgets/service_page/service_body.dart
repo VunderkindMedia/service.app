@@ -12,6 +12,10 @@ class ServiceBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (service == null) {
+      return Container();
+    }
+
     return Card(
       child: Padding(
         padding: EdgeInsets.all(8.0),
@@ -32,9 +36,7 @@ class ServiceBody extends StatelessWidget {
                   IconedText(
                     child: Text(
                         "${service.customerAddress}" +
-                            ((service.floor != '0')
-                                ? ", этаж " + service.floor.toString()
-                                : "") +
+                            ((service.floor != '0') ? ", этаж " + service.floor.toString() : "") +
                             ((service.intercom) ? "\nДомофон" : ""),
                         style: TextStyle(
                           fontSize: 16.0,
