@@ -13,7 +13,7 @@ class ServiceBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (service == null) {
-      return Container();
+      return Text('');
     }
 
     return Card(

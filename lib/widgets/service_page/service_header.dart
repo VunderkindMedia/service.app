@@ -13,7 +13,7 @@ class ServiceHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (service == null) {
-      return Container();
+      return Text('');
     }
 
     String measureDate = DateFormat('dd.MM').format(service.dateStart).toString();

@@ -29,7 +29,7 @@ class Good {
   }
 
   factory Good.fromMap(Map<String, dynamic> map) {
-    var good = Good(map['ID']);
+    var good = Good(map['id']);
 
     good.externalId = map['externalId'];
     good.name = map['name'];

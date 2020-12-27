@@ -25,8 +25,6 @@ class ServicesController extends GetxController {
 
   RxList<Brand> brands = <Brand>[].obs;
   RxList<Service> filteredServices = <Service>[].obs;
-  RxList<Good> goods = <Good>[].obs;
-  RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
 
   String searchString = "";
   List<String> statusFilters = <String>[];
@@ -108,13 +106,11 @@ class ServicesController extends GetxController {
   Future<void> _syncGoods() async {
     var goods = await _apiService.getGoods(_token, lastSyncDate.value);
     await _dbService.saveGoods(goods);
-    this.goods.assignAll(goods);
   }
 
   Future<void> _syncGoodPrices() async {
     var goodPrices = await _apiService.getGoodPrices(_token, lastSyncDate.value);
     await _dbService.saveGoodPrices(goodPrices);
-    this.goodPrices.assignAll(goodPrices);
   }
 
   Future<void> _refreshServices() async {
@@ -187,12 +183,5 @@ class ServicesController extends GetxController {
     } else {
       MapsLauncher.launchQuery('${service.getShortAddress()}');
     }
-  }
-
-  List<Good> getChildrenGoodsByParent(Good parent) {
-    if (parent == null) {
-      return goods.where((good) => goods.firstWhere((g) => g.externalId == good.parentId, orElse: () => null) == null).toList();
-    }
-    return goods.where((good) => good.parentId == parent.externalId).toList();
   }
 }

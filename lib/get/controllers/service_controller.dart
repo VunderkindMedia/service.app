@@ -1,6 +1,6 @@
-import 'dart:math';
-
 import 'package:get/get.dart';
+import 'package:service_app/models/good.dart';
+import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
@@ -13,6 +13,9 @@ class ServiceController extends GetxController {
   RxList<ServiceGood> serviceGoods = <ServiceGood>[].obs;
   RxList<ServiceImage> serviceImages = <ServiceImage>[].obs;
 
+  RxList<Good> goods = <Good>[].obs;
+  RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
+
   Rx<Service> service;
 
   ApiService _apiService;
@@ -22,7 +25,7 @@ class ServiceController extends GetxController {
   String _personId;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
 
     _apiService = Get.find();
@@ -32,14 +35,18 @@ class ServiceController extends GetxController {
     _token = _sharedPreferencesService.getAccessToken();
     _personId = _sharedPreferencesService.getPersonExternalId();
 
+    var dbGoods = await _dbService.getGoods();
+    goods.assignAll(dbGoods);
+
+    var dbGoodPrices = await _dbService.getGoodPrices();
+    goodPrices.assignAll(dbGoodPrices);
+
     serviceGoods.listen((value) => _updateServiceGoods());
     serviceImages.listen((value) => _updateServiceImages());
-
   }
 
   void init(int serviceId) async {
     var dbService = await _dbService.getServiceById(serviceId);
-    print(dbService.number);
     this.service = dbService.obs;
   }
 
@@ -55,4 +62,11 @@ class ServiceController extends GetxController {
   void _updateServiceGoods() {}
 
   void _updateServiceImages() {}
+
+  List<Good> getChildrenGoodsByParent(Good parent) {
+    if (parent == null) {
+      return goods.where((good) => goods.firstWhere((g) => g.externalId == good.parentId, orElse: () => null) == null).toList();
+    }
+    return goods.where((good) => good.parentId == parent.externalId).toList();
+  }
 }

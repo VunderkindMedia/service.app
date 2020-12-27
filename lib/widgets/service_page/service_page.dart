@@ -33,8 +33,8 @@ class ServicePage extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      ServiceHeader(service: serviceController.service.value),
-                      ServiceBody(service: serviceController.service.value),
+                      Obx(() => ServiceHeader(service: serviceController.service?.value ?? null)),
+                      Obx(() => ServiceBody(service: serviceController.service?.value ?? null)),
                       Expanded(
                         child: TabBarView(
                           children: [
