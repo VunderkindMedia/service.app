@@ -23,7 +23,7 @@ class GoodPrice {
   }
 
   factory GoodPrice.fromMap(Map<String, dynamic> map) {
-    var goodPrice = GoodPrice(map['ID']);
+    var goodPrice = GoodPrice(map['id']);
 
     goodPrice.period = map['period'];
     goodPrice.goodId = map['goodId'];
@@ -45,5 +45,15 @@ class GoodPrice {
       'name': name,
       'price': price,
     };
+  }
+
+  @override
+  String toString() {
+    if (price == 0) {
+      return '0,0';
+    }
+    int rub = price ~/ 100;
+    int cop = price % 100;
+    return '$rub,$cop';
   }
 }

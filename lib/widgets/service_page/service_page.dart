@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/widgets/goods_page/goods_page.dart';
 import 'package:service_app/widgets/payment_page/payment_page.dart';
 import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
@@ -10,11 +11,13 @@ import 'package:service_app/widgets/service_page/service_body.dart';
 import 'package:service_app/widgets/service_page/service_header.dart';
 
 class ServicePage extends StatelessWidget {
-  final ServicesController servicesController = Get.find();
+  final ServiceController serviceController = Get.put(ServiceController());
   final int serviceId;
   final Brand brand;
 
-  ServicePage({Key key, @required this.serviceId, @required this.brand});
+  ServicePage({Key key, @required this.serviceId, @required this.brand}) : super(key: key) {
+    serviceController.init(serviceId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +26,7 @@ class ServicePage extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: brand.bColor(),
-            title: Obx(() => Text(
-                '${servicesController.filteredServices.firstWhere((s) => s.id == serviceId).number}')),
+            title: Obx(() => serviceController.service.value.id != -1 ? Text('${serviceController.service.value.number ?? ''}') : SizedBox(height: 1,)),
           ),
           body: SafeArea(
             child: Column(
@@ -32,17 +34,19 @@ class ServicePage extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      ServiceHeader(
-                          service: servicesController.filteredServices
-                              .firstWhere((s) => s.id == serviceId)),
-                      ServiceBody(
-                          service: servicesController.filteredServices
-                              .firstWhere((s) => s.id == serviceId)),
+                      Obx(() => serviceController.service.value.id != -1 ? ServiceHeader(service: serviceController.service.value) : SizedBox(height: 1,)),
+                      Obx(() => serviceController.service.value.id != -1 ? ServiceBody(service: serviceController.service.value) : SizedBox(height: 1,)),
                       Expanded(
                         child: TabBarView(
                           children: [
-                            ServiceTOPageView(),
-                            ServiceTOPageView(),
+                            ServiceTOPageView(onTap: () {
+                              serviceController.workType = 'ТО1';
+                              Get.to(GoodsPage());
+                            }),
+                            ServiceTOPageView(onTap: () {
+                              serviceController.workType = 'ТО2';
+                              Get.to(GoodsPage());
+                            }),
                             Container(
                               padding: EdgeInsets.all(16),
                               child: Text('Вложения'),
@@ -98,8 +102,7 @@ class ServicePage extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.cancel,
-                                    color: Colors.red, size: 24.0),
+                                child: Icon(Icons.cancel, color: Colors.red, size: 24.0),
                               ),
                               Text('Отказ')
                             ],
@@ -113,8 +116,7 @@ class ServicePage extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.calendar_today_rounded,
-                                    color: Colors.blue, size: 24.0),
+                                child: Icon(Icons.calendar_today_rounded, color: Colors.blue, size: 24.0),
                               ),
                               Text('Перенести дату')
                             ],
@@ -128,8 +130,7 @@ class ServicePage extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.check_circle,
-                                    color: Colors.green, size: 24.0),
+                                child: Icon(Icons.check_circle, color: Colors.green, size: 24.0),
                               ),
                               Text('Завершить')
                             ],

@@ -13,7 +13,6 @@ import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
   var isLoading = false.obs;
-  var isSynchronized = false.obs;
   var isSearching = false.obs;
   var hideFinished = false.obs;
 
@@ -21,12 +20,11 @@ class ServicesController extends GetxController {
   Rx<DateTime> selectedDate = DateTime.now().obs;
 
   RxList<Service> _services = <Service>[].obs;
+
   int get servicesCount => _services.length;
 
   RxList<Brand> brands = <Brand>[].obs;
   RxList<Service> filteredServices = <Service>[].obs;
-  RxList<Good> goods = <Good>[].obs;
-  RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
 
   String searchString = "";
   List<String> statusFilters = <String>[];
@@ -45,11 +43,15 @@ class ServicesController extends GetxController {
     _apiService = Get.find();
     _dbService = Get.find();
     _sharedPreferencesService = Get.find();
+    lastSyncDate.value = _sharedPreferencesService.getLastSyncDate();
     _token = _sharedPreferencesService.getAccessToken();
     _personName = _sharedPreferencesService.getPersonName();
     _personId = _sharedPreferencesService.getPersonExternalId();
 
     _services.listen((value) => updateFilteredServices());
+    lastSyncDate.listen((value) {
+      _sharedPreferencesService.setLastSyncDate(value);
+    });
 
     ref(DateTime.now());
   }
@@ -71,7 +73,6 @@ class ServicesController extends GetxController {
       await _syncServices();
 
       lastSyncDate.value = DateTime.now();
-      isSynchronized.value = true;
     } catch (e) {
       print(e);
     } finally {
@@ -105,14 +106,11 @@ class ServicesController extends GetxController {
   Future<void> _syncGoods() async {
     var goods = await _apiService.getGoods(_token, lastSyncDate.value);
     await _dbService.saveGoods(goods);
-    this.goods.assignAll(goods);
   }
 
   Future<void> _syncGoodPrices() async {
-    var goodPrices =
-        await _apiService.getGoodPrices(_token, lastSyncDate.value);
+    var goodPrices = await _apiService.getGoodPrices(_token, lastSyncDate.value);
     await _dbService.saveGoodPrices(goodPrices);
-    this.goodPrices.assignAll(goodPrices);
   }
 
   Future<void> _refreshServices() async {
@@ -123,17 +121,17 @@ class ServicesController extends GetxController {
 
     if (!isSearching.value) {
       DateTime d = selectedDate.value;
-      DateTime _dateStart = DateTime(d.year, d.month, d.day);
-      DateTime _dateEnd =
-          _dateStart.add(Duration(hours: 23, minutes: 59, seconds: 59));
+      // DateTime _dateStart = DateTime(d.year, d.month, d.day);
+      // DateTime _dateEnd = _dateStart.add(Duration(hours: 23, minutes: 59, seconds: 59));
+      //TODO: убрать код ниже чисто для вывода данных
+      DateTime _dateStart = DateTime(2020, 12, 1);
+      DateTime _dateEnd = DateTime(2020, 12, 31);
 
-      var dbServices =
-          await _dbService.getServices(_personId, _dateStart, _dateEnd);
+      var dbServices = await _dbService.getServices(_personId, _dateStart, _dateEnd);
       _services.assignAll(dbServices);
     }
     if (isSearching.value && searchString.isNotEmpty) {
-      var dbServices =
-          await _dbService.getServicesBySearch(_personId, searchString);
+      var dbServices = await _dbService.getServicesBySearch(_personId, searchString);
       _services.assignAll(dbServices);
     }
   }
@@ -143,11 +141,7 @@ class ServicesController extends GetxController {
   }
 
   void updateFilteredServices() {
-    filteredServices.assignAll(_services
-        .where((service) => statusFilters.length > 0
-            ? service.checkStatus(statusFilters)
-            : true)
-        .toList());
+    filteredServices.assignAll(_services.where((service) => statusFilters.length > 0 ? service.checkStatus(statusFilters) : true).toList());
   }
 
   void callMethod(BuildContext context, String phones) async {
@@ -185,22 +179,9 @@ class ServicesController extends GetxController {
 
   void openNavigator(Service service) {
     if (service.lat != "" && service.lon != "") {
-      MapsLauncher.launchCoordinates(
-          double.parse(service.lat), double.parse(service.lon));
+      MapsLauncher.launchCoordinates(double.parse(service.lat), double.parse(service.lon));
     } else {
       MapsLauncher.launchQuery('${service.getShortAddress()}');
     }
-  }
-
-  List<Good> getChildrenGoodsByParent(Good parent) {
-    if (parent == null) {
-      return goods
-          .where((good) =>
-              goods.firstWhere((g) => g.externalId == good.parentId,
-                  orElse: () => null) ==
-              null)
-          .toList();
-    }
-    return goods.where((good) => good.parentId == parent.externalId).toList();
   }
 }

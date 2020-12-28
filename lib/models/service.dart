@@ -1,3 +1,6 @@
+import 'package:service_app/models/service_good.dart';
+import 'package:service_app/models/service_image.dart';
+
 class Service {
   final int id;
   String state;
@@ -30,6 +33,8 @@ class Service {
   int sumTotal;
   int sumPayment;
   int sumDiscount;
+  List<ServiceGood> serviceGoods;
+  List<ServiceImage> serviceImages;
 
   Service(this.id);
 
@@ -66,6 +71,8 @@ class Service {
     service.userComment = json['UserComment'];
     service.dateStartNext = DateTime.parse(json['DateStartNext']);
     service.dateEndNext = DateTime.parse(json['DateEndNext']);
+    service.serviceGoods = json['ServiceGoods']?.map((json) => ServiceGood.fromJson(json)) ?? [];
+    service.serviceImages = json['ServiceImages']?.map((json) => ServiceImage.fromJson(json)) ?? [];
 
     return service;
   }

@@ -42,4 +42,17 @@ class SharedPreferencesService extends GetxService {
   void setCityExternalId(String cityExternalId) {
     this._preferences.setString(CITY_EXTERNAL_ID, cityExternalId);
   }
+
+  DateTime getLastSyncDate() {
+    var dateString = this._preferences.getString(LAST_SYNC_DATE);
+    return dateString !=null ? DateTime.parse(dateString) : null;
+  }
+
+  void setLastSyncDate(DateTime lastSyncDate) {
+    if (lastSyncDate == null) {
+      this._preferences.remove(LAST_SYNC_DATE);
+      return;
+    }
+    this._preferences.setString(LAST_SYNC_DATE, lastSyncDate.toIso8601String());
+  }
 }

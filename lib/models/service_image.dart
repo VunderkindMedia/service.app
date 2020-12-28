@@ -18,7 +18,7 @@ class ServiceImage {
     var serviceImage = ServiceImage(map['fileId']);
 
     serviceImage.fileName = map['fileName'];
-    serviceImage.uploaded = map['uploaded'];
+    serviceImage.uploaded = map['uploaded'] == 1 ? true : false;
 
     return serviceImage;
   }
@@ -27,7 +27,7 @@ class ServiceImage {
     return {
       'fileId': fileId,
       'fileName': fileName,
-      'uploaded': uploaded,
+      'uploaded': uploaded ? 1 : 0,
     };
   }
 }

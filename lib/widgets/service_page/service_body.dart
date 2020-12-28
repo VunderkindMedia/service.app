@@ -32,9 +32,7 @@ class ServiceBody extends StatelessWidget {
                   IconedText(
                     child: Text(
                         "${service.customerAddress}" +
-                            ((service.floor != '0')
-                                ? ", этаж " + service.floor.toString()
-                                : "") +
+                            ((service.floor != '0') ? ", этаж " + service.floor.toString() : "") +
                             ((service.intercom) ? "\nДомофон" : ""),
                         style: TextStyle(
                           fontSize: 16.0,

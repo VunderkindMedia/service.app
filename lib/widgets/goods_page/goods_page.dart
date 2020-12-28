@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/widgets/good_page/good_page.dart';
 
 class GoodsPage extends StatelessWidget {
-  final ServicesController servicesController = Get.find();
+  final ServiceController serviceController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +15,14 @@ class GoodsPage extends StatelessWidget {
       ),
       body: SafeArea(
           child: Builder(
-        builder: (BuildContext context) => GoodList(parentGood: null),
+        builder: (BuildContext context) => GoodList(parentGood: null,),
       )),
     );
   }
 }
 
 class GoodList extends StatelessWidget {
-  final ServicesController servicesController = Get.find();
+  final ServiceController serviceController = Get.find();
 
   final Good parentGood;
 
@@ -30,7 +30,7 @@ class GoodList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var goods = servicesController.getChildrenGoodsByParent(parentGood);
+    var goods = serviceController.getChildrenGoodsByParent(parentGood);
     var hasBack = parentGood != null;
 
     return Container(
@@ -74,7 +74,7 @@ class GoodItem extends StatelessWidget {
           } else if (good.isGroup) {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoodList(parentGood: good)));
           } else {
-            Get.to(GoodPage(good: good));
+            Get.to(GoodPage(goodId: good.id));
           }
         },
         child: Container(
