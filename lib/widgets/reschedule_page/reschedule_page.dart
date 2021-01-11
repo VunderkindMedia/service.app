@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/models/service_status.dart';
 
 class ReschedulePage extends StatefulWidget {
   @override
@@ -8,6 +10,7 @@ class ReschedulePage extends StatefulWidget {
 }
 
 class _ReschedulePageState extends State<ReschedulePage> {
+  final ServiceController serviceController = Get.find();
   DateTime _selectedDate = DateTime.now();
 
   String formattedDate(DateTime date) {
@@ -26,6 +29,14 @@ class _ReschedulePageState extends State<ReschedulePage> {
       setState(() {
         _selectedDate = picked;
       });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      serviceController.fabsState.value = FabsState.Main;
+    });
   }
 
   @override
@@ -63,41 +74,25 @@ class _ReschedulePageState extends State<ReschedulePage> {
                         ],
                       ),
                     ),
-                    Text('Коментарий', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('Комментарий',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16),
                     TextField(
                       maxLines: null,
-                      decoration: InputDecoration.collapsed(hintText: 'Пару слов о причине переноса'),
+                      decoration: InputDecoration.collapsed(
+                          hintText: 'Пару слов о причине переноса'),
                     )
                   ],
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(width: 1.0, color: Colors.grey),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FlatButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      color: Colors.blue,
-                      textColor: Colors.white,
-                      child: Text('Перенести дату'),
-                    ),
-                  )
-                ],
-              ),
-            )
           ],
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton:
+          Obx(() => serviceController.refreshFabButtons(null)),
     );
   }
 }

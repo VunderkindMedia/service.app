@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/good.dart';
+import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/good_page/good_page.dart';
 
 class GoodsPage extends StatelessWidget {
@@ -15,7 +16,9 @@ class GoodsPage extends StatelessWidget {
       ),
       body: SafeArea(
           child: Builder(
-        builder: (BuildContext context) => GoodList(parentGood: null,),
+        builder: (BuildContext context) => GoodList(
+          parentGood: null,
+        ),
       )),
     );
   }
@@ -60,10 +63,12 @@ class GoodList extends StatelessWidget {
 }
 
 class GoodItem extends StatelessWidget {
+  final ServiceController serviceController = Get.find();
   final Good good;
   final bool isBack;
 
-  GoodItem({Key key, @required this.good, this.isBack = false}) : super(key: key);
+  GoodItem({Key key, @required this.good, this.isBack = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +77,8 @@ class GoodItem extends StatelessWidget {
           if (isBack) {
             Navigator.of(context).pop();
           } else if (good.isGroup) {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoodList(parentGood: good)));
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => GoodList(parentGood: good)));
           } else {
             Get.to(GoodPage(goodId: good.id));
           }
@@ -87,7 +93,9 @@ class GoodItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              isBack ? Icon(Icons.arrow_back_ios, size: 16) : SizedBox(width: 16),
+              isBack
+                  ? Icon(Icons.arrow_back_ios, size: 16)
+                  : SizedBox(width: 16),
               Container(
                 margin: EdgeInsets.only(left: 8, right: 16),
                 child: good.isGroup
@@ -99,12 +107,17 @@ class GoodItem extends StatelessWidget {
                             child: Container(
                                 height: 8,
                                 width: 8,
-                                decoration:
-                                    BoxDecoration(borderRadius: BorderRadius.circular(100), border: Border.all(width: 1, color: Colors.grey)))),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    border: Border.all(
+                                        width: 1, color: Colors.grey)))),
                       ),
               ),
               Expanded(child: Text('${good.name}')),
-              if (!isBack) Container(margin: EdgeInsets.only(left: 16), child: Icon(Icons.arrow_forward_ios, size: 16))
+              if (!isBack)
+                Container(
+                    margin: EdgeInsets.only(left: 16),
+                    child: Icon(Icons.arrow_forward_ios, size: 16))
             ],
           ),
         ));

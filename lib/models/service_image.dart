@@ -1,22 +1,28 @@
 class ServiceImage {
-  final int fileId;
+  final int id;
+  int serviceId;
+  int fileId;
   String fileName;
   bool uploaded;
 
-  ServiceImage(this.fileId);
+  ServiceImage(this.id);
 
   factory ServiceImage.fromJson(Map<String, dynamic> json) {
-    var serviceGood = ServiceImage(json['fileId']);
+    var serviceImage = ServiceImage(json['id']);
 
-    serviceGood.fileName = json['fileName'];
-    serviceGood.uploaded = true;
+    serviceImage.serviceId = json['serviceId'];
+    serviceImage.fileId = json['fileId'];
+    serviceImage.fileName = json['fileName'];
+    serviceImage.uploaded = true;
 
-    return serviceGood;
+    return serviceImage;
   }
 
   factory ServiceImage.fromMap(Map<String, dynamic> map) {
-    var serviceImage = ServiceImage(map['fileId']);
+    var serviceImage = ServiceImage(map['id']);
 
+    serviceImage.serviceId = map['serviceId'];
+    serviceImage.fileId = map['fileId'];
     serviceImage.fileName = map['fileName'];
     serviceImage.uploaded = map['uploaded'] == 1 ? true : false;
 
@@ -25,6 +31,8 @@ class ServiceImage {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
+      'serviceId': serviceId,
       'fileId': fileId,
       'fileName': fileName,
       'uploaded': uploaded ? 1 : 0,

@@ -7,8 +7,6 @@ import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
-import 'package:service_app/models/good.dart';
-import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
@@ -16,8 +14,8 @@ class ServicesController extends GetxController {
   var isSearching = false.obs;
   var hideFinished = false.obs;
 
-  Rx<DateTime> lastSyncDate = DateTime.now().obs;
   Rx<DateTime> selectedDate = DateTime.now().obs;
+  Rx<DateTime> _lastSyncDate = DateTime.now().obs;
 
   RxList<Service> _services = <Service>[].obs;
 
@@ -43,13 +41,14 @@ class ServicesController extends GetxController {
     _apiService = Get.find();
     _dbService = Get.find();
     _sharedPreferencesService = Get.find();
-    lastSyncDate.value = _sharedPreferencesService.getLastSyncDate();
+
+    _lastSyncDate.value = _sharedPreferencesService.getLastSyncDate();
     _token = _sharedPreferencesService.getAccessToken();
     _personName = _sharedPreferencesService.getPersonName();
     _personId = _sharedPreferencesService.getPersonExternalId();
 
     _services.listen((value) => updateFilteredServices());
-    lastSyncDate.listen((value) {
+    _lastSyncDate.listen((value) {
       _sharedPreferencesService.setLastSyncDate(value);
     });
 
@@ -57,7 +56,8 @@ class ServicesController extends GetxController {
   }
 
   void disposeController() {
-    lastSyncDate.value = null;
+    _lastSyncDate.value = null;
+
     selectedDate.value = DateTime.now();
     _services.clear();
     filteredServices.clear();
@@ -72,7 +72,7 @@ class ServicesController extends GetxController {
       await _syncGoodPrices();
       await _syncServices();
 
-      lastSyncDate.value = DateTime.now();
+      _lastSyncDate.value = DateTime.now();
     } catch (e) {
       print(e);
     } finally {
@@ -91,25 +91,26 @@ class ServicesController extends GetxController {
   }
 
   Future<void> _syncServices() async {
-    var services = await _apiService.getServices(_token, lastSyncDate.value);
+    var services = await _apiService.getServices(_token, _lastSyncDate.value);
     await _dbService.saveServices(services);
 
     await _refreshServices();
   }
 
   Future<void> _syncBrands() async {
-    var brands = await _apiService.getBrands(_token, lastSyncDate.value);
+    var brands = await _apiService.getBrands(_token, _lastSyncDate.value);
     await _dbService.saveBrands(brands);
     this.brands.assignAll(brands);
   }
 
   Future<void> _syncGoods() async {
-    var goods = await _apiService.getGoods(_token, lastSyncDate.value);
+    var goods = await _apiService.getGoods(_token, _lastSyncDate.value);
     await _dbService.saveGoods(goods);
   }
 
   Future<void> _syncGoodPrices() async {
-    var goodPrices = await _apiService.getGoodPrices(_token, lastSyncDate.value);
+    var goodPrices =
+        await _apiService.getGoodPrices(_token, _lastSyncDate.value);
     await _dbService.saveGoodPrices(goodPrices);
   }
 
@@ -127,11 +128,13 @@ class ServicesController extends GetxController {
       DateTime _dateStart = DateTime(2020, 12, 1);
       DateTime _dateEnd = DateTime(2020, 12, 31);
 
-      var dbServices = await _dbService.getServices(_personId, _dateStart, _dateEnd);
+      var dbServices =
+          await _dbService.getServices(_personId, _dateStart, _dateEnd);
       _services.assignAll(dbServices);
     }
     if (isSearching.value && searchString.isNotEmpty) {
-      var dbServices = await _dbService.getServicesBySearch(_personId, searchString);
+      var dbServices =
+          await _dbService.getServicesBySearch(_personId, searchString);
       _services.assignAll(dbServices);
     }
   }
@@ -141,7 +144,11 @@ class ServicesController extends GetxController {
   }
 
   void updateFilteredServices() {
-    filteredServices.assignAll(_services.where((service) => statusFilters.length > 0 ? service.checkStatus(statusFilters) : true).toList());
+    filteredServices.assignAll(_services
+        .where((service) => statusFilters.length > 0
+            ? service.checkStatus(statusFilters)
+            : true)
+        .toList());
   }
 
   void callMethod(BuildContext context, String phones) async {
@@ -179,7 +186,8 @@ class ServicesController extends GetxController {
 
   void openNavigator(Service service) {
     if (service.lat != "" && service.lon != "") {
-      MapsLauncher.launchCoordinates(double.parse(service.lat), double.parse(service.lon));
+      MapsLauncher.launchCoordinates(
+          double.parse(service.lat), double.parse(service.lon));
     } else {
       MapsLauncher.launchQuery('${service.getShortAddress()}');
     }

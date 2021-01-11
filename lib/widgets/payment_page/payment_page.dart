@@ -1,5 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/models/service_status.dart';
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -7,8 +9,17 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  final ServiceController serviceController = Get.find();
   String _selectedValue = 'Наличные';
   List<String> _paymentOptions = ['Наличные', 'Безнал Сбербанк', 'Безнал ВТБ'];
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      serviceController.fabsState.value = FabsState.Main;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +49,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                          padding:
+                              EdgeInsets.only(left: 16, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [Text('Сумма ТО-2'), Text('0.00')],
@@ -48,7 +60,8 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 8),
+                    padding: EdgeInsets.only(
+                        left: 16, top: 24, right: 16, bottom: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -69,17 +82,23 @@ class _PaymentPageState extends State<PaymentPage> {
                     child: Column(
                       children: [
                         Container(
-                          padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
+                          padding: EdgeInsets.only(
+                              left: 16, top: 8, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [Text('Сумма'), Text('12.00', style: TextStyle(fontWeight: FontWeight.bold))],
+                            children: [
+                              Text('Сумма'),
+                              Text('12.00',
+                                  style: TextStyle(fontWeight: FontWeight.bold))
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 8),
+                    padding: EdgeInsets.only(
+                        left: 16, top: 24, right: 16, bottom: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -110,7 +129,9 @@ class _PaymentPageState extends State<PaymentPage> {
                                   underline: Container(
                                     height: 0,
                                   ),
-                                  items: _paymentOptions.map<DropdownMenuItem<String>>((String value) {
+                                  items: _paymentOptions
+                                      .map<DropdownMenuItem<String>>(
+                                          (String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
@@ -125,7 +146,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                          padding:
+                              EdgeInsets.only(left: 16, right: 16, bottom: 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [Text('Сумма'), Text('12.00')],
@@ -137,31 +159,12 @@ class _PaymentPageState extends State<PaymentPage> {
                 ],
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(width: 1.0, color: Colors.grey),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FlatButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      color: Colors.blue,
-                      textColor: Colors.white,
-                      child: Text('Принять оплату'),
-                    ),
-                  )
-                ],
-              ),
-            )
           ],
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton:
+          Obx(() => serviceController.refreshFabButtons(null)),
     );
   }
 }

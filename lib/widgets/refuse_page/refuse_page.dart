@@ -1,5 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/models/service_status.dart';
 
 class RefusePage extends StatefulWidget {
   @override
@@ -7,8 +9,23 @@ class RefusePage extends StatefulWidget {
 }
 
 class _RefusePageState extends State<RefusePage> {
+  final ServiceController serviceController = Get.find();
   String _selectedValue = '';
-  List<String> _reasons = ['Высокая цена', 'Не берет трубку', 'Отремонтировали сами', 'Ушел к конкуренту', 'Нет потребности'];
+  List<String> _reasons = [
+    'Высокая цена',
+    'Не берет трубку',
+    'Отремонтировали сами',
+    'Ушел к конкуренту',
+    'Нет потребности'
+  ];
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      serviceController.fabsState.value = FabsState.Main;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +43,9 @@ class _RefusePageState extends State<RefusePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Причина отказа', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Причина отказа',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 16),
                   ...this._reasons.map((reason) => GestureDetector(
                         onTap: () {
@@ -50,40 +69,24 @@ class _RefusePageState extends State<RefusePage> {
                         ),
                       )),
                   SizedBox(height: 16),
-                  Text('Коментарий', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Коментарий',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 16),
                   TextField(
                     maxLines: null,
-                    decoration: InputDecoration.collapsed(hintText: 'Пару слов о причине отказа'),
+                    decoration: InputDecoration.collapsed(
+                        hintText: 'Пару слов о причине отказа'),
                   )
                 ],
               ),
             )),
-            Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(width: 1.0, color: Colors.grey),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FlatButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      color: Colors.blue,
-                      textColor: Colors.white,
-                      child: Text('Потвредить отказ'),
-                    ),
-                  )
-                ],
-              ),
-            )
           ],
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton:
+          Obx(() => serviceController.refreshFabButtons(null)),
     );
   }
 }

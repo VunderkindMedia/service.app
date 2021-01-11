@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/models/service_status.dart';
 
-class GoodPage extends StatelessWidget {
-  final ServiceController serviceController = Get.find();
+class GoodPage extends StatefulWidget {
   final int goodId;
 
   TextEditingController _countController;
@@ -12,6 +12,13 @@ class GoodPage extends StatelessWidget {
   GoodPage({Key key, @required this.goodId}) : super(key: key) {
     _countController = new TextEditingController(text: '1');
   }
+
+  @override
+  _GoodPageState createState() => _GoodPageState();
+}
+
+class _GoodPageState extends State<GoodPage> {
+  final ServiceController serviceController = Get.find();
 
   Widget _buildKeyValue(Widget w1, w2) {
     return Container(
@@ -37,15 +44,42 @@ class GoodPage extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      serviceController.fabsState.value = FabsState.GoodAdding;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      serviceController.fabsState.value = FabsState.AddGood;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Builder(builder: (BuildContext context) {
-      var good = serviceController.goods.firstWhere((g) => g.id == goodId);
-      var goodPrice = serviceController.goodPrices.firstWhere((gp) => gp.goodId == good.externalId, orElse: () => null);
+      var good =
+          serviceController.goods.firstWhere((g) => g.id == widget.goodId);
+      var goodPrice = serviceController.goodPrices
+          .firstWhere((gp) => gp.goodId == good.externalId, orElse: () => null);
 
       return Scaffold(
         appBar: AppBar(
           title: Text('${good.name}'),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton:
+            Obx(() => serviceController.refreshFabButtons(() async {
+                  await serviceController.addServiceGood(good, 'По умолчанию',
+                      goodPrice, int.parse(widget._countController.text));
+                  serviceController.fabsState.value = FabsState.AddGood;
+                })),
         body: SafeArea(
           child: Column(
             children: [
@@ -88,43 +122,18 @@ class GoodPage extends StatelessWidget {
                       _buildKeyValue(
                           Text('Количество:'),
                           Container(
-                            height: 20,
-                            child: TextField(
+                              height: 20,
+                              child: TextField(
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.start,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none
-                                ),
-                                controller: _countController,
-                          ))
-                      ),
+                                decoration:
+                                    InputDecoration(border: InputBorder.none),
+                                controller: widget._countController,
+                              ))),
                     ],
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(width: 1.0, color: Colors.grey),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FlatButton(
-                        onPressed: () {
-                          serviceController.addServiceGood(good, goodPrice, int.parse(_countController.text));
-                          Navigator.pop(context);
-                        },
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        child: Text('Выбрать'),
-                      ),
-                    )
-                  ],
-                ),
-              )
             ],
           ),
         ),

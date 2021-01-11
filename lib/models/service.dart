@@ -33,8 +33,8 @@ class Service {
   int sumTotal;
   int sumPayment;
   int sumDiscount;
-  List<ServiceGood> serviceGoods;
-  List<ServiceImage> serviceImages;
+  List<dynamic> serviceGoods;
+  List<dynamic> serviceImages;
 
   Service(this.id);
 
@@ -71,8 +71,19 @@ class Service {
     service.userComment = json['UserComment'];
     service.dateStartNext = DateTime.parse(json['DateStartNext']);
     service.dateEndNext = DateTime.parse(json['DateEndNext']);
-    service.serviceGoods = json['ServiceGoods']?.map((json) => ServiceGood.fromJson(json)) ?? [];
-    service.serviceImages = json['ServiceImages']?.map((json) => ServiceImage.fromJson(json)) ?? [];
+
+    var serviceGoods =
+        json['ServiceGoods']?.map((json) => ServiceGood.fromJson(json)) ?? [];
+    var serviceImages =
+        json['ServiceImages']?.map((json) => ServiceGood.fromJson(json)) ?? [];
+
+    if (serviceGoods.isNotEmpty) {
+      service.serviceGoods = serviceGoods.toList();
+    }
+
+    if (serviceImages.isNotEmpty) {
+      service.serviceImages = serviceImages.toList();
+    }
 
     return service;
   }

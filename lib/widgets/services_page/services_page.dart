@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
@@ -17,22 +18,30 @@ class ServicesPage extends StatefulWidget {
 
 class _ServicesPageState extends State<ServicesPage> {
   final ServicesController servicesController = Get.put(ServicesController());
-  final GlobalKey<RefreshIndicatorState> _refKey = GlobalKey<RefreshIndicatorState>();
+  final ServiceController serviceController = Get.put(ServiceController());
+  final GlobalKey<RefreshIndicatorState> _refKey =
+      GlobalKey<RefreshIndicatorState>();
   final PanelController _panelController = PanelController();
 
   DateTime selectedDate = DateTime.now();
   bool showFAB = true;
 
   Widget _buildRow(Service service, List<Brand> brands) {
-    var brand = brands.firstWhere((brand) => brand.externalId == service.brandId, orElse: () => null);
+    var brand = brands.firstWhere(
+        (brand) => brand.externalId == service.brandId,
+        orElse: () => null);
 
     return Card(
       child: InkWell(
         splashColor: Colors.blue.withAlpha(30),
-        onTap: () => Get.to(ServicePage(
-          serviceId: service.id,
-          brand: brand,
-        )),
+        onTap: () async {
+          await serviceController.init(service.id);
+          await serviceController.onInit();
+          await Get.to(ServicePage(
+            serviceId: service.id,
+            brand: brand,
+          ));
+        },
         child: ServiceListTile(
           service: service,
           brand: brand,
@@ -42,7 +51,8 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   void _clearSearch() {
-    servicesController.isSearching.value = !servicesController.isSearching.value;
+    servicesController.isSearching.value =
+        !servicesController.isSearching.value;
 
     if (!servicesController.isSearching.value) {
       servicesController.searchString = "";
@@ -73,7 +83,10 @@ class _ServicesPageState extends State<ServicesPage> {
                 Obx(() => Text(" (${servicesController.servicesCount})")),
               ])
             : TextField(
-                decoration: InputDecoration(icon: Icon(Icons.search, color: kSecondColor), hintText: 'Поиск', hintStyle: kSearchBarTextStyle),
+                decoration: InputDecoration(
+                    icon: Icon(Icons.search, color: kSecondColor),
+                    hintText: 'Поиск',
+                    hintStyle: kSearchBarTextStyle),
                 style: kSearchBarTextStyle,
                 autofocus: true,
                 onChanged: (value) {
@@ -83,7 +96,9 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
         actions: [
           IconButton(
-            icon: !servicesController.isSearching.value ? Icon(Icons.search) : Icon(Icons.cancel),
+            icon: !servicesController.isSearching.value
+                ? Icon(Icons.search)
+                : Icon(Icons.cancel),
             onPressed: _clearSearch,
           )
         ],
@@ -95,7 +110,7 @@ class _ServicesPageState extends State<ServicesPage> {
                 Icons.settings,
                 color: Colors.white,
               ),
-              mini: true,
+              heroTag: 'rfab',
               onPressed: () => _hideFilterButton(false),
             )
           : null,
@@ -107,13 +122,18 @@ class _ServicesPageState extends State<ServicesPage> {
                 child: Column(
                   children: [
                     Expanded(
-                        child: Obx(() => ListView.builder(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              itemCount: servicesController.filteredServices.length,
-                              itemBuilder: (context, i) {
-                                return _buildRow(servicesController.filteredServices[i], servicesController.brands);
-                              },
-                            ))),
+                      child: Obx(
+                        () => ListView.builder(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          itemCount: servicesController.filteredServices.length,
+                          itemBuilder: (context, i) {
+                            return _buildRow(
+                                servicesController.filteredServices[i],
+                                servicesController.brands);
+                          },
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 onRefresh: () => servicesController.sync()),

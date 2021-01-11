@@ -97,3 +97,13 @@ class ServiceStatus {
     return statusIcon;
   }
 }
+
+class FabsState {
+  static const Main = 'main';
+  static const AddGood = 'addGood';
+  static const GoodAdding = 'goodAdding';
+  static const AddImage = 'addImage';
+  static const RefusePage = 'refusePage';
+  static const ReschedulePage = 'reschedulePage';
+  static const PaymentPage = 'paymentPage';
+}
