@@ -5,6 +5,7 @@ import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_status.dart';
+import 'package:service_app/widgets/text/cardRow.dart';
 
 class GoodsList extends StatefulWidget {
   final String workType;
@@ -33,7 +34,7 @@ class _GoodsListState extends State<GoodsList> {
           'Услуги: ${widget.workType} (${widget.goodsList.length} шт)',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('${summ > 0 ? 'Итого: $summ' : ''}'),
+        subtitle: MoneyPlate(amount: summ),
         trailing: IconButton(
           icon: Icon(Icons.add),
           onPressed: widget.onAdd,
@@ -71,9 +72,8 @@ class GoodListTile extends StatelessWidget {
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
       child: Card(
-        color: kGoodCardColor,
         child: ListTile(
-          title: Text('${good.article} - ${good.name}'),
+          title: Text('${good.name}'),
           isThreeLine: true,
           subtitle: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -84,8 +84,8 @@ class GoodListTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Количество: ${serviceGood.qty / 100}'),
-                  Text('Цена: ${serviceGood.price / 100}'),
+                  QtyPlate(qty: serviceGood.qty / 100),
+                  MoneyPlate(amount: serviceGood.price / 100),
                 ],
               ),
             ],
@@ -96,9 +96,11 @@ class GoodListTile extends StatelessWidget {
         IconSlideAction(
           icon: Icons.delete,
           color: Colors.redAccent,
-          onTap: () async {
-            await serviceController.deleteServiceGood(serviceGood);
-          },
+          onTap: !serviceController.locked.value
+              ? () async {
+                  await serviceController.deleteServiceGood(serviceGood);
+                }
+              : null,
         )
       ],
     );

@@ -7,10 +7,10 @@ class GoodPrice {
   String name;
   int price;
 
-  GoodPrice(this.id);
+  GoodPrice(this.id, this.price);
 
   factory GoodPrice.fromJson(Map<String, dynamic> json) {
-    var goodPrice = GoodPrice(json['ID']);
+    var goodPrice = GoodPrice(json['ID'], 0);
 
     goodPrice.period = json['Period'];
     goodPrice.goodId = json['GoodID'];
@@ -23,7 +23,7 @@ class GoodPrice {
   }
 
   factory GoodPrice.fromMap(Map<String, dynamic> map) {
-    var goodPrice = GoodPrice(map['id']);
+    var goodPrice = GoodPrice(map['id'], 0);
 
     goodPrice.period = map['period'];
     goodPrice.goodId = map['goodId'];

@@ -2,17 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/good.dart';
-import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/good_page/good_page.dart';
+import 'package:service_app/models/service_status.dart';
 
-class GoodsPage extends StatelessWidget {
+class GoodsPage extends StatefulWidget {
+  @override
+  _GoodsPageState createState() => _GoodsPageState();
+}
+
+class _GoodsPageState extends State<GoodsPage> {
   final ServiceController serviceController = Get.find();
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      serviceController.fabsState.value = FabsState.Main;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Форма выбора номенклатуры'),
+        title: Text('Выберите услугу'),
       ),
       body: SafeArea(
           child: Builder(
@@ -26,7 +40,6 @@ class GoodsPage extends StatelessWidget {
 
 class GoodList extends StatelessWidget {
   final ServiceController serviceController = Get.find();
-
   final Good parentGood;
 
   GoodList({Key key, @required this.parentGood}) : super(key: key);
@@ -63,7 +76,6 @@ class GoodList extends StatelessWidget {
 }
 
 class GoodItem extends StatelessWidget {
-  final ServiceController serviceController = Get.find();
   final Good good;
   final bool isBack;
 
@@ -84,7 +96,7 @@ class GoodItem extends StatelessWidget {
           }
         },
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(width: 1.0, color: Colors.grey),

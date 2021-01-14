@@ -61,18 +61,22 @@ class _ServicePageState extends State<ServicePage> {
                     goodsList: serviceController.serviceGoods
                         .where((sg) => sg.workType == card)
                         .toList(),
-                    onAdd: () {
-                      serviceController.fabsState.value = FabsState.AddGood;
-                      serviceController.workType.value = card;
-                      Get.to(GoodsPage());
-                      print(card);
-                    },
+                    onAdd: !serviceController.locked.value
+                        ? () {
+                            serviceController.fabsState.value =
+                                FabsState.AddGood;
+                            serviceController.workType.value = card;
+                            Get.to(GoodsPage());
+                            print(card);
+                          }
+                        : null,
                   ));
                 });
                 return Column(
                   children: cards,
                 );
               }),
+              SizedBox(height: 80.0)
             ])),
           ],
         ),

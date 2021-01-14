@@ -17,6 +17,7 @@ import 'package:service_app/widgets/goods_page/goods_page.dart';
 
 class ServiceController extends GetxController {
   Rx<Service> service = Service(-1).obs;
+  RxBool locked = true.obs;
   RxList<ServiceGood> serviceGoods = <ServiceGood>[].obs;
   RxList<ServiceImage> serviceImages = <ServiceImage>[].obs;
 
@@ -317,9 +318,10 @@ class ServiceController extends GetxController {
           case ServiceState.New:
           case ServiceState.WorkInProgress:
           case ServiceState.Updated:
-            if (service.value.status == ServiceStatus.Start)
+            if (service.value.status == ServiceStatus.Start) {
               fabs.addAll(Iterable.castFrom(_mainFabs()));
-            else
+              locked.value = false;
+            } else
               fabs.addAll(_finisedFabs());
             break;
           case ServiceState.Exported:
@@ -332,7 +334,6 @@ class ServiceController extends GetxController {
             fabs.addAll(Iterable.castFrom(_finisedFabs()));
             break;
           default:
-            break;
         }
         break;
       case FabsState.GoodAdding:
@@ -348,7 +349,6 @@ class ServiceController extends GetxController {
         fabs.addAll(Iterable.castFrom(_paymentPage()));
         break;
       default:
-        break;
     }
 
     if (fabs.length > 1) {

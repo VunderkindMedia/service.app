@@ -42,6 +42,8 @@ Future<void> initServices() async {
 final ThemeData _appTheme = _buildAppTheme();
 
 ThemeData _buildAppTheme() {
+  /* return ThemeData.light(); */
+
   final ThemeData base = ThemeData.dark();
   return base.copyWith(
       primaryColor: kMainColor,
