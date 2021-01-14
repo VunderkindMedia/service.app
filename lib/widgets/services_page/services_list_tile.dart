@@ -31,7 +31,11 @@ class ServiceListTile extends StatelessWidget {
           color: brand.bColor(),
         ),
         SizedBox(width: 5.0),
-        Expanded(child: Text('${service.status}')),
+        Expanded(
+            child: Text(
+          '${service.status}',
+          maxLines: 1,
+        )),
         Spacer(),
         Text(
           '${serviceDate.isEmpty ? '' : serviceDate} $serviceInterval',

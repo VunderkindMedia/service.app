@@ -68,7 +68,8 @@ class DbService extends GetxService {
           'goodId INTEGER,'
           'price INTEGER,'
           'qty INTEGER,'
-          'sum INTEGER'
+          'sum INTEGER,'
+          'UNIQUE(id, serviceId)'
           ')');
       await db.execute('CREATE TABLE $SERVICE_IMAGES_NAME '
           '('
@@ -76,7 +77,8 @@ class DbService extends GetxService {
           'serviceId INTEGER,'
           'fileId INTEGER,'
           'fileName TEXT,'
-          'uploaded BOOLEAN'
+          'uploaded BOOLEAN,'
+          'UNIQUE(id, serviceId)'
           ')');
       await db.execute('CREATE TABLE $BRANDS_TABLE_NAME '
           '('
@@ -144,7 +146,7 @@ class DbService extends GetxService {
   Future<List<Service>> getServices(
       String userId, DateTime dStart, DateTime dEnd) async {
     String _query =
-        "userId = ? AND (dateStart >= ? AND dateEnd <= ?) AND deleteMark ==0";
+        "userId = ? AND (dateStart >= ? AND dateEnd <= ?) AND deleteMark == 0";
 
     final List<Map<String, dynamic>> maps = await _database.query(
       SERVICES_TABLE_NAME,
@@ -209,7 +211,7 @@ class DbService extends GetxService {
 
   Future<List<Good>> getGoods() async {
     final List<Map<String, dynamic>> maps =
-        await _database.query(GOODS_TABLE_NAME);
+        await _database.query(GOODS_TABLE_NAME, where: 'deleteMark = 0');
     return List.generate(maps.length, (i) => Good.fromMap(maps[i]));
   }
 
@@ -245,12 +247,19 @@ class DbService extends GetxService {
     });
   }
 
+  Future<void> deleteServiceGood(ServiceGood serviceGood) async {
+    await _database.transaction((txn) async {
+      await txn.delete(SERVICE_GOODS_NAME,
+          where: 'id = ?', whereArgs: [serviceGood.id]);
+    });
+  }
+
   Future<List<ServiceGood>> getServiceGoods(int serviceId,
       {bool unuploaded = false}) async {
     var _query = "serviceId = ?";
 
     if (unuploaded) {
-      _query = _query + " && id = -1";
+      _query = _query + " AND id = -1";
     }
 
     final List<Map<String, dynamic>> maps = await _database

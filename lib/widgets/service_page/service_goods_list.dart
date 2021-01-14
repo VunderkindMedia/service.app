@@ -9,8 +9,9 @@ import 'package:service_app/models/service_status.dart';
 class GoodsList extends StatefulWidget {
   final String workType;
   final List<ServiceGood> goodsList;
+  final Function onAdd;
 
-  GoodsList({this.workType, this.goodsList});
+  GoodsList({this.workType, this.goodsList, this.onAdd});
 
   @override
   _GoodsListState createState() => _GoodsListState();
@@ -23,7 +24,7 @@ class _GoodsListState extends State<GoodsList> {
   Widget build(BuildContext context) {
     var summ = 0.0;
     widget.goodsList.forEach((good) {
-      summ = summ + good.price * good.qty / 100;
+      summ = summ + good.price / 100 * good.qty / 100;
     });
 
     return Card(
@@ -32,10 +33,16 @@ class _GoodsListState extends State<GoodsList> {
           'Услуги: ${widget.workType} (${widget.goodsList.length} шт)',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        // TODO: Дополнить вывод информации о ТО
         subtitle: Text('${summ > 0 ? 'Итого: $summ' : ''}'),
+        trailing: IconButton(
+          icon: Icon(Icons.add),
+          onPressed: widget.onAdd,
+        ),
         onExpansionChanged: (expanded) {
-          var sState = expanded ? FabsState.AddGood : FabsState.Main;
+          var sState = expanded &&
+                  serviceController.service.value.status == ServiceStatus.Start
+              ? FabsState.AddGood
+              : FabsState.Main;
           serviceController.fabsState.value = sState;
           serviceController.workType.value = expanded ? widget.workType : '';
         },
@@ -89,12 +96,9 @@ class GoodListTile extends StatelessWidget {
         IconSlideAction(
           icon: Icons.delete,
           color: Colors.redAccent,
-          onTap: () {},
-        ),
-        IconSlideAction(
-          icon: Icons.edit,
-          color: Colors.orange[100],
-          onTap: () {},
+          onTap: () async {
+            await serviceController.deleteServiceGood(serviceGood);
+          },
         )
       ],
     );

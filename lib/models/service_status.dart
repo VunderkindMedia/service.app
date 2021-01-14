@@ -107,3 +107,9 @@ class FabsState {
   static const ReschedulePage = 'reschedulePage';
   static const PaymentPage = 'paymentPage';
 }
+
+class WorkTypes {
+  static const TO1 = 'TO1';
+  static const TO2 = 'TO2';
+  static const Attachment = 'attachment';
+}

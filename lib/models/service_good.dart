@@ -25,7 +25,7 @@ class ServiceGood {
   }
 
   factory ServiceGood.fromMap(Map<String, dynamic> map) {
-    var serviceGood = ServiceGood(map['ID']);
+    var serviceGood = ServiceGood(map['id']);
 
     serviceGood.workType = map['workType'];
     serviceGood.serviceId = map['serviceId'];

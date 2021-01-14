@@ -58,6 +58,7 @@ class ServiceController extends GetxController {
     var dbService = await _dbService.getServiceById(serviceId);
     this.service.value = dbService;
 
+    workType = ''.obs;
     await refreshServiceGoods();
     await refreshServiceImages();
   }
@@ -98,7 +99,7 @@ class ServiceController extends GetxController {
     serviceGood.serviceId = service.value.id;
     serviceGood.construction = construction;
     serviceGood.goodId = good.id;
-    serviceGood.price = price * 100;
+    serviceGood.price = price;
     serviceGood.qty = qty * 100;
     serviceGood.sum = price * qty * 100;
 
@@ -111,6 +112,65 @@ class ServiceController extends GetxController {
         .then((value) async {
       await refreshServiceGoods();
     });
+  }
+
+  Future<void> deleteServiceGood(ServiceGood serviceGood) async {
+    var applied =
+        await _apiService.deleteServiceGood(service.value, serviceGood, _token);
+
+    await _dbService.deleteServiceGood(serviceGood).then((value) async {
+      await refreshServiceGoods();
+    });
+  }
+
+  Future<void> refuseService(
+      Service service, String reason, String userComment) async {
+    service.state = ServiceState.Exported;
+    service.status = ServiceStatus.Refuse;
+    service.refuseReason = reason;
+    service.userComment = userComment;
+
+    var appliedService = await _apiService.setService(service, _token);
+
+    await _dbService.saveServices(<Service>[
+      appliedService == null ? service : appliedService
+    ]).then((value) => init(service.id));
+  }
+
+  Future<void> rescheduleService(
+      Service service, DateTime nextDate, String userComment) async {
+    service.state = ServiceState.Exported;
+    service.status = ServiceStatus.DateSwap;
+    service.userComment = 'Желаемая дата $nextDate\n' + userComment;
+
+    var appliedService = await _apiService.setService(service, _token);
+
+    await _dbService.saveServices(<Service>[
+      appliedService == null ? service : appliedService
+    ]).then((value) => init(service.id));
+  }
+
+  Future<void> finishService(
+      Service service,
+      String customerDecision,
+      DateTime dateNext,
+      String userComment,
+      int sumPayment,
+      int sumDiscount) async {
+    service.state = ServiceState.Exported;
+    service.status = ServiceStatus.Done;
+    service.dateStartNext = dateNext;
+    service.dateEndNext = dateNext;
+    service.userComment = userComment;
+    service.customerDecision = customerDecision;
+    service.sumPayment = sumPayment;
+    service.sumDiscount = sumDiscount;
+
+    var appliedService = await _apiService.setService(service, _token);
+
+    await _dbService.saveServices(<Service>[
+      appliedService == null ? service : appliedService
+    ]).then((value) => init(service.id));
   }
 
   List<Widget> _mainFabs() => <Widget>[
@@ -146,18 +206,37 @@ class ServiceController extends GetxController {
         ),
       ];
 
-  List<Widget> _addGoodFabs() => <Widget>[
+  List<Widget> _exportedFabs() => <Widget>[
         FloatingButton(
-          label: 'Добавить',
-          heroTag: 'rfab',
-          alignment: Alignment.bottomRight,
-          onPressed: () {
-            fabsState.value = FabsState.AddGood;
-            Get.to(GoodsPage());
-          },
-          iconData: Icons.add,
+          label: 'Выгрузка...',
+          heroTag: 'mfab',
+          alignment: Alignment.bottomCenter,
+          onPressed: null,
+          iconData: Icons.pending,
           extended: true,
-        ),
+        )
+      ];
+
+  List<Widget> _exportErrorFabs() => <Widget>[
+        FloatingButton(
+          label: 'Ошибка выгрузки!',
+          heroTag: 'mfab',
+          alignment: Alignment.bottomCenter,
+          onPressed: null,
+          iconData: Icons.error_outline,
+          extended: true,
+        )
+      ];
+
+  List<Widget> _finisedFabs() => <Widget>[
+        FloatingButton(
+          label: 'Обработка заявки сервером...',
+          heroTag: 'mfab',
+          alignment: Alignment.bottomCenter,
+          onPressed: null,
+          iconData: Icons.sync,
+          extended: true,
+        )
       ];
 
   List<Widget> _goodAddingFabs(Function callback) => <Widget>[
@@ -176,30 +255,36 @@ class ServiceController extends GetxController {
         ),
       ];
 
-  List<Widget> _refusePageFabs() => <Widget>[
+  List<Widget> _refusePageFabs(Function callback) => <Widget>[
         FloatingButton(
           label: 'Отказ',
           heroTag: 'mfab',
           alignment: Alignment.bottomCenter,
           onPressed: () {
-            fabsState.value = FabsState.Main;
-            Get.back();
-            print('refusing');
+            callback();
+
+            if (fabsState.value == FabsState.Main) {
+              Get.back();
+              print('refusing');
+            }
           },
           iconData: Icons.cancel,
           extended: true,
         ),
       ];
 
-  List<Widget> _reschedulePage() => <Widget>[
+  List<Widget> _reschedulePage(Function callback) => <Widget>[
         FloatingButton(
           label: 'Перенос даты',
           heroTag: 'mfab',
           alignment: Alignment.bottomCenter,
           onPressed: () {
-            fabsState.value = FabsState.Main;
-            Get.back();
-            print('reshelduing');
+            callback();
+
+            if (fabsState.value == FabsState.Main) {
+              Get.back();
+              print('reshelduing');
+            }
           },
           iconData: Icons.calendar_today_rounded,
           extended: true,
@@ -228,22 +313,41 @@ class ServiceController extends GetxController {
 
     switch (fabsState.value) {
       case FabsState.Main:
-        fabs.addAll(Iterable.castFrom(_mainFabs()));
-        break;
-      case FabsState.AddGood:
-        fabs.addAll(Iterable.castFrom(_addGoodFabs()));
+        switch (service.value.state) {
+          case ServiceState.New:
+          case ServiceState.WorkInProgress:
+          case ServiceState.Updated:
+            if (service.value.status == ServiceStatus.Start)
+              fabs.addAll(Iterable.castFrom(_mainFabs()));
+            else
+              fabs.addAll(_finisedFabs());
+            break;
+          case ServiceState.Exported:
+            fabs.addAll(Iterable.castFrom(_exportedFabs()));
+            break;
+          case ServiceState.ExportError:
+            fabs.addAll(Iterable.castFrom(_exportErrorFabs()));
+            break;
+          case ServiceState.WorkFinished:
+            fabs.addAll(Iterable.castFrom(_finisedFabs()));
+            break;
+          default:
+            break;
+        }
         break;
       case FabsState.GoodAdding:
         fabs.addAll(Iterable.castFrom(_goodAddingFabs(callback)));
         break;
       case FabsState.RefusePage:
-        fabs.addAll(Iterable.castFrom(_refusePageFabs()));
+        fabs.addAll(Iterable.castFrom(_refusePageFabs(callback)));
         break;
       case FabsState.ReschedulePage:
-        fabs.addAll(Iterable.castFrom(_reschedulePage()));
+        fabs.addAll(Iterable.castFrom(_reschedulePage(callback)));
         break;
       case FabsState.PaymentPage:
         fabs.addAll(Iterable.castFrom(_paymentPage()));
+        break;
+      default:
         break;
     }
 
@@ -255,11 +359,13 @@ class ServiceController extends GetxController {
           children: fabs,
         ),
       );
-    } else {
+    } else if (fabs.length > 0) {
       return Padding(
         padding: EdgeInsets.all(16.0),
         child: fabs.first,
       );
+    } else {
+      return SizedBox();
     }
   }
 

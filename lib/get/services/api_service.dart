@@ -133,4 +133,61 @@ class ApiService extends GetxService {
       return null;
     }
   }
+
+  Future<bool> deleteServiceGood(
+      Service service, ServiceGood serviceGood, String accessToken) async {
+    try {
+      var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+      var response = await http.delete(
+          '$API_SERVICES/${service.id.toString()}/good/${serviceGood.id}',
+          headers: headers);
+
+      if (response.statusCode != 200) {
+        throw response.body;
+      }
+
+      return true;
+    } catch (e) {
+      Get.showSnackbar(GetBar(
+        title: 'Error!',
+        message: e.toString(),
+      ));
+      return null;
+    }
+  }
+
+  Future<Service> getService(String accessToken, int serviceID) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get('$API_SERVICES/${serviceID.toString()}',
+        headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var service = Service.fromJson(responseJson);
+
+    print("get service ${service.id}");
+
+    return service;
+  }
+
+  Future<Service> setService(Service service, String accessToken) async {
+    try {
+      var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+      var response = await http.post('$API_SERVICES/${service.id.toString()}',
+          headers: headers, body: jsonEncode(service.toMap()));
+
+      if (response.statusCode != 200) {
+        throw response.body;
+      }
+
+      return Service.fromJson(jsonDecode(response.body));
+    } catch (e) {
+      Get.showSnackbar(GetBar(
+        title: 'Error!',
+        message: e.toString(),
+      ));
+      return null;
+    }
+  }
 }
