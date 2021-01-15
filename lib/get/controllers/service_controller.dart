@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
@@ -13,9 +14,10 @@ import 'package:service_app/widgets/buttons/fab_button.dart';
 import 'package:service_app/widgets/payment_page/payment_page.dart';
 import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
-import 'package:service_app/widgets/goods_page/goods_page.dart';
 
 class ServiceController extends GetxController {
+  final ServicesController servicesController = Get.find();
+
   Rx<Service> service = Service(-1).obs;
   RxBool locked = true.obs;
   RxList<ServiceGood> serviceGoods = <ServiceGood>[].obs;
@@ -28,7 +30,6 @@ class ServiceController extends GetxController {
   DbService _dbService;
   SharedPreferencesService _sharedPreferencesService;
   String _token;
-  String _personId;
 
   RxString fabsState = FabsState.Main.obs;
   RxString workType = ''.obs;
@@ -42,7 +43,6 @@ class ServiceController extends GetxController {
     _sharedPreferencesService = Get.find();
 
     _token = _sharedPreferencesService.getAccessToken();
-    _personId = _sharedPreferencesService.getPersonExternalId();
 
     var dbGoods = await _dbService.getGoods();
     goods.assignAll(dbGoods);
@@ -62,6 +62,8 @@ class ServiceController extends GetxController {
     workType = ''.obs;
     await refreshServiceGoods();
     await refreshServiceImages();
+
+    if (service.value.status == ServiceStatus.Start) locked.value = false;
   }
 
   @override
@@ -116,8 +118,7 @@ class ServiceController extends GetxController {
   }
 
   Future<void> deleteServiceGood(ServiceGood serviceGood) async {
-    var applied =
-        await _apiService.deleteServiceGood(service.value, serviceGood, _token);
+    await _apiService.deleteServiceGood(service.value, serviceGood, _token);
 
     await _dbService.deleteServiceGood(serviceGood).then((value) async {
       await refreshServiceGoods();
@@ -136,6 +137,8 @@ class ServiceController extends GetxController {
     await _dbService.saveServices(<Service>[
       appliedService == null ? service : appliedService
     ]).then((value) => init(service.id));
+
+    await servicesController.ref(DateTime.now());
   }
 
   Future<void> rescheduleService(
@@ -149,6 +152,8 @@ class ServiceController extends GetxController {
     await _dbService.saveServices(<Service>[
       appliedService == null ? service : appliedService
     ]).then((value) => init(service.id));
+
+    await servicesController.ref(DateTime.now());
   }
 
   Future<void> finishService(
@@ -172,6 +177,8 @@ class ServiceController extends GetxController {
     await _dbService.saveServices(<Service>[
       appliedService == null ? service : appliedService
     ]).then((value) => init(service.id));
+
+    await servicesController.ref(DateTime.now());
   }
 
   List<Widget> _mainFabs() => <Widget>[
@@ -292,15 +299,18 @@ class ServiceController extends GetxController {
         ),
       ];
 
-  List<Widget> _paymentPage() => <Widget>[
+  List<Widget> _paymentPage(Function callback) => <Widget>[
         FloatingButton(
           label: 'Принять оплату',
           heroTag: 'mfab',
           alignment: Alignment.bottomCenter,
           onPressed: () {
-            fabsState.value = FabsState.Main;
-            Get.back();
-            print('payment');
+            callback();
+
+            if (fabsState.value == FabsState.Main) {
+              Get.back();
+              print('payment');
+            }
           },
           iconData: Icons.check_circle,
           extended: true,
@@ -346,7 +356,7 @@ class ServiceController extends GetxController {
         fabs.addAll(Iterable.castFrom(_reschedulePage(callback)));
         break;
       case FabsState.PaymentPage:
-        fabs.addAll(Iterable.castFrom(_paymentPage()));
+        fabs.addAll(Iterable.castFrom(_paymentPage(callback)));
         break;
       default:
     }

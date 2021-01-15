@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_good.dart';
-import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
 
 class GoodsList extends StatefulWidget {
@@ -40,11 +38,6 @@ class _GoodsListState extends State<GoodsList> {
           onPressed: widget.onAdd,
         ),
         onExpansionChanged: (expanded) {
-          var sState = expanded &&
-                  serviceController.service.value.status == ServiceStatus.Start
-              ? FabsState.AddGood
-              : FabsState.Main;
-          serviceController.fabsState.value = sState;
           serviceController.workType.value = expanded ? widget.workType : '';
         },
         children: List.generate(widget.goodsList.length, (index) {

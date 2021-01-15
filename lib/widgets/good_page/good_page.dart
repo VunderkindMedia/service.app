@@ -41,7 +41,7 @@ class _GoodPageState extends State<GoodPage> {
     super.dispose();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      serviceController.fabsState.value = FabsState.AddGood;
+      serviceController.fabsState.value = FabsState.Main;
     });
   }
 
@@ -77,7 +77,7 @@ class _GoodPageState extends State<GoodPage> {
                       _constructionController.text,
                       goodPrice,
                       int.parse(_countController.text));
-                  serviceController.fabsState.value = FabsState.AddGood;
+                  serviceController.fabsState.value = FabsState.Main;
                 })),
         body: SafeArea(
           child: CustomScrollView(

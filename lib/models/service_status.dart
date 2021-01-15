@@ -100,7 +100,6 @@ class ServiceStatus {
 
 class FabsState {
   static const Main = 'main';
-  static const AddGood = 'addGood';
   static const GoodAdding = 'goodAdding';
   static const AddImage = 'addImage';
   static const RefusePage = 'refusePage';
@@ -112,4 +111,15 @@ class WorkTypes {
   static const TO1 = 'TO1';
   static const TO2 = 'TO2';
   static const Attachment = 'attachment';
+}
+
+class PaymentTypes {
+  static const Cash = 'Наличные';
+  static const Card = 'Безнал';
+}
+
+class ClientDecision {
+  static const Agree = 'Согласен';
+  static const Think = 'Подумаю';
+  static const Refuse = 'Отказ';
 }

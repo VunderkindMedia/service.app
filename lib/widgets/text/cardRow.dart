@@ -13,6 +13,7 @@ class CardRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(flex: 2, child: leading),
           Expanded(flex: 2, child: tailing),
@@ -32,6 +33,7 @@ class MoneyPlate extends StatelessWidget {
     return Text(
       NumberFormat.currency(locale: 'ru', name: 'руб.').format(amount),
       style: style,
+      textAlign: TextAlign.end,
     );
   }
 }

@@ -63,8 +63,6 @@ class _ServicePageState extends State<ServicePage> {
                         .toList(),
                     onAdd: !serviceController.locked.value
                         ? () {
-                            serviceController.fabsState.value =
-                                FabsState.AddGood;
                             serviceController.workType.value = card;
                             Get.to(GoodsPage());
                             print(card);

@@ -2,13 +2,17 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
+import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
 
 class ServiceListTile extends StatelessWidget {
   final ServicesController servicesController = Get.find();
+  final ServiceController serviceController = Get.find();
   final Service service;
   final Brand brand;
 
@@ -82,13 +86,31 @@ class ServiceListTile extends StatelessWidget {
           caption: 'Отмена',
           color: Colors.redAccent,
           icon: Icons.cancel,
-          onTap: () {},
+          onTap: () async {
+            await serviceController.init(service.id);
+            if (!serviceController.locked.value) {
+              serviceController.fabsState.value = FabsState.RefusePage;
+              Get.to(RefusePage());
+            } else {
+              await Get.defaultDialog(
+                  title: 'Ошибка!', middleText: 'Изменение заявки запрещено!');
+            }
+          },
         ),
         IconSlideAction(
           caption: 'Перенос',
           color: Colors.blueAccent,
           icon: Icons.calendar_today,
-          onTap: () {},
+          onTap: () async {
+            await serviceController.init(service.id);
+            if (!serviceController.locked.value) {
+              serviceController.fabsState.value = FabsState.ReschedulePage;
+              Get.to(ReschedulePage());
+            } else {
+              await Get.defaultDialog(
+                  title: 'Ошибка!', middleText: 'Изменение заявки запрещено!');
+            }
+          },
         ),
       ],
       secondaryActions: [

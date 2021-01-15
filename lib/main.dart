@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:service_app/get/services/api_service.dart';
@@ -22,8 +23,10 @@ Future<void> main() async {
       home: sharedPreferencesService.getAccessToken().length == 0
           ? LoginPage()
           : ServicesPage(),
+      localizationsDelegates: [GlobalMaterialLocalizations.delegate],
       supportedLocales: const <Locale>[
         const Locale('en'),
+        const Locale('ru'),
       ],
     ),
   );

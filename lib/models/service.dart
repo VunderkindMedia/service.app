@@ -1,5 +1,4 @@
 import 'package:service_app/models/service_good.dart';
-import 'package:service_app/models/service_image.dart';
 
 class Service {
   final int id;

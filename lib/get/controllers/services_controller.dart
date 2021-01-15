@@ -125,9 +125,6 @@ class ServicesController extends GetxController {
       DateTime _dateStart = DateTime(d.year, d.month, d.day);
       DateTime _dateEnd =
           _dateStart.add(Duration(hours: 23, minutes: 59, seconds: 59));
-      //TODO: убрать код ниже чисто для вывода данных
-      /* DateTime _dateStart = DateTime(2020, 12, 1);
-      DateTime _dateEnd = DateTime(2020, 12, 31); */
 
       var dbServices =
           await _dbService.getServices(_personId, _dateStart, _dateEnd);

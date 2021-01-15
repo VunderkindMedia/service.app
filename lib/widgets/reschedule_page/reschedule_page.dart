@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/commentField.dart';
+import 'package:service_app/widgets/text/cardRow.dart';
 
 class ReschedulePage extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class ReschedulePage extends StatefulWidget {
 
 class _ReschedulePageState extends State<ReschedulePage> {
   final ServiceController serviceController = Get.find();
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate;
   TextEditingController _commentController = TextEditingController();
 
   String formattedDate(DateTime date) {
@@ -23,7 +24,7 @@ class _ReschedulePageState extends State<ReschedulePage> {
   _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
@@ -51,30 +52,21 @@ class _ReschedulePageState extends State<ReschedulePage> {
         child: CustomScrollView(slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
-              Card(
-                child: Container(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Дата переноса: '),
-                        Container(
-                          child: Text(formattedDate(_selectedDate)),
-                          margin: EdgeInsets.only(right: 16),
-                        ),
-                        FlatButton(
-                          onPressed: () {
-                            _selectDate(context);
-                          },
-                          color: Colors.blue,
-                          textColor: Colors.white,
-                          child: Text('Выбрать дату'),
-                        ),
-                      ],
-                    ),
+              GestureDetector(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: CardRow(
+                    leading: Text('Дата переноса:',
+                        style: TextStyle(fontSize: 16.0)),
+                    tailing: Text(
+                        _selectedDate != null
+                            ? formattedDate(_selectedDate)
+                            : 'Нажмите для выбора',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(fontSize: 16.0)),
                   ),
                 ),
+                onTap: () => _selectDate(context),
               ),
               CommentField(controller: _commentController),
             ]),

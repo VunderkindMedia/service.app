@@ -28,8 +28,9 @@ class ServiceHeader extends StatelessWidget {
           title: Text("Статус заявки: ${service.status}" +
               "\n\nДата: $measureDate \t\t Время: $measureInterval"),
           subtitle: Text("${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}" +
-              "${(service.customerDecision != "") ? '\n Решение ТО-2: ' + service.customerDecision : ''}" +
+              "${(service.customerDecision != "") ? '\nРешение ТО-2: ' + service.customerDecision : ''}" +
               "${(service.sumTotal > 0) ? '\nОбщая сумма: ' + service.sumTotal.toString() : ''}" +
+              "${(service.sumDiscount > 0) ? '\nСумма скидки: ' + service.sumDiscount.toString() : ''}" +
               "${(service.sumPayment > 0) ? '\nСумма оплаты (' + service.paymentType + '): ' + service.sumPayment.toString() : ''}"),
         ),
       ),
