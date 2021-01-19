@@ -23,7 +23,10 @@ class ServiceController extends GetxController {
   RxList<ServiceGood> serviceGoods = <ServiceGood>[].obs;
   RxList<ServiceImage> serviceImages = <ServiceImage>[].obs;
 
+  RxString search = ''.obs;
+  RxBool isSarching = false.obs;
   RxList<Good> goods = <Good>[].obs;
+  RxList<Good> filteredGoods = <Good>[].obs;
   RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
 
   ApiService _apiService;
@@ -66,14 +69,18 @@ class ServiceController extends GetxController {
     if (service.value.status == ServiceStatus.Start) locked.value = false;
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-
+  void clearSC() {
     service = Service(-1).obs;
+    locked = true.obs;
     workType = ''.obs;
     serviceGoods.clear();
     serviceImages.clear();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    clearSC();
   }
 
   Future<void> refreshServiceGoods() async {
@@ -94,7 +101,7 @@ class ServiceController extends GetxController {
   }
 
   Future<void> addServiceGood(
-      Good good, String construction, GoodPrice goodPrice, int qty) async {
+      Good good, String construction, GoodPrice goodPrice, double qty) async {
     var price = goodPrice == null ? 0 : goodPrice.price;
 
     var serviceGood = new ServiceGood(-1);
@@ -103,8 +110,8 @@ class ServiceController extends GetxController {
     serviceGood.construction = construction;
     serviceGood.goodId = good.id;
     serviceGood.price = price;
-    serviceGood.qty = qty * 100;
-    serviceGood.sum = price * qty * 100;
+    serviceGood.qty = (qty * 100).round().toInt();
+    serviceGood.sum = (price * qty * 100).round().toInt();
 
     var appliedServiceGood =
         await _apiService.setServiceGood(service.value, serviceGood, _token);
@@ -161,6 +168,8 @@ class ServiceController extends GetxController {
       String customerDecision,
       DateTime dateNext,
       String userComment,
+      String paymentType,
+      int sumTotal,
       int sumPayment,
       int sumDiscount) async {
     service.state = ServiceState.Exported;
@@ -169,6 +178,8 @@ class ServiceController extends GetxController {
     service.dateEndNext = dateNext;
     service.userComment = userComment;
     service.customerDecision = customerDecision;
+    service.paymentType = paymentType;
+    service.sumTotal = sumTotal;
     service.sumPayment = sumPayment;
     service.sumDiscount = sumDiscount;
 
@@ -238,11 +249,11 @@ class ServiceController extends GetxController {
 
   List<Widget> _finisedFabs() => <Widget>[
         FloatingButton(
-          label: 'Обработка заявки сервером...',
+          label: 'Заявка выполнена',
           heroTag: 'mfab',
           alignment: Alignment.bottomCenter,
           onPressed: null,
-          iconData: Icons.sync,
+          iconData: Icons.check_box,
           extended: true,
         )
       ];
@@ -331,17 +342,15 @@ class ServiceController extends GetxController {
             if (service.value.status == ServiceStatus.Start) {
               fabs.addAll(Iterable.castFrom(_mainFabs()));
               locked.value = false;
-            } else
+            } else if (service.value.status == ServiceStatus.End)
               fabs.addAll(_finisedFabs());
             break;
           case ServiceState.Exported:
+          case ServiceState.WorkFinished:
             fabs.addAll(Iterable.castFrom(_exportedFabs()));
             break;
           case ServiceState.ExportError:
             fabs.addAll(Iterable.castFrom(_exportErrorFabs()));
-            break;
-          case ServiceState.WorkFinished:
-            fabs.addAll(Iterable.castFrom(_finisedFabs()));
             break;
           default:
         }
@@ -379,7 +388,20 @@ class ServiceController extends GetxController {
     }
   }
 
-  List<Good> getChildrenGoodsByParent(Good parent) {
+  void refreshGoods() {
+    if (isSarching.value)
+      filteredGoods.assignAll(goods
+          .where((good) =>
+              (good.name.toLowerCase().contains(search.value.toLowerCase()) ||
+                  good.article
+                      .toLowerCase()
+                      .contains(search.value.toLowerCase())) &&
+              !good.isGroup &&
+              !good.deleteMark)
+          .toList());
+  }
+
+  List<Good> getListGoodsByParent(Good parent) {
     if (parent == null) {
       return goods
           .where((good) =>
@@ -387,7 +409,8 @@ class ServiceController extends GetxController {
                   orElse: () => null) ==
               null)
           .toList();
+    } else {
+      return goods.where((good) => good.parentId == parent.externalId).toList();
     }
-    return goods.where((good) => good.parentId == parent.externalId).toList();
   }
 }

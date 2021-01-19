@@ -31,7 +31,7 @@ class ServiceListTile extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Icon(
-          ServiceState().getStateIcon(service.state),
+          ServiceState().getStateIcon(service),
           color: brand.bColor(),
         ),
         SizedBox(width: 5.0),

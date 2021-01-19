@@ -30,6 +30,7 @@ class _ServicePageState extends State<ServicePage> {
     super.dispose();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      serviceController.clearSC();
       servicesController.ref(servicesController.selectedDate.value);
     });
   }

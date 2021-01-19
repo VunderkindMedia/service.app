@@ -47,7 +47,7 @@ class QtyPlate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      qty.toStringAsFixed(2),
+      'Количество: ' + qty.toStringAsFixed(2),
       style: style,
     );
   }

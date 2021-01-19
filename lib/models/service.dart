@@ -61,9 +61,9 @@ class Service {
     service.phone = json['Phone'];
     service.comment = json['Comment'];
     service.userId = json['UserID'];
-    service.sumTotal = json['SummTotal'];
-    service.sumPayment = json['SummPayment'];
-    service.sumDiscount = json['SummDiscount'];
+    service.sumTotal = json['SumTotal'];
+    service.sumPayment = json['SumPayment'];
+    service.sumDiscount = json['SumDiscount'];
     service.paymentType = json['PaymentType'];
     service.customerDecision = json['CustomerDecision'];
     service.refuseReason = json['RefuseReason'];

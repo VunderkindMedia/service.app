@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:service_app/models/service.dart';
+import 'package:service_app/widgets/text/cardRow.dart';
 
 class ServiceHeader extends StatelessWidget {
   const ServiceHeader({
@@ -25,14 +26,40 @@ class ServiceHeader extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: ListTile(
-          title: Text("Статус заявки: ${service.status}" +
-              "\n\nДата: $measureDate \t\t Время: $measureInterval"),
-          subtitle: Text("${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}" +
-              "${(service.customerDecision != "") ? '\nРешение ТО-2: ' + service.customerDecision : ''}" +
-              "${(service.sumTotal > 0) ? '\nОбщая сумма: ' + service.sumTotal.toString() : ''}" +
-              "${(service.sumDiscount > 0) ? '\nСумма скидки: ' + service.sumDiscount.toString() : ''}" +
-              "${(service.sumPayment > 0) ? '\nСумма оплаты (' + service.paymentType + '): ' + service.sumPayment.toString() : ''}"),
-        ),
+            title: Text("Статус заявки: ${service.status}" +
+                "\n\nДата: $measureDate \t\t Время: $measureInterval"),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text("${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}" +
+                    "${(service.customerDecision != "") ? '\nРешение ТО-2: ' + service.customerDecision : ''}"),
+                service.sumTotal > 0
+                    ? CardRow(
+                        leading: Text('Сумма заказа:'),
+                        tailing: MoneyPlate(
+                          amount: service.sumTotal / 100,
+                        ),
+                      )
+                    : SizedBox(),
+                service.sumDiscount > 0
+                    ? CardRow(
+                        leading: Text('Сумма скидки:'),
+                        tailing: MoneyPlate(
+                          amount: service.sumDiscount / 100,
+                        ),
+                      )
+                    : SizedBox(),
+                service.sumPayment > 0
+                    ? CardRow(
+                        leading: Text('Сумма оплаты:'),
+                        tailing: MoneyPlate(
+                          amount: service.sumPayment / 100,
+                        ),
+                      )
+                    : SizedBox()
+              ],
+            )),
       ),
     );
   }

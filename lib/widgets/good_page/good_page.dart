@@ -21,9 +21,10 @@ class _GoodPageState extends State<GoodPage> {
   final ServiceController serviceController = Get.find();
 
   double _eval(good, price, count) {
+    var mprice = good.minPrice / 100;
     var val = price / 100 * double.parse(count);
-    if (good.minPrice > 0 && good.minPrice > val)
-      val = good.minPrice.toDouble();
+
+    if (mprice > 0 && mprice > val) val = mprice.toDouble();
     return val;
   }
 
@@ -48,8 +49,7 @@ class _GoodPageState extends State<GoodPage> {
   @override
   Widget build(BuildContext context) {
     TextEditingController _countController = TextEditingController(text: '1');
-    TextEditingController _constructionController =
-        TextEditingController(text: '-');
+    TextEditingController _constructionController = TextEditingController();
     var sum = 0.0.obs;
 
     return Builder(builder: (BuildContext context) {
@@ -76,7 +76,7 @@ class _GoodPageState extends State<GoodPage> {
                       good,
                       _constructionController.text,
                       goodPrice,
-                      int.parse(_countController.text));
+                      double.parse(_countController.text));
                   serviceController.fabsState.value = FabsState.Main;
                 })),
         body: SafeArea(
@@ -121,6 +121,7 @@ class _GoodPageState extends State<GoodPage> {
                           tailing: Text(
                             '${good.article.isNotEmpty ? good.article : '-'}',
                             style: kCardSubtitleStyle,
+                            textAlign: TextAlign.end,
                           ),
                         ),
                         CardRow(
@@ -158,12 +159,13 @@ class _GoodPageState extends State<GoodPage> {
                             style: kCardSubtitleStyle,
                           ),
                           tailing: TextField(
+                            decoration:
+                                InputDecoration(hintText: 'Не обязательно'),
+                            style: kCardSubtitleStyle,
                             keyboardType: TextInputType.text,
                             maxLines: 1,
-                            textAlign: TextAlign.start,
+                            textAlign: TextAlign.end,
                             textAlignVertical: TextAlignVertical.center,
-                            decoration:
-                                InputDecoration(border: InputBorder.none),
                             controller: _constructionController,
                           ),
                         ),
@@ -173,12 +175,12 @@ class _GoodPageState extends State<GoodPage> {
                             style: kCardSubtitleStyle,
                           ),
                           tailing: TextField(
+                            showCursor: false,
+                            style: kCardSubtitleStyle,
                             keyboardType: TextInputType.number,
                             maxLines: 1,
-                            textAlign: TextAlign.start,
+                            textAlign: TextAlign.end,
                             textAlignVertical: TextAlignVertical.center,
-                            decoration:
-                                InputDecoration(border: InputBorder.none),
                             controller: _countController,
                             onChanged: (value) {
                               sum.value = _eval(

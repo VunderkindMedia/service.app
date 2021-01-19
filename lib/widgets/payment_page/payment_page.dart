@@ -100,7 +100,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _eval() {
-    var discountTO1 = summTO1 * _selectedDiscount / 100;
+    var discountTO1 = 0.0;
     var discountTO2 = summTO2 * _selectedDiscount / 100;
 
     var s1 = ((summTO1 - discountTO1) / 10).ceilToDouble() * 10;
@@ -277,12 +277,7 @@ class _PaymentPageState extends State<PaymentPage> {
                         style: TextStyle(fontSize: 16.0),
                       ),
                       tailing: TextFormField(
-                        validator: (value) {
-                          if (double.parse(value) < minPayment.value) {
-                            return 'Сумма оплаты не должна быть менее ${minPayment.value}';
-                          }
-                          return null;
-                        },
+                        style: kCardSubtitleStyle,
                         textAlign: TextAlign.end,
                         controller: _paymentController,
                         inputFormatters: [
@@ -340,6 +335,8 @@ class _PaymentPageState extends State<PaymentPage> {
                     _selectedDecision,
                     _selectedDate,
                     _commentController.text,
+                    _selectedPayment,
+                    totalSumm.toInt() * 100,
                     int.parse(_paymentController.text) * 100,
                     discountSumm.value.toInt() * 100);
               })),

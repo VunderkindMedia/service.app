@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/widgets/good_page/good_page.dart';
 import 'package:service_app/models/service_status.dart';
@@ -14,26 +15,75 @@ class _GoodsPageState extends State<GoodsPage> {
   final ServiceController serviceController = Get.find();
 
   @override
+  void initState() {
+    super.initState();
+    serviceController.refreshGoods();
+  }
+
+  @override
   void dispose() {
     super.dispose();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      serviceController.isSarching.value = false;
       serviceController.fabsState.value = FabsState.Main;
     });
+  }
+
+  void _clearSearch() {
+    serviceController.isSarching.value = !serviceController.isSarching.value;
+
+    if (!serviceController.isSarching.value) {
+      serviceController.search.value = '';
+      serviceController.filteredGoods.clear();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Выберите услугу'),
+        title: Obx(() => !serviceController.isSarching.value
+            ? Text('Выберите услугу')
+            : TextField(
+                decoration: InputDecoration(
+                    icon: Icon(Icons.search, color: kSecondColor),
+                    hintText: 'Поиск',
+                    hintStyle: kSearchBarTextStyle),
+                style: kSearchBarTextStyle,
+                autofocus: true,
+                onChanged: (value) {
+                  serviceController.search.value = value;
+                },
+                onEditingComplete: () {
+                  serviceController.refreshGoods();
+                },
+              )),
+        actions: [
+          Obx(
+            () => IconButton(
+              icon: !serviceController.isSarching.value
+                  ? Icon(Icons.search)
+                  : Icon(Icons.cancel),
+              onPressed: _clearSearch,
+            ),
+          )
+        ],
       ),
       body: SafeArea(
-          child: Builder(
-        builder: (BuildContext context) => GoodList(
-          parentGood: null,
+        child: Obx(
+          () => serviceController.isSarching.value
+              ? ListView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  itemCount: serviceController.filteredGoods.length,
+                  itemBuilder: (context, i) =>
+                      GoodItem(good: serviceController.filteredGoods[i]),
+                )
+              : Builder(
+                  builder: (BuildContext context) => GoodList(parentGood: null),
+                ),
         ),
-      )),
+      ),
     );
   }
 }
@@ -46,7 +96,8 @@ class GoodList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var goods = serviceController.getChildrenGoodsByParent(parentGood);
+    print('ref');
+    var goods = serviceController.getListGoodsByParent(parentGood);
     var hasBack = parentGood != null;
 
     return Container(
@@ -59,7 +110,8 @@ class GoodList extends StatelessWidget {
           Expanded(
             child: Navigator(
               onGenerateRoute: (RouteSettings settings) {
-                var builder = (BuildContext _) => ListView.builder(
+                var builder = (_) => ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
                       itemCount: goods.length,
                       itemBuilder: (context, i) {
                         return GoodItem(good: goods[i]);
@@ -76,6 +128,7 @@ class GoodList extends StatelessWidget {
 }
 
 class GoodItem extends StatelessWidget {
+  final ServiceController serviceController = Get.find();
   final Good good;
   final bool isBack;
 
