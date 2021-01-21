@@ -1,5 +1,5 @@
 class ServiceGood {
-  final int id;
+  final String id;
   String workType;
   int serviceId;
   String construction;
@@ -7,6 +7,7 @@ class ServiceGood {
   int price;
   int qty;
   int sum;
+  bool export;
 
   ServiceGood(this.id);
 
@@ -20,6 +21,7 @@ class ServiceGood {
     serviceGood.price = json['Price'];
     serviceGood.qty = json['Qty'];
     serviceGood.sum = json['Summ'];
+    serviceGood.export = false;
 
     return serviceGood;
   }
@@ -34,6 +36,7 @@ class ServiceGood {
     serviceGood.price = map['price'];
     serviceGood.qty = map['qty'];
     serviceGood.sum = map['sum'];
+    serviceGood.export = map['export'] == 1 ? true : false;
 
     return serviceGood;
   }
@@ -48,6 +51,7 @@ class ServiceGood {
       'price': price,
       'qty': qty,
       'sum': sum,
+      'export': export ? 1 : 0,
     };
   }
 }

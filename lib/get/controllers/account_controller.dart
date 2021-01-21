@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
@@ -10,7 +12,7 @@ class AccountController extends GetxController {
   var username = ''.obs;
   var password = ''.obs;
 
-  void login() async {
+  Future<void> login() async {
     ApiService apiService = Get.find();
     SharedPreferencesService sharedPreferencesService = Get.find();
 
@@ -31,6 +33,8 @@ class AccountController extends GetxController {
 
   void logout() async {
     DbService dbService = Get.find();
+    SyncController syncController = Get.find();
+    ServiceController serviceController = Get.find();
     ServicesController servicesController = Get.find();
     SharedPreferencesService sharedPreferencesService = Get.find();
 
@@ -39,7 +43,10 @@ class AccountController extends GetxController {
       sharedPreferencesService.setPersonExternalId(null);
       sharedPreferencesService.setCityExternalId(null);
       sharedPreferencesService.setPersonName(null);
+      sharedPreferencesService.setLastSyncDate(null);
 
+      syncController.disposeController();
+      serviceController.disposeController();
       servicesController.disposeController();
       await dbService.disposeTables();
 

@@ -46,5 +46,11 @@
 		<string>en</string>
 		<string>ru</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Use</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Photo Use</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Photo Use</string>
 </dict>
 </plist>

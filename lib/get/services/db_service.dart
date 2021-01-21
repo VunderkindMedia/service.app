@@ -57,11 +57,12 @@ class DbService extends GetxService {
           'dateEndNext DATETIME,'
           'sumTotal INTEGER,'
           'sumPayment INTEGER,'
-          'sumDiscount INTEGER'
+          'sumDiscount INTEGER,'
+          'export BOOLEAN'
           ')');
       await db.execute('CREATE TABLE $SERVICE_GOODS_NAME '
           '('
-          'id INTEGER,'
+          'id TEXT,'
           'workType TEXT,'
           'serviceId INTEGER,'
           'construction TEXT,'
@@ -69,15 +70,17 @@ class DbService extends GetxService {
           'price INTEGER,'
           'qty INTEGER,'
           'sum INTEGER,'
+          'export BOOLEAN,'
           'UNIQUE(id, serviceId)'
           ')');
       await db.execute('CREATE TABLE $SERVICE_IMAGES_NAME '
           '('
-          'id INTEGER,'
+          'id TEXT,'
           'serviceId INTEGER,'
           'fileId INTEGER,'
           'fileName TEXT,'
-          'uploaded BOOLEAN,'
+          'local TEXT,'
+          'export BOOLEAN,'
           'UNIQUE(id, serviceId)'
           ')');
       await db.execute('CREATE TABLE $BRANDS_TABLE_NAME '
@@ -109,8 +112,9 @@ class DbService extends GetxService {
           'goodId TEXT,'
           'cityId TEXT,'
           'brandId TEXT,'
-          'name BOOLEAN,'
-          'price INTEGER'
+          'name TEXT,'
+          'price INTEGER,'
+          'UNIQUE(goodId, cityId, brandId)'
           ')');
     });
     print('$runtimeType ready!');
@@ -209,9 +213,14 @@ class DbService extends GetxService {
     });
   }
 
-  Future<List<Good>> getGoods() async {
-    final List<Map<String, dynamic>> maps =
-        await _database.query(GOODS_TABLE_NAME, where: 'deleteMark = 0');
+  Future<List<Good>> getGoods(Service service) async {
+    var maps = await _database.rawQuery(
+        'SELECT goods.* ' +
+            'FROM goods ' +
+            'LEFT JOIN good_prices ' +
+            'ON goods.externalId = good_prices.goodId ' +
+            'WHERE (goods.deleteMark = 0 AND good_prices.brandId = ?) OR isGroup = 1',
+        [service.brandId]);
     return List.generate(maps.length, (i) => Good.fromMap(maps[i]));
   }
 
@@ -225,9 +234,10 @@ class DbService extends GetxService {
     });
   }
 
-  Future<List<GoodPrice>> getGoodPrices() async {
-    final List<Map<String, dynamic>> maps =
-        await _database.query(GOOD_PRICES_TABLE_NAME);
+  Future<List<GoodPrice>> getGoodPrices(Service service) async {
+    String _query = 'cityId = ? AND brandId = ?';
+    var maps = await _database.query(GOOD_PRICES_TABLE_NAME,
+        where: _query, whereArgs: [service.cityId, service.brandId]);
     return List.generate(maps.length, (i) => GoodPrice.fromMap(maps[i]));
   }
 
@@ -235,6 +245,15 @@ class DbService extends GetxService {
     await _database.transaction((txn) async {
       serviceGood.forEach((sg) async {
         await txn.insert(SERVICE_GOODS_NAME, sg.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<void> saveServiceImages(List<ServiceImage> serviceImage) async {
+    await _database.transaction((txn) async {
+      serviceImage.forEach((si) async {
+        await txn.insert(SERVICE_IMAGES_NAME, si.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
       });
     });
@@ -254,26 +273,26 @@ class DbService extends GetxService {
     });
   }
 
-  Future<List<ServiceGood>> getServiceGoods(int serviceId,
-      {bool unuploaded = false}) async {
-    var _query = "serviceId = ?";
+  Future<void> addServiceImage(ServiceImage serviceImage) async {
+    await _database.transaction((txn) async {
+      await txn.insert(SERVICE_IMAGES_NAME, serviceImage.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    });
+  }
 
-    if (unuploaded) {
-      _query = _query + " AND id = -1";
-    }
+  Future<void> deleteServiceImage(ServiceImage serviceImage) async {
+    await _database.transaction((txn) async {
+      await txn.delete(SERVICE_IMAGES_NAME,
+          where: 'id = ?', whereArgs: [serviceImage.id]);
+    });
+  }
+
+  Future<List<ServiceGood>> getServiceGoods(int serviceId) async {
+    var _query = "serviceId = ?";
 
     final List<Map<String, dynamic>> maps = await _database
         .query(SERVICE_GOODS_NAME, where: _query, whereArgs: [serviceId]);
     return List.generate(maps.length, (i) => ServiceGood.fromMap(maps[i]));
-  }
-
-  Future<void> saveServiceImages(List<ServiceImage> serviceImage) async {
-    await _database.transaction((txn) async {
-      serviceImage.forEach((si) async {
-        await txn.insert(SERVICE_IMAGES_NAME, si.toMap(),
-            conflictAlgorithm: ConflictAlgorithm.replace);
-      });
-    });
   }
 
   Future<List<ServiceImage>> getServiceImages(int serviceId) async {
@@ -281,6 +300,27 @@ class DbService extends GetxService {
         SERVICE_IMAGES_NAME,
         where: "serviceId = ?",
         whereArgs: [serviceId]);
+    return List.generate(maps.length, (i) => ServiceImage.fromMap(maps[i]));
+  }
+
+  Future<List<Service>> getExportServices(String userId) async {
+    String _query = "userId = ? AND deleteMark == 0 AND export == 1";
+    final List<Map<String, dynamic>> maps = await _database
+        .query(SERVICES_TABLE_NAME, where: _query, whereArgs: [userId]);
+    return List.generate(maps.length, (i) => Service.fromMap(maps[i]));
+  }
+
+  Future<List<ServiceGood>> getExportServiceGoods() async {
+    String _query = "export == 1";
+    final List<Map<String, dynamic>> maps =
+        await _database.query(SERVICE_GOODS_NAME, where: _query);
+    return List.generate(maps.length, (i) => ServiceGood.fromMap(maps[i]));
+  }
+
+  Future<List<ServiceImage>> getExportServiceImages() async {
+    String _query = "export == 1";
+    final List<Map<String, dynamic>> maps =
+        await _database.query(SERVICE_IMAGES_NAME, where: _query);
     return List.generate(maps.length, (i) => ServiceImage.fromMap(maps[i]));
   }
 

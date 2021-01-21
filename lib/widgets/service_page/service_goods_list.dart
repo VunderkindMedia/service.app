@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
@@ -30,10 +31,12 @@ class _GoodsListState extends State<GoodsList> {
       child: ExpansionTile(
         title: Text(
           'Услуги: ${widget.workType} (${widget.goodsList.length} шт)',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: kCardTitleStyle,
         ),
         subtitle: MoneyPlate(amount: summ),
         trailing: IconButton(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          alignment: Alignment.centerRight,
           icon: Icon(Icons.add),
           onPressed: widget.onAdd,
         ),

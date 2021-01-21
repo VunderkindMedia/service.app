@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/models/brand.dart';
@@ -17,6 +18,7 @@ class ServicesPage extends StatefulWidget {
 }
 
 class _ServicesPageState extends State<ServicesPage> {
+  final SyncController syncController = Get.put(SyncController());
   final ServicesController servicesController = Get.put(ServicesController());
   final ServiceController serviceController = Get.put(ServiceController());
   final GlobalKey<RefreshIndicatorState> _refKey =
@@ -25,6 +27,15 @@ class _ServicesPageState extends State<ServicesPage> {
 
   DateTime selectedDate = DateTime.now();
   bool showFAB = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _refKey.currentState.show();
+    });
+  }
 
   Widget _buildRow(Service service, List<Brand> brands) {
     var brand = brands.firstWhere(

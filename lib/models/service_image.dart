@@ -1,9 +1,10 @@
 class ServiceImage {
-  final int id;
+  final String id;
   int serviceId;
   int fileId;
   String fileName;
-  bool uploaded;
+  String local;
+  bool export;
 
   ServiceImage(this.id);
 
@@ -13,7 +14,8 @@ class ServiceImage {
     serviceImage.serviceId = json['serviceId'];
     serviceImage.fileId = json['fileId'];
     serviceImage.fileName = json['fileName'];
-    serviceImage.uploaded = true;
+    serviceImage.local = '';
+    serviceImage.export = false;
 
     return serviceImage;
   }
@@ -24,7 +26,8 @@ class ServiceImage {
     serviceImage.serviceId = map['serviceId'];
     serviceImage.fileId = map['fileId'];
     serviceImage.fileName = map['fileName'];
-    serviceImage.uploaded = map['uploaded'] == 1 ? true : false;
+    serviceImage.local = map['local'];
+    serviceImage.export = map['export'] == 1 ? true : false;
 
     return serviceImage;
   }
@@ -35,7 +38,8 @@ class ServiceImage {
       'serviceId': serviceId,
       'fileId': fileId,
       'fileName': fileName,
-      'uploaded': uploaded ? 1 : 0,
+      'local': local,
+      'export': export ? 1 : 0,
     };
   }
 }

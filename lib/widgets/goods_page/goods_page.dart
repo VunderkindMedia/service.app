@@ -25,7 +25,8 @@ class _GoodsPageState extends State<GoodsPage> {
     super.dispose();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      serviceController.isSarching.value = false;
+      serviceController.search.value = '';
+      serviceController.filteredGoods.clear();
       serviceController.fabsState.value = FabsState.Main;
     });
   }
@@ -54,10 +55,9 @@ class _GoodsPageState extends State<GoodsPage> {
                 autofocus: true,
                 onChanged: (value) {
                   serviceController.search.value = value;
-                },
-                onEditingComplete: () {
                   serviceController.refreshGoods();
                 },
+                onEditingComplete: () {},
               )),
         actions: [
           Obx(

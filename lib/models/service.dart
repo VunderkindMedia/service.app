@@ -1,4 +1,5 @@
 import 'package:service_app/models/service_good.dart';
+import 'package:service_app/models/service_image.dart';
 
 class Service {
   final int id;
@@ -32,6 +33,7 @@ class Service {
   int sumTotal;
   int sumPayment;
   int sumDiscount;
+  bool export;
   List<dynamic> serviceGoods;
   List<dynamic> serviceImages;
 
@@ -70,11 +72,12 @@ class Service {
     service.userComment = json['UserComment'];
     service.dateStartNext = DateTime.parse(json['DateStartNext']);
     service.dateEndNext = DateTime.parse(json['DateEndNext']);
+    service.export = false;
 
     var serviceGoods =
         json['ServiceGoods']?.map((json) => ServiceGood.fromJson(json)) ?? [];
     var serviceImages =
-        json['ServiceImages']?.map((json) => ServiceGood.fromJson(json)) ?? [];
+        json['ServiceImages']?.map((json) => ServiceImage.fromJson(json)) ?? [];
 
     if (serviceGoods.isNotEmpty) {
       service.serviceGoods = serviceGoods.toList();
@@ -120,6 +123,7 @@ class Service {
     service.userComment = map['userComment'];
     service.dateStartNext = DateTime.parse(map['dateStartNext']);
     service.dateEndNext = DateTime.parse(map['dateEndNext']);
+    service.export = map['export'] == 1 ? true : false;
 
     return service;
   }
@@ -156,7 +160,8 @@ class Service {
       'dateEndNext': dateEndNext.toString(),
       'sumTotal': sumTotal,
       'sumPayment': sumPayment,
-      'sumDiscount': sumDiscount
+      'sumDiscount': sumDiscount,
+      'export': export ? 1 : 0,
     };
   }
 

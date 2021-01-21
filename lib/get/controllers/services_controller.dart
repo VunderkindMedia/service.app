@@ -1,36 +1,32 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:maps_launcher/maps_launcher.dart';
-import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
-  var isLoading = false.obs;
+  final SyncController syncController = Get.find();
   var isSearching = false.obs;
   var hideFinished = false.obs;
 
   Rx<DateTime> selectedDate = DateTime.now().obs;
-  Rx<DateTime> _lastSyncDate = DateTime.now().obs;
 
   RxList<Service> _services = <Service>[].obs;
-
-  int get servicesCount => _services.length;
-
   RxList<Brand> brands = <Brand>[].obs;
   RxList<Service> filteredServices = <Service>[].obs;
+
+  int get servicesCount => _services.length;
 
   String searchString = "";
   List<String> statusFilters = <String>[];
 
-  ApiService _apiService;
-  DbService _dbService;
   SharedPreferencesService _sharedPreferencesService;
-  String _token;
+  DbService _dbService;
   String _personName;
   String _personId;
 
@@ -38,46 +34,26 @@ class ServicesController extends GetxController {
   void onInit() {
     super.onInit();
 
-    _apiService = Get.find();
     _dbService = Get.find();
     _sharedPreferencesService = Get.find();
 
-    _lastSyncDate.value = _sharedPreferencesService.getLastSyncDate();
-    _token = _sharedPreferencesService.getAccessToken();
     _personName = _sharedPreferencesService.getPersonName();
     _personId = _sharedPreferencesService.getPersonExternalId();
 
     _services.listen((value) => updateFilteredServices());
-    _lastSyncDate.listen((value) {
-      _sharedPreferencesService.setLastSyncDate(value);
-    });
 
     ref(DateTime.now());
   }
 
   void disposeController() {
-    _lastSyncDate.value = null;
-
     selectedDate.value = DateTime.now();
     _services.clear();
     filteredServices.clear();
   }
 
   Future<void> sync() async {
-    try {
-      isLoading.value = true;
-
-      await _syncBrands();
-      await _syncGoods();
-      await _syncGoodPrices();
-      await _syncServices();
-
-      _lastSyncDate.value = DateTime.now();
-    } catch (e) {
-      print(e);
-    } finally {
-      isLoading.value = false;
-    }
+    await syncController.sync();
+    await _refreshServices();
   }
 
   Future<void> ref(DateTime dt) async {
@@ -88,30 +64,6 @@ class ServicesController extends GetxController {
     } catch (e) {
       print(e);
     }
-  }
-
-  Future<void> _syncServices() async {
-    var services = await _apiService.getServices(_token, _lastSyncDate.value);
-    await _dbService.saveServices(services);
-
-    await _refreshServices();
-  }
-
-  Future<void> _syncBrands() async {
-    var brands = await _apiService.getBrands(_token, _lastSyncDate.value);
-    await _dbService.saveBrands(brands);
-    this.brands.assignAll(brands);
-  }
-
-  Future<void> _syncGoods() async {
-    var goods = await _apiService.getGoods(_token, _lastSyncDate.value);
-    await _dbService.saveGoods(goods);
-  }
-
-  Future<void> _syncGoodPrices() async {
-    var goodPrices =
-        await _apiService.getGoodPrices(_token, _lastSyncDate.value);
-    await _dbService.saveGoodPrices(goodPrices);
   }
 
   Future<void> _refreshServices() async {

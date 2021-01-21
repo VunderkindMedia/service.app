@@ -11,6 +11,7 @@ import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
+import 'package:service_app/models/service_image.dart';
 
 class ApiService extends GetxService {
   ApiService init() {
@@ -109,37 +110,36 @@ class ApiService extends GetxService {
     return goodPrices;
   }
 
-  Future<ServiceGood> setServiceGood(
-      Service service, ServiceGood serviceGood, String accessToken) async {
+  Future<ServiceGood> addServiceGood(
+      ServiceGood serviceGood, String accessToken) async {
     try {
       var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
       var response = await http.post(
-          '$API_SERVICES/${service.id.toString()}/good',
-          headers: headers,
-          body: jsonEncode(serviceGood.toMap()));
+        '$API_SERVICES/${serviceGood.serviceId.toString()}/good',
+        headers: headers,
+        body: jsonEncode(
+          serviceGood.toMap(),
+        ),
+      );
 
       if (response.statusCode != 200) {
-        throw response.body;
+        return null;
       }
 
       return ServiceGood.fromJson(jsonDecode(response.body));
     } catch (e) {
-      Get.showSnackbar(GetBar(
-        title: 'Error!',
-        message: e.toString(),
-      ));
       return null;
     }
   }
 
   Future<bool> deleteServiceGood(
-      Service service, ServiceGood serviceGood, String accessToken) async {
+      ServiceGood serviceGood, String accessToken) async {
     try {
       var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
       var response = await http.delete(
-          '$API_SERVICES/${service.id.toString()}/good/${serviceGood.id}',
+          '$API_SERVICES/${serviceGood.serviceId.toString()}/good/${serviceGood.id}',
           headers: headers);
 
       if (response.statusCode != 200) {
@@ -152,8 +152,43 @@ class ApiService extends GetxService {
         title: 'Error!',
         message: e.toString(),
       ));
-      return null;
+      return false;
     }
+  }
+
+  Future<bool> addServiceImage(
+      ServiceImage serviceImage, String accessToken) async {
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$API_FILES'
+            '/service/${serviceImage.serviceId.toString()}'
+            '/${serviceImage.id}'),
+      );
+      request.headers['authorization'] = 'Bearer $accessToken';
+      request.headers['content-type'] = 'multipart/form-data';
+      request.files.add(http.MultipartFile(
+          'attachment',
+          File(serviceImage.local).readAsBytes().asStream(),
+          File(serviceImage.local).lengthSync(),
+          filename: serviceImage.local.split('/').last));
+      var response = await request.send();
+
+      if (response.statusCode != 200) {
+        return false;
+      }
+
+      request = null;
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteServiceImage(
+      ServiceImage serviceImage, String accessToken) async {
+    return true;
   }
 
   Future<Service> getService(String accessToken, int serviceID) async {
@@ -173,19 +208,18 @@ class ApiService extends GetxService {
     try {
       var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-      var response = await http.post('$API_SERVICES/${service.id.toString()}',
-          headers: headers, body: jsonEncode(service.toMap()));
+      var response = await http.post(
+        '$API_SERVICES/${service.id.toString()}',
+        headers: headers,
+        body: jsonEncode(service.toMap()),
+      );
 
       if (response.statusCode != 200) {
-        throw response.body;
+        return null;
       }
 
       return Service.fromJson(jsonDecode(response.body));
     } catch (e) {
-      Get.showSnackbar(GetBar(
-        title: 'Error!',
-        message: e.toString(),
-      ));
       return null;
     }
   }

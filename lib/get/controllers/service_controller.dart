@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
-import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
-import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
 import 'package:service_app/models/service_status.dart';
@@ -16,7 +18,9 @@ import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
 
 class ServiceController extends GetxController {
+  final SyncController syncController = Get.find();
   final ServicesController servicesController = Get.find();
+  final picker = ImagePicker();
 
   Rx<Service> service = Service(-1).obs;
   RxBool locked = true.obs;
@@ -29,10 +33,7 @@ class ServiceController extends GetxController {
   RxList<Good> filteredGoods = <Good>[].obs;
   RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
 
-  ApiService _apiService;
   DbService _dbService;
-  SharedPreferencesService _sharedPreferencesService;
-  String _token;
 
   RxString fabsState = FabsState.Main.obs;
   RxString workType = ''.obs;
@@ -41,17 +42,7 @@ class ServiceController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
 
-    _apiService = Get.find();
     _dbService = Get.find();
-    _sharedPreferencesService = Get.find();
-
-    _token = _sharedPreferencesService.getAccessToken();
-
-    var dbGoods = await _dbService.getGoods();
-    goods.assignAll(dbGoods);
-
-    var dbGoodPrices = await _dbService.getGoodPrices();
-    goodPrices.assignAll(dbGoodPrices);
 
     fabsState.listen((value) {
       refreshFabButtons(null);
@@ -62,6 +53,18 @@ class ServiceController extends GetxController {
     var dbService = await _dbService.getServiceById(serviceId);
     this.service.value = dbService;
 
+    var resync = goodPrices.length > 0
+        ? goodPrices.first.brandId != dbService.brandId
+        : true;
+
+    if (resync) {
+      var dbGoods = await _dbService.getGoods(dbService);
+      goods.assignAll(dbGoods);
+
+      var dbGoodPrices = await _dbService.getGoodPrices(dbService);
+      goodPrices.assignAll(dbGoodPrices);
+    }
+
     workType = ''.obs;
     await refreshServiceGoods();
     await refreshServiceImages();
@@ -69,18 +72,12 @@ class ServiceController extends GetxController {
     if (service.value.status == ServiceStatus.Start) locked.value = false;
   }
 
-  void clearSC() {
+  void disposeController() {
     service = Service(-1).obs;
     locked = true.obs;
     workType = ''.obs;
     serviceGoods.clear();
     serviceImages.clear();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    clearSC();
   }
 
   Future<void> refreshServiceGoods() async {
@@ -100,11 +97,32 @@ class ServiceController extends GetxController {
     print('updt simages');
   }
 
+  Future<void> addServiceImage(String imageName, String imagePath) async {
+    var serviceImage = new ServiceImage(Uuid().v1());
+    serviceImage.serviceId = service.value.id;
+    serviceImage.fileName = '';
+    serviceImage.local = imagePath;
+    serviceImage.export = true;
+
+    await syncController
+        .saveServiceImage(serviceImage)
+        .then((value) => refreshServiceImages())
+        .whenComplete(() => syncController
+            .syncServiceImage(serviceImage)
+            .then((value) => refreshServiceImages()));
+  }
+
+  Future<void> deleteServiceImage(ServiceImage serviceImage) async {
+    await syncController
+        .deleteServiceImage(service.value, serviceImage)
+        .then((value) => refreshServiceImages());
+  }
+
   Future<void> addServiceGood(
       Good good, String construction, GoodPrice goodPrice, double qty) async {
     var price = goodPrice == null ? 0 : goodPrice.price;
 
-    var serviceGood = new ServiceGood(-1);
+    var serviceGood = new ServiceGood(Uuid().v1());
     serviceGood.workType = workType.value;
     serviceGood.serviceId = service.value.id;
     serviceGood.construction = construction;
@@ -112,24 +130,20 @@ class ServiceController extends GetxController {
     serviceGood.price = price;
     serviceGood.qty = (qty * 100).round().toInt();
     serviceGood.sum = (price * qty * 100).round().toInt();
+    serviceGood.export = true;
 
-    var appliedServiceGood =
-        await _apiService.setServiceGood(service.value, serviceGood, _token);
-
-    await _dbService
-        .addServiceGood(
-            appliedServiceGood == null ? serviceGood : appliedServiceGood)
-        .then((value) async {
-      await refreshServiceGoods();
-    });
+    await syncController
+        .saveServiceGood(serviceGood)
+        .then((value) => refreshServiceGoods())
+        .whenComplete(() => syncController
+            .syncServiceGood(serviceGood)
+            .then((value) => refreshServiceGoods()));
   }
 
   Future<void> deleteServiceGood(ServiceGood serviceGood) async {
-    await _apiService.deleteServiceGood(service.value, serviceGood, _token);
-
-    await _dbService.deleteServiceGood(serviceGood).then((value) async {
-      await refreshServiceGoods();
-    });
+    await syncController
+        .deleteServiceGood(service.value, serviceGood)
+        .then((value) => refreshServiceGoods());
   }
 
   Future<void> refuseService(
@@ -138,14 +152,14 @@ class ServiceController extends GetxController {
     service.status = ServiceStatus.Refuse;
     service.refuseReason = reason;
     service.userComment = userComment;
+    service.export = true;
 
-    var appliedService = await _apiService.setService(service, _token);
-
-    await _dbService.saveServices(<Service>[
-      appliedService == null ? service : appliedService
-    ]).then((value) => init(service.id));
-
-    await servicesController.ref(DateTime.now());
+    await syncController.saveService(service).then((value) {
+      init(service.id);
+      servicesController.ref(DateTime.now());
+    }).whenComplete(() => syncController
+        .syncService(service)
+        .then((value) => servicesController.ref(DateTime.now())));
   }
 
   Future<void> rescheduleService(
@@ -153,14 +167,14 @@ class ServiceController extends GetxController {
     service.state = ServiceState.Exported;
     service.status = ServiceStatus.DateSwap;
     service.userComment = 'Желаемая дата $nextDate\n' + userComment;
+    service.export = true;
 
-    var appliedService = await _apiService.setService(service, _token);
-
-    await _dbService.saveServices(<Service>[
-      appliedService == null ? service : appliedService
-    ]).then((value) => init(service.id));
-
-    await servicesController.ref(DateTime.now());
+    await syncController.saveService(service).then((value) {
+      init(service.id);
+      servicesController.ref(DateTime.now());
+    }).whenComplete(() => syncController
+        .syncService(service)
+        .then((value) => servicesController.ref(DateTime.now())));
   }
 
   Future<void> finishService(
@@ -182,14 +196,14 @@ class ServiceController extends GetxController {
     service.sumTotal = sumTotal;
     service.sumPayment = sumPayment;
     service.sumDiscount = sumDiscount;
+    service.export = true;
 
-    var appliedService = await _apiService.setService(service, _token);
-
-    await _dbService.saveServices(<Service>[
-      appliedService == null ? service : appliedService
-    ]).then((value) => init(service.id));
-
-    await servicesController.ref(DateTime.now());
+    await syncController.saveService(service).then((value) {
+      init(service.id);
+      servicesController.ref(DateTime.now());
+    }).whenComplete(() => syncController
+        .syncService(service)
+        .then((value) => servicesController.ref(DateTime.now())));
   }
 
   List<Widget> _mainFabs() => <Widget>[
@@ -222,6 +236,7 @@ class ServiceController extends GetxController {
             Get.to(PaymentPage());
           },
           iconData: Icons.check_circle,
+          extended: true,
         ),
       ];
 
@@ -272,6 +287,51 @@ class ServiceController extends GetxController {
           iconData: Icons.add,
           extended: true,
         ),
+      ];
+
+  List<Widget> _imageAddingFabs(Function callback) => <Widget>[
+        FloatingButton(
+          label: 'Вложение',
+          heroTag: 'lfab',
+          alignment: Alignment.bottomLeft,
+          onPressed: () async {
+            PickedFile image = await picker.getImage(
+              source: ImageSource.gallery,
+              imageQuality: 60,
+            );
+            if (image != null) {
+              String imagePath = image.path;
+              await ImageGallerySaver.saveFile(imagePath);
+              await addServiceImage(
+                  DateTime.now().microsecondsSinceEpoch.toString() + '.png',
+                  imagePath);
+            }
+            print('galerry image');
+          },
+          iconData: Icons.library_add,
+          extended: true,
+        ),
+        FloatingButton(
+          label: 'Камера',
+          heroTag: 'rfab',
+          alignment: Alignment.bottomRight,
+          onPressed: () async {
+            PickedFile image = await picker.getImage(
+              source: ImageSource.camera,
+              imageQuality: 60,
+            );
+            if (image != null) {
+              String imagePath = image.path;
+              await ImageGallerySaver.saveFile(imagePath);
+              await addServiceImage(
+                  DateTime.now().microsecondsSinceEpoch.toString() + '.png',
+                  imagePath);
+            }
+            print('camera image');
+          },
+          iconData: Icons.camera_alt,
+          extended: true,
+        )
       ];
 
   List<Widget> _refusePageFabs(Function callback) => <Widget>[
@@ -357,6 +417,9 @@ class ServiceController extends GetxController {
         break;
       case FabsState.GoodAdding:
         fabs.addAll(Iterable.castFrom(_goodAddingFabs(callback)));
+        break;
+      case FabsState.AddImage:
+        fabs.addAll(Iterable.castFrom(_imageAddingFabs(callback)));
         break;
       case FabsState.RefusePage:
         fabs.addAll(Iterable.castFrom(_refusePageFabs(callback)));
