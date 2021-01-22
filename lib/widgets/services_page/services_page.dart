@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_app/widgets/buttons/fab_button.dart';
-import 'package:service_app/widgets/text/iconedText.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';

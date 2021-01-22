@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:service_app/models/service.dart';
+import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
 
 class ServiceHeader extends StatelessWidget {
@@ -32,32 +33,65 @@ class ServiceHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}" +
-                    "${(service.customerDecision != "") ? '\nРешение ТО-2: ' + service.customerDecision : ''}"),
-                service.sumTotal > 0
-                    ? CardRow(
-                        leading: Text('Сумма заказа:'),
-                        tailing: MoneyPlate(
-                          amount: service.sumTotal / 100,
+                Text(
+                    "${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}"),
+                Visibility(
+                    visible: service.status == ServiceStatus.Refuse,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        CardRow(
+                          leading: Text('Причина отказа:'),
+                          tailing: Text(
+                            service.refuseReason,
+                            textAlign: TextAlign.end,
+                          ),
                         ),
-                      )
-                    : SizedBox(),
-                service.sumDiscount > 0
-                    ? CardRow(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text('Комментарий: ' + service.userComment),
+                        ),
+                      ],
+                    )),
+                Visibility(
+                  visible: service.status == ServiceStatus.Done ||
+                      service.status == ServiceStatus.End,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CardRow(
+                        leading: Text('Решение ТО-2'),
+                        tailing: Text(
+                          service.customerDecision,
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                      CardRow(
+                          leading: Text('Сумма заказа:'),
+                          tailing: MoneyPlate(
+                            amount: service.sumTotal / 100,
+                          )),
+                      CardRow(
                         leading: Text('Сумма скидки:'),
                         tailing: MoneyPlate(
                           amount: service.sumDiscount / 100,
                         ),
-                      )
-                    : SizedBox(),
-                service.sumPayment > 0
-                    ? CardRow(
+                      ),
+                      CardRow(
                         leading: Text('Сумма оплаты:'),
                         tailing: MoneyPlate(
                           amount: service.sumPayment / 100,
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text('Комментарий: ' + service.userComment),
                       )
-                    : SizedBox()
+                    ],
+                  ),
+                ),
               ],
             )),
       ),
