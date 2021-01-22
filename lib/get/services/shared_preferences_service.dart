@@ -45,7 +45,7 @@ class SharedPreferencesService extends GetxService {
 
   DateTime getLastSyncDate() {
     var dateString = this._preferences.getString(LAST_SYNC_DATE);
-    return dateString !=null ? DateTime.parse(dateString) : null;
+    return dateString != null ? DateTime.parse(dateString) : null;
   }
 
   void setLastSyncDate(DateTime lastSyncDate) {
@@ -54,5 +54,14 @@ class SharedPreferencesService extends GetxService {
       return;
     }
     this._preferences.setString(LAST_SYNC_DATE, lastSyncDate.toIso8601String());
+  }
+
+  bool getNeedSync() {
+    var needSync = this._preferences.getBool(NEED_SYNC);
+    return needSync != null ? needSync : false;
+  }
+
+  void setNeedSync(bool needSync) {
+    this._preferences.setBool(NEED_SYNC, needSync);
   }
 }

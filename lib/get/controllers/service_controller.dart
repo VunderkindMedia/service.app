@@ -156,10 +156,9 @@ class ServiceController extends GetxController {
 
     await syncController.saveService(service).then((value) {
       init(service.id);
-      servicesController.ref(DateTime.now());
-    }).whenComplete(() => syncController
-        .syncService(service)
-        .then((value) => servicesController.ref(DateTime.now())));
+      servicesController.ref(servicesController.selectedDate.value);
+    }).whenComplete(() => syncController.syncService(service).then((value) =>
+        servicesController.ref(servicesController.selectedDate.value)));
   }
 
   Future<void> rescheduleService(
@@ -171,10 +170,9 @@ class ServiceController extends GetxController {
 
     await syncController.saveService(service).then((value) {
       init(service.id);
-      servicesController.ref(DateTime.now());
-    }).whenComplete(() => syncController
-        .syncService(service)
-        .then((value) => servicesController.ref(DateTime.now())));
+      servicesController.ref(servicesController.selectedDate.value);
+    }).whenComplete(() => syncController.syncService(service).then((value) =>
+        servicesController.ref(servicesController.selectedDate.value)));
   }
 
   Future<void> finishService(
@@ -200,10 +198,9 @@ class ServiceController extends GetxController {
 
     await syncController.saveService(service).then((value) {
       init(service.id);
-      servicesController.ref(DateTime.now());
-    }).whenComplete(() => syncController
-        .syncService(service)
-        .then((value) => servicesController.ref(DateTime.now())));
+      servicesController.ref(servicesController.selectedDate.value);
+    }).whenComplete(() => syncController.syncService(service).then((value) =>
+        servicesController.ref(servicesController.selectedDate.value)));
   }
 
   List<Widget> _mainFabs() => <Widget>[

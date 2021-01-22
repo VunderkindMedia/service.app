@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_good.dart';
@@ -68,6 +69,7 @@ class GoodListTile extends StatelessWidget {
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
       child: Card(
+        color: kGoodCardColor,
         child: ListTile(
           title: Text('${good.name}'),
           isThreeLine: true,

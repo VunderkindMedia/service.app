@@ -25,6 +25,8 @@ class ServiceState {
             stateIcon = Icons.note;
           else if (service.status == ServiceStatus.End)
             stateIcon = Icons.check_box;
+          else if (service.status == ServiceStatus.Refuse)
+            stateIcon = Icons.cancel;
           else
             stateIcon = Icons.error;
         }

@@ -10,15 +10,15 @@ import 'package:service_app/models/service_image.dart';
 class SyncController extends GetxController {
   RxString syncStatus = SyncStatus.OK.obs;
   Rx<DateTime> _lastSyncDate = DateTime.now().obs;
-  RxList<Service> _services = <Service>[].obs;
-  RxList<ServiceGood> _serviceGoods = <ServiceGood>[].obs;
-  RxList<ServiceImage> _serviceImages = <ServiceImage>[].obs;
+  RxBool _needSync = false.obs;
 
   ApiService _apiService;
   DbService _dbService;
   SharedPreferencesService _sharedPreferencesService;
   String _personId;
   String _token;
+
+  bool get needSync => _needSync.value;
 
   @override
   void onInit() async {
@@ -32,24 +32,17 @@ class SyncController extends GetxController {
     _token = _sharedPreferencesService.getAccessToken();
     _personId = _sharedPreferencesService.getPersonExternalId();
 
-    var expServices = await _dbService.getExportServices(_personId);
-    var expServiceGoods = await _dbService.getExportServiceGoods();
-    var expServiceImages = await _dbService.getExportServiceImages();
-
-    _services.assignAll(expServices);
-    _serviceGoods.assignAll(expServiceGoods);
-    _serviceImages.assignAll(expServiceImages);
-
     _lastSyncDate.listen((value) {
       _sharedPreferencesService.setLastSyncDate(value);
+    });
+
+    _needSync.listen((value) {
+      _sharedPreferencesService.setNeedSync(value);
     });
   }
 
   void disposeController() {
     _lastSyncDate.value = null;
-    _services.clear();
-    _serviceGoods.clear();
-    _serviceImages.clear();
   }
 
   Future<void> sync() async {
@@ -61,17 +54,26 @@ class SyncController extends GetxController {
       await _syncGoodPrices();
       await _syncServices();
 
-      _serviceGoods.forEach((sg) async {
-        await syncServiceGood(sg, resync: true);
-      });
-      _serviceImages.forEach((si) async {
-        await syncServiceImage(si, resync: true);
-      });
-      _services.forEach((s) async {
-        await syncService(s, resync: true);
-      });
+      await _dbService.getExportServiceGoods().then(
+            (serviceGoods) => serviceGoods.forEach((sg) async {
+              await syncServiceGood(sg, resync: true);
+            }),
+          );
+
+      await _dbService.getExportServiceImages().then(
+            (serviceImages) => serviceImages.forEach((si) async {
+              await syncServiceImage(si, resync: true);
+            }),
+          );
+
+      await _dbService.getExportServices(_personId).then(
+            (services) => services.forEach((s) async {
+              await syncService(s, resync: true);
+            }),
+          );
 
       _lastSyncDate.value = DateTime.now();
+      _needSync.value = false;
     } catch (e) {
       syncStatus.value = SyncStatus.Error;
     } finally {
@@ -108,8 +110,9 @@ class SyncController extends GetxController {
     await _apiService.setService(service, _token).then((result) async {
       if (result != null) {
         await _dbService.saveServices([result]);
-        if (resync) _services.remove(service);
-      } else if (!resync) _services.add(service);
+      } else if (!_needSync.value) {
+        _needSync.value = true;
+      }
     });
   }
 
@@ -122,8 +125,9 @@ class SyncController extends GetxController {
     await _apiService.addServiceGood(serviceGood, _token).then((result) async {
       if (result != null) {
         await _dbService.addServiceGood(result);
-        if (resync) _serviceGoods.remove(serviceGood);
-      } else if (!resync) _serviceGoods.add(serviceGood);
+      } else if (!_needSync.value) {
+        _needSync.value = true;
+      }
     });
   }
 
@@ -148,8 +152,9 @@ class SyncController extends GetxController {
       if (result) {
         serviceImage.export = false;
         await _dbService.addServiceImage(serviceImage);
-        if (resync) _serviceImages.remove(serviceImage);
-      } else if (!resync) _serviceImages.add(serviceImage);
+      } else if (!_needSync.value) {
+        _needSync.value = true;
+      }
     });
   }
 

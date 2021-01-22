@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/widgets/buttons/fab_button.dart';
+import 'package:service_app/widgets/text/iconedText.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
@@ -115,16 +117,46 @@ class _ServicesPageState extends State<ServicesPage> {
         ],
       ),
       drawer: SideMenu(),
-      floatingActionButton: showFAB
-          ? FloatingActionButton(
-              child: Icon(
-                Icons.settings,
-                color: Colors.white,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Visibility(
+        visible: showFAB,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Obx(
+                () => syncController.needSync
+                    ? FloatingActionButton.extended(
+                        onPressed: () => servicesController.sync(),
+                        label: Row(
+                          children: [
+                            Icon(
+                              Icons.sync_problem,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 5.0),
+                            Text(
+                              'Синхронизировать',
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+                      )
+                    : SizedBox(),
               ),
-              heroTag: 'rfab',
-              onPressed: () => _hideFilterButton(false),
-            )
-          : null,
+              FloatingActionButton(
+                child: Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                ),
+                heroTag: 'rfab',
+                onPressed: () => _hideFilterButton(false),
+              )
+            ],
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Stack(
           children: <Widget>[
