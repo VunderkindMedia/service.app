@@ -18,6 +18,10 @@ class ApiService extends GetxService {
     return this;
   }
 
+  String _getIntervalParam(String name, DateTime date) {
+    return '&$name=${DateFormat('yyyy-MM-dd').format(date)}';
+  }
+
   String _getUpdtParam(DateTime lSync) {
     var updtParam = '';
     if (lSync != null)
@@ -25,12 +29,18 @@ class ApiService extends GetxService {
     return updtParam;
   }
 
-  String _getUrlString(String url, int limit, int offset, DateTime lSync) {
+  String _getUrlString(String url, int limit, int offset, DateTime lSync,
+      {DateTime dateStart, DateTime dateEnd}) {
     var limitParam = '?limit=$limit';
     var offsetParam = '&offset=$offset';
     var updtParam = _getUpdtParam(lSync);
+    var fromParam = '';
+    var toParam = '';
 
-    return '$url$limitParam$offsetParam$updtParam';
+    if (dateStart != null) fromParam = _getIntervalParam('from', dateStart);
+    if (dateEnd != null) toParam = _getIntervalParam('to', dateEnd);
+
+    return '$url$limitParam$offsetParam$updtParam$fromParam$toParam';
   }
 
   Future<AccountInfo> login(String username, String password) async {
@@ -55,7 +65,10 @@ class ApiService extends GetxService {
   Future<List<Service>> getServices(String accessToken, DateTime lSync) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-    var response = await http.get(_getUrlString(API_SERVICES, 150, 0, lSync),
+    var response = await http.get(
+        _getUrlString(API_SERVICES, 150, 0, lSync,
+            dateStart: DateTime.now().add(Duration(days: -2)),
+            dateEnd: DateTime.now().add(Duration(days: 2))),
         headers: headers);
     var responseJson = jsonDecode(response.body);
     var servicesJson = List.from(responseJson['results']);

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "654943336322",
+    "project_id": "willdo-1cca0",
+    "storage_bucket": "willdo-1cca0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654943336322:android:c37681970e8a604805019b",
+        "android_client_info": {
+          "package_name": "com.itswarm.willdo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "654943336322-mtkjb1jsc8t2drda1kmqh020j5drh6nk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHaVw1vWml4PCtdmdTNcpR2Bqd2-vgUrU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "654943336322-mtkjb1jsc8t2drda1kmqh020j5drh6nk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

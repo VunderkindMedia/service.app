@@ -50,7 +50,7 @@ class AccountController extends GetxController {
       servicesController.disposeController();
       await dbService.disposeTables();
 
-      Get.off(LoginPage());
+      Get.offAll(LoginPage());
     } catch (e) {
       print(e);
     }
