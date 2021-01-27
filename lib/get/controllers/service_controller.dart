@@ -69,7 +69,10 @@ class ServiceController extends GetxController {
     await refreshServiceGoods();
     await refreshServiceImages();
 
-    if (service.value.status == ServiceStatus.Start) locked.value = false;
+    if (service.value.status == ServiceStatus.Start)
+      locked.value = false;
+    else
+      locked.value = true;
   }
 
   void disposeController() {
@@ -95,6 +98,15 @@ class ServiceController extends GetxController {
     var sImages = await _dbService.getServiceImages(service.value.id);
     serviceImages.assignAll(sImages);
     print('updt simages');
+  }
+
+  Future<void> saveServiceChanges(Service service) async {
+    await syncController.saveService(service).then((value) {
+      init(service.id);
+    }).whenComplete(
+      () => syncController.syncService(service).then((value) =>
+          servicesController.ref(servicesController.selectedDate.value)),
+    );
   }
 
   Future<void> addServiceImage(String imageName, String imagePath) async {
@@ -154,11 +166,7 @@ class ServiceController extends GetxController {
     service.userComment = userComment;
     service.export = true;
 
-    await syncController.saveService(service).then((value) {
-      init(service.id);
-      servicesController.ref(servicesController.selectedDate.value);
-    }).whenComplete(() => syncController.syncService(service).then((value) =>
-        servicesController.ref(servicesController.selectedDate.value)));
+    await saveServiceChanges(service);
   }
 
   Future<void> rescheduleService(
@@ -168,11 +176,7 @@ class ServiceController extends GetxController {
     service.userComment = 'Желаемая дата $nextDate\n' + userComment;
     service.export = true;
 
-    await syncController.saveService(service).then((value) {
-      init(service.id);
-      servicesController.ref(servicesController.selectedDate.value);
-    }).whenComplete(() => syncController.syncService(service).then((value) =>
-        servicesController.ref(servicesController.selectedDate.value)));
+    saveServiceChanges(service);
   }
 
   Future<void> finishService(
@@ -196,11 +200,7 @@ class ServiceController extends GetxController {
     service.sumDiscount = sumDiscount;
     service.export = true;
 
-    await syncController.saveService(service).then((value) {
-      init(service.id);
-      servicesController.ref(servicesController.selectedDate.value);
-    }).whenComplete(() => syncController.syncService(service).then((value) =>
-        servicesController.ref(servicesController.selectedDate.value)));
+    saveServiceChanges(service);
   }
 
   List<Widget> _mainFabs() => <Widget>[
@@ -208,30 +208,43 @@ class ServiceController extends GetxController {
           label: 'Отменить заявку',
           heroTag: 'lfab',
           alignment: Alignment.bottomLeft,
-          onPressed: () {
-            fabsState.value = FabsState.RefusePage;
-            Get.to(RefusePage());
-          },
+          onPressed: serviceGoods.length == 0
+              ? () {
+                  fabsState.value = FabsState.RefusePage;
+                  Get.to(RefusePage());
+                }
+              : () => Get.defaultDialog(
+                  title: 'Ошибка',
+                  middleText:
+                      'В заявке выбраны услуги!\n\nДля выполнения действия очистите услуги.'),
           iconData: Icons.cancel,
         ),
         FloatingButton(
           label: 'Перенести дату заявки',
           heroTag: 'mfab',
           alignment: Alignment.bottomCenter,
-          onPressed: () {
-            fabsState.value = FabsState.ReschedulePage;
-            Get.to(ReschedulePage());
-          },
+          onPressed: serviceGoods.length == 0
+              ? () {
+                  fabsState.value = FabsState.ReschedulePage;
+                  Get.to(ReschedulePage());
+                }
+              : () => Get.defaultDialog(
+                  title: 'Ошибка',
+                  middleText:
+                      'В заявке выбраны услуги!\n\nДля выполнения действия очистите услуги.'),
           iconData: Icons.calendar_today_rounded,
         ),
         FloatingButton(
           label: 'Завершить',
           heroTag: 'rfab',
           alignment: Alignment.bottomRight,
-          onPressed: () {
-            fabsState.value = FabsState.PaymentPage;
-            Get.to(PaymentPage());
-          },
+          onPressed: serviceGoods.length > 0
+              ? () {
+                  fabsState.value = FabsState.PaymentPage;
+                  Get.to(PaymentPage());
+                }
+              : () => Get.defaultDialog(
+                  title: 'Ошибка', middleText: 'Не выбрана ни одна услуга!'),
           iconData: Icons.check_circle,
           extended: true,
         ),

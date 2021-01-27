@@ -88,12 +88,21 @@ class ServiceListTile extends StatelessWidget {
           icon: Icons.cancel,
           onTap: () async {
             await serviceController.init(service.id);
-            if (!serviceController.locked.value) {
+            if (!serviceController.locked.value &&
+                serviceController.serviceGoods.length == 0) {
               serviceController.fabsState.value = FabsState.RefusePage;
               Get.to(RefusePage());
             } else {
-              await Get.defaultDialog(
-                  title: 'Ошибка!', middleText: 'Изменение заявки запрещено!');
+              if (serviceController.serviceGoods.length > 0) {
+                await Get.defaultDialog(
+                    title: 'Ошибка!',
+                    middleText:
+                        'В заказе выбраны услуги! Для отмены очистите услуги.');
+              } else {
+                await Get.defaultDialog(
+                    title: 'Ошибка!',
+                    middleText: 'Изменение заявки запрещено!');
+              }
             }
           },
         ),
@@ -103,12 +112,21 @@ class ServiceListTile extends StatelessWidget {
           icon: Icons.calendar_today,
           onTap: () async {
             await serviceController.init(service.id);
-            if (!serviceController.locked.value) {
+            if (!serviceController.locked.value &&
+                serviceController.serviceGoods.length == 0) {
               serviceController.fabsState.value = FabsState.ReschedulePage;
               Get.to(ReschedulePage());
             } else {
-              await Get.defaultDialog(
-                  title: 'Ошибка!', middleText: 'Изменение заявки запрещено!');
+              if (serviceController.serviceGoods.length > 0) {
+                await Get.defaultDialog(
+                    title: 'Ошибка!',
+                    middleText:
+                        'В заказе выбраны услуги! Для переноса очистите услуги.');
+              } else {
+                await Get.defaultDialog(
+                    title: 'Ошибка!',
+                    middleText: 'Изменение заявки запрещено!');
+              }
             }
           },
         ),

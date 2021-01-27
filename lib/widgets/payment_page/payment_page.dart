@@ -296,57 +296,58 @@ class _PaymentPageState extends State<PaymentPage> {
         ]),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton:
-          Obx(() => serviceController.refreshFabButtons(() async {
-                if (_paymentController.text.isEmpty) {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!', middleText: 'Введите сумму оплаты!');
-                  return;
-                }
-                if (_selectedPayment == null) {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!', middleText: 'Укажите способ оплаты!');
-                  return;
-                }
-                var paymentSumm = double.parse(_paymentController.text);
-                if (paymentSumm < minPayment.value) {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!',
-                      middleText:
-                          'Минимальаня сумма платежа не соответствует введенной!');
-                  return;
-                } else if (paymentSumm > totalSumm.value) {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!',
-                      middleText:
-                          'Сумма платежа не может быть более ${totalSumm.value}');
-                  return;
-                }
-                if (_selectedDecision != ClientDecision.Refuse &&
-                    _selectedDate == null) {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!', middleText: 'Выберите дату для ТО-2!');
-                  return;
-                }
-                if (_selectedDecision == ClientDecision.Refuse &&
-                    _commentController.text.isEmpty) {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!',
-                      middleText: 'Заполните комментарий к отказу от ТО-2!');
-                  return;
-                }
+      floatingActionButton: Obx(
+        () => serviceController.refreshFabButtons(() async {
+          if (_paymentController.text.isEmpty) {
+            await Get.defaultDialog(
+                title: 'Ошибка!', middleText: 'Введите сумму оплаты!');
+            return;
+          }
+          if (_selectedPayment == null) {
+            await Get.defaultDialog(
+                title: 'Ошибка!', middleText: 'Укажите способ оплаты!');
+            return;
+          }
+          var paymentSumm = double.parse(_paymentController.text);
+          if (paymentSumm < minPayment.value) {
+            await Get.defaultDialog(
+                title: 'Ошибка!',
+                middleText:
+                    'Минимальаня сумма платежа не соответствует введенной!');
+            return;
+          } else if (paymentSumm > totalSumm.value) {
+            await Get.defaultDialog(
+                title: 'Ошибка!',
+                middleText:
+                    'Сумма платежа не может быть более ${totalSumm.value}');
+            return;
+          }
+          if (_selectedDecision != ClientDecision.Refuse &&
+              _selectedDate == null) {
+            await Get.defaultDialog(
+                title: 'Ошибка!', middleText: 'Выберите дату для ТО-2!');
+            return;
+          }
+          if (_selectedDecision == ClientDecision.Refuse &&
+              _commentController.text.isEmpty) {
+            await Get.defaultDialog(
+                title: 'Ошибка!',
+                middleText: 'Заполните комментарий к отказу от ТО-2!');
+            return;
+          }
 
-                serviceController.fabsState.value = FabsState.Main;
-                await serviceController.finishService(
-                    serviceController.service.value,
-                    _selectedDecision,
-                    _selectedDate,
-                    _commentController.text,
-                    _selectedPayment,
-                    totalSumm.toInt() * 100,
-                    int.parse(_paymentController.text) * 100,
-                    discountSumm.value.toInt() * 100);
-              })),
+          serviceController.fabsState.value = FabsState.Main;
+          await serviceController.finishService(
+              serviceController.service.value,
+              _selectedDecision,
+              _selectedDate,
+              _commentController.text,
+              _selectedPayment,
+              totalSumm.toInt() * 100,
+              int.parse(_paymentController.text) * 100,
+              discountSumm.value.toInt() * 100);
+        }),
+      ),
     );
   }
 }

@@ -76,7 +76,8 @@ class _ReschedulePageState extends State<ReschedulePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton:
           Obx(() => serviceController.refreshFabButtons(() async {
-                if (_commentController.text.length > 0) {
+                if (_selectedDate != null &&
+                    _commentController.text.length > 0) {
                   serviceController.fabsState.value = FabsState.Main;
                   await serviceController.rescheduleService(
                       serviceController.service.value,
@@ -85,7 +86,8 @@ class _ReschedulePageState extends State<ReschedulePage> {
                 } else {
                   await Get.defaultDialog(
                       title: 'Ошибка!',
-                      middleText: 'Введите причину переноса заявки!');
+                      middleText:
+                          'Введите причину переноса заявки и выберите новую дату!');
                 }
               })),
     );

@@ -49,28 +49,28 @@ class SyncController extends GetxController {
     try {
       syncStatus.value = SyncStatus.Loading;
 
-      await _syncBrands();
-      await _syncGoods();
-      await _syncGoodPrices();
+      _syncBrands();
+      _syncGoods();
+      _syncGoodPrices();
       await _syncServices();
 
-      await _dbService.getExportServiceGoods().then(
-            (serviceGoods) => serviceGoods.forEach((sg) async {
-              await syncServiceGood(sg, resync: true);
-            }),
-          );
+      await _dbService.getExportServiceGoods().then((serviceGoods) async {
+        await Future.forEach(serviceGoods, (sg) async {
+          await syncServiceGood(sg, resync: true);
+        });
+      });
 
-      await _dbService.getExportServiceImages().then(
-            (serviceImages) => serviceImages.forEach((si) async {
-              await syncServiceImage(si, resync: true);
-            }),
-          );
+      await _dbService.getExportServiceImages().then((serviceImages) async {
+        await Future.forEach(serviceImages, (si) async {
+          await syncServiceImage(si, resync: true);
+        });
+      });
 
-      await _dbService.getExportServices(_personId).then(
-            (services) => services.forEach((s) async {
-              await syncService(s, resync: true);
-            }),
-          );
+      await _dbService.getExportServices(_personId).then((services) async {
+        await Future.forEach(services, (s) async {
+          await syncService(s, resync: true);
+        });
+      });
 
       _lastSyncDate.value = DateTime.now();
       _needSync.value = false;
@@ -109,7 +109,7 @@ class SyncController extends GetxController {
   Future<void> syncService(Service service, {bool resync = false}) async {
     await _apiService.setService(service, _token).then((result) async {
       if (result != null) {
-        await _dbService.saveServices([result]);
+        await saveService(result);
       } else if (!_needSync.value) {
         _needSync.value = true;
       }

@@ -121,8 +121,11 @@ class Service {
     service.customerDecision = map['customerDecision'];
     service.refuseReason = map['refuseReason'];
     service.userComment = map['userComment'];
-    service.dateStartNext = DateTime.parse(map['dateStartNext']);
-    service.dateEndNext = DateTime.parse(map['dateEndNext']);
+    service.dateStartNext = map['dateStartNext'] != null
+        ? DateTime.parse(map['dateStartNext'])
+        : null;
+    service.dateEndNext =
+        map['dateEndNext'] != null ? DateTime.parse(map['dateEndNext']) : null;
     service.export = map['export'] == 1 ? true : false;
 
     return service;
@@ -156,8 +159,12 @@ class Service {
       'customerDecision': customerDecision,
       'refuseReason': refuseReason,
       'userComment': userComment,
-      'dateStartNext': dateStartNext.toString(),
-      'dateEndNext': dateEndNext.toString(),
+      'dateStartNext': dateStartNext != null
+          ? dateStartNext.toString()
+          : "0001-01-01 00:00:00.000",
+      'dateEndNext': dateEndNext != null
+          ? dateEndNext.toString()
+          : "0001-01-01 00:00:00.000",
       'sumTotal': sumTotal,
       'sumPayment': sumPayment,
       'sumDiscount': sumDiscount,
