@@ -193,54 +193,55 @@ class _PaymentPageState extends State<PaymentPage> {
                   ],
                 ),
               ),
-              summTO2 > 0
-                  ? Card(
-                      child: ExpansionTile(
-                        title: Text(
-                          'Данные ТО-2',
-                          style: kCardTitleStyle,
+              Card(
+                child: ExpansionTile(
+                  title: Text(
+                    'Данные ТО-2',
+                    style: kCardTitleStyle,
+                  ),
+                  children: [
+                    Visibility(
+                      visible: summTO2 > 0,
+                      child: SmartSelect<String>.single(
+                        modalType: S2ModalType.bottomSheet,
+                        title: 'Решение клиента',
+                        value: _selectedDecision,
+                        choiceItems: _decision,
+                        onChange: (state) =>
+                            setState(() => _selectedDecision = state.value),
+                        modalHeaderStyle: S2ModalHeaderStyle(
+                          textStyle: TextStyle(),
+                          backgroundColor: kDarkMainColor,
                         ),
-                        children: [
-                          SmartSelect<String>.single(
-                            modalType: S2ModalType.bottomSheet,
-                            title: 'Решение клиента',
-                            value: _selectedDecision,
-                            choiceItems: _decision,
-                            onChange: (state) =>
-                                setState(() => _selectedDecision = state.value),
-                            modalHeaderStyle: S2ModalHeaderStyle(
-                              textStyle: TextStyle(),
-                              backgroundColor: kDarkMainColor,
+                      ),
+                    ),
+                    Visibility(
+                      visible: _selectedDecision == ClientDecision.Agree ||
+                          _selectedDecision == ClientDecision.Think,
+                      child: GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          child: CardRow(
+                            leading: Text(
+                              'Дата ТО-2',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                            tailing: Text(
+                              _selectedDate != null
+                                  ? formattedDate(_selectedDate)
+                                  : 'Не выбрана',
+                              textAlign: TextAlign.end,
+                              style: TextStyle(fontSize: 16.0),
                             ),
                           ),
-                          _selectedDecision == ClientDecision.Agree ||
-                                  _selectedDecision == ClientDecision.Think
-                              ? GestureDetector(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16.0),
-                                    child: CardRow(
-                                      leading: Text(
-                                        'Дата ТО-2',
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                      tailing: Text(
-                                        _selectedDate != null
-                                            ? formattedDate(_selectedDate)
-                                            : 'Не выбрана',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () => _selectDate(context),
-                                )
-                              : SizedBox(),
-                          CommentField(controller: _commentController),
-                        ],
+                        ),
+                        onTap: () => _selectDate(context),
                       ),
-                    )
-                  : SizedBox(),
+                    ),
+                    CommentField(controller: _commentController),
+                  ],
+                ),
+              ),
               Card(
                 child: ExpansionTile(
                   title: Text(
@@ -277,7 +278,7 @@ class _PaymentPageState extends State<PaymentPage> {
                         style: TextStyle(fontSize: 16.0),
                       ),
                       tailing: TextFormField(
-                        style: kCardSubtitleStyle,
+                        style: TextStyle(fontSize: 16.0),
                         textAlign: TextAlign.end,
                         controller: _paymentController,
                         inputFormatters: [
@@ -313,6 +314,12 @@ class _PaymentPageState extends State<PaymentPage> {
                       title: 'Ошибка!',
                       middleText:
                           'Минимальаня сумма платежа не соответствует введенной!');
+                  return;
+                } else if (paymentSumm > totalSumm.value) {
+                  await Get.defaultDialog(
+                      title: 'Ошибка!',
+                      middleText:
+                          'Сумма платежа не может быть более ${totalSumm.value}');
                   return;
                 }
                 if (_selectedDecision != ClientDecision.Refuse &&
