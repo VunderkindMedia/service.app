@@ -28,6 +28,7 @@ class ImagesList extends StatelessWidget {
 
 class ImageWidget extends StatelessWidget {
   final SyncController syncController = Get.find();
+  final ServiceController serviceController = Get.find();
   final ServiceImage imageModel;
   final int cacheWidth;
   final int cacheHeight;
@@ -71,7 +72,25 @@ class ImageWidget extends StatelessWidget {
         textWidget: Text('Изображение выгружается'),
       );
     } else {
-      return Card(child: imageCardWidget);
+      return GestureDetector(
+        onLongPress: () async {
+          await Get.defaultDialog(
+              title: 'Удаление вложения',
+              middleText:
+                  'Вы действительно хотите удалить вложение на сервере?',
+              textConfirm: 'Да',
+              confirmTextColor: Colors.white,
+              onConfirm: () async {
+                await serviceController.deleteServiceImage(imageModel);
+                Navigator.of(context).pop();
+              },
+              textCancel: 'Нет',
+              onCancel: () {
+                return;
+              });
+        },
+        child: Card(child: imageCardWidget),
+      );
     }
   }
 }

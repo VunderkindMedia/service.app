@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/notifications_controller.dart';
+import 'package:service_app/models/push_notifications.dart';
+import 'package:service_app/widgets/notifications_page/notification_page.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
-import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
@@ -21,9 +24,14 @@ class _ServicesPageState extends State<ServicesPage> {
   final SyncController syncController = Get.put(SyncController());
   final ServicesController servicesController = Get.put(ServicesController());
   final ServiceController serviceController = Get.put(ServiceController());
+  final NotificationsController notificationsController =
+      Get.put(NotificationsController());
+
   final GlobalKey<RefreshIndicatorState> _refKey =
       GlobalKey<RefreshIndicatorState>();
   final PanelController _panelController = PanelController();
+
+  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
   DateTime selectedDate = DateTime.now();
   bool showFAB = true;
@@ -32,13 +40,46 @@ class _ServicesPageState extends State<ServicesPage> {
   void initState() {
     super.initState();
 
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        await servicesController.sync();
+        await notificationsController.ref();
+
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        await servicesController.sync();
+        await notificationsController.ref();
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        await servicesController.sync();
+        await notificationsController.ref();
+
+        notificationsController.openNotification(
+          PushNotification(
+              '', message['data']['item'], message['data']['guid']),
+        );
+
+        print("onResume: $message");
+      },
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(
+            sound: true, badge: true, alert: true, provisional: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _refKey.currentState.show();
     });
   }
 
-  Widget _buildRow(Service service, List<Brand> brands) {
-    var brand = brands.firstWhere(
+  Widget _buildRow(Service service) {
+    var brand = servicesController.brands.firstWhere(
         (brand) => brand.externalId == service.brandId,
         orElse: () => null);
 
@@ -48,10 +89,7 @@ class _ServicesPageState extends State<ServicesPage> {
         onTap: () async {
           await serviceController.init(service.id);
           await serviceController.onInit();
-          await Get.to(ServicePage(
-            serviceId: service.id,
-            brand: brand,
-          ));
+          await Get.to(ServicePage(serviceId: service.id));
         },
         child: ServiceListTile(
           service: service,
@@ -111,7 +149,14 @@ class _ServicesPageState extends State<ServicesPage> {
                 ? Icon(Icons.search)
                 : Icon(Icons.cancel),
             onPressed: _clearSearch,
-          )
+          ),
+          Obx(
+            () => IconButton(
+                icon: Icon(notificationsController.hasNew.value
+                    ? Icons.notifications_active
+                    : Icons.notifications_none),
+                onPressed: () => Get.to(NotificationsPage())),
+          ),
         ],
       ),
       drawer: SideMenu(),
@@ -169,15 +214,17 @@ class _ServicesPageState extends State<ServicesPage> {
                           itemCount: servicesController.filteredServices.length,
                           itemBuilder: (context, i) {
                             return _buildRow(
-                                servicesController.filteredServices[i],
-                                servicesController.brands);
+                                servicesController.filteredServices[i]);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                onRefresh: () => servicesController.sync()),
+                onRefresh: () async {
+                  await servicesController.sync();
+                  await notificationsController.ref();
+                }),
             FilterPanel(
               selectedDate: servicesController.selectedDate.value,
               controller: _panelController,

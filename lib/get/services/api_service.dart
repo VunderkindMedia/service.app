@@ -9,6 +9,7 @@ import 'package:service_app/models/account_info.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
+import 'package:service_app/models/push_notifications.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
@@ -43,11 +44,16 @@ class ApiService extends GetxService {
     return '$url$limitParam$offsetParam$updtParam$fromParam$toParam';
   }
 
-  Future<AccountInfo> login(String username, String password) async {
+  Future<AccountInfo> login(
+      String username, String password, String pushToken) async {
     try {
       var response = await http.post(API_LOGIN,
-          body: jsonEncode(
-              <String, String>{'username': username, 'password': password}));
+          body: jsonEncode(<String, dynamic>{
+            'username': username,
+            'password': password,
+            'ostype': pushToken != null ? 2 : 0,
+            'token': pushToken
+          }));
       if (response.statusCode != 200) {
         throw response.body;
       }
@@ -123,6 +129,25 @@ class ApiService extends GetxService {
     return goodPrices;
   }
 
+  Future<List<PushNotification>> getNotifications(
+      String accessToken, DateTime lSync,
+      [bool init = false]) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get(
+        _getUrlString(API_PUSH_NOTIFICATIONS, 9999, 0, lSync),
+        headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var pushJson = List.from(responseJson['results']);
+    var push = pushJson
+        .map((json) => PushNotification.fromJson(json, !lSync.isNull))
+        .toList();
+
+    print("get notifications ${push.length}");
+
+    return push;
+  }
+
   Future<ServiceGood> addServiceGood(
       ServiceGood serviceGood, String accessToken) async {
     try {
@@ -169,7 +194,7 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<bool> addServiceImage(
+  Future<ServiceImage> addServiceImage(
       ServiceImage serviceImage, String accessToken) async {
     try {
       var request = http.MultipartRequest(
@@ -188,20 +213,35 @@ class ApiService extends GetxService {
       var response = await request.send();
 
       if (response.statusCode != 200) {
-        return false;
+        return null;
       }
 
       request = null;
+      var respStr = await response.stream.bytesToString();
 
-      return true;
+      return ServiceImage.fromJson(jsonDecode(respStr));
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
   Future<bool> deleteServiceImage(
       ServiceImage serviceImage, String accessToken) async {
-    return true;
+    try {
+      var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+      var response = await http.delete(
+          '$API_FILES/${serviceImage.fileId.toString()}',
+          headers: headers);
+
+      if (response.statusCode != 200) {
+        throw response.body;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<Service> getService(String accessToken, int serviceID) async {

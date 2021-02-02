@@ -85,9 +85,12 @@ class ServiceHeader extends StatelessWidget {
                           amount: service.sumPayment / 100,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text('Комментарий: ' + service.userComment),
+                      Visibility(
+                        visible: service.userComment.length > 0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text('Комментарий: ' + service.userComment),
+                        ),
                       )
                     ],
                   ),

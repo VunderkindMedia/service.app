@@ -5,6 +5,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
+import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
@@ -23,6 +24,7 @@ class ServiceController extends GetxController {
   final picker = ImagePicker();
 
   Rx<Service> service = Service(-1).obs;
+  Rx<Brand> brand = Brand(-1).obs;
   RxBool locked = true.obs;
   RxList<ServiceGood> serviceGoods = <ServiceGood>[].obs;
   RxList<ServiceImage> serviceImages = <ServiceImage>[].obs;
@@ -51,7 +53,10 @@ class ServiceController extends GetxController {
 
   Future<void> init(int serviceId) async {
     var dbService = await _dbService.getServiceById(serviceId);
+    var brand = servicesController.brands
+        .firstWhere((brand) => brand.externalId == dbService.brandId);
     this.service.value = dbService;
+    this.brand.value = brand;
 
     var resync = goodPrices.length > 0
         ? goodPrices.first.brandId != dbService.brandId
@@ -116,17 +121,15 @@ class ServiceController extends GetxController {
     serviceImage.local = imagePath;
     serviceImage.export = true;
 
-    await syncController
-        .saveServiceImage(serviceImage)
-        .then((value) => refreshServiceImages())
-        .whenComplete(() => syncController
+    await syncController.saveServiceImage(serviceImage).whenComplete(() =>
+        syncController
             .syncServiceImage(serviceImage)
             .then((value) => refreshServiceImages()));
   }
 
   Future<void> deleteServiceImage(ServiceImage serviceImage) async {
     await syncController
-        .deleteServiceImage(service.value, serviceImage)
+        .deleteServiceImage(serviceImage)
         .then((value) => refreshServiceImages());
   }
 
@@ -144,10 +147,8 @@ class ServiceController extends GetxController {
     serviceGood.sum = (price * qty * 100).round().toInt();
     serviceGood.export = true;
 
-    await syncController
-        .saveServiceGood(serviceGood)
-        .then((value) => refreshServiceGoods())
-        .whenComplete(() => syncController
+    await syncController.saveServiceGood(serviceGood).whenComplete(() =>
+        syncController
             .syncServiceGood(serviceGood)
             .then((value) => refreshServiceGoods()));
   }

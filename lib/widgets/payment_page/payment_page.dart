@@ -185,9 +185,16 @@ class _PaymentPageState extends State<PaymentPage> {
                         _selectedDiscount = state.value;
                         _eval();
                       }),
+                      choiceStyle: S2ChoiceStyle(
+                        titleStyle:
+                            TextStyle(fontSize: 16.0, color: Colors.white),
+                      ),
                       modalHeaderStyle: S2ModalHeaderStyle(
                         textStyle: TextStyle(),
-                        backgroundColor: kDarkMainColor,
+                        backgroundColor: kMainColor,
+                      ),
+                      modalStyle: S2ModalStyle(
+                        backgroundColor: Colors.grey[800],
                       ),
                     ),
                   ],
@@ -209,9 +216,16 @@ class _PaymentPageState extends State<PaymentPage> {
                         choiceItems: _decision,
                         onChange: (state) =>
                             setState(() => _selectedDecision = state.value),
+                        choiceStyle: S2ChoiceStyle(
+                          titleStyle:
+                              TextStyle(fontSize: 16.0, color: Colors.white),
+                        ),
                         modalHeaderStyle: S2ModalHeaderStyle(
                           textStyle: TextStyle(),
-                          backgroundColor: kDarkMainColor,
+                          backgroundColor: kMainColor,
+                        ),
+                        modalStyle: S2ModalStyle(
+                          backgroundColor: Colors.grey[800],
                         ),
                       ),
                     ),
@@ -257,9 +271,16 @@ class _PaymentPageState extends State<PaymentPage> {
                       choiceItems: _paymentOptions,
                       onChange: (state) =>
                           setState(() => _selectedPayment = state.value),
+                      choiceStyle: S2ChoiceStyle(
+                        titleStyle:
+                            TextStyle(fontSize: 16.0, color: Colors.white),
+                      ),
                       modalHeaderStyle: S2ModalHeaderStyle(
                         textStyle: TextStyle(),
-                        backgroundColor: kDarkMainColor,
+                        backgroundColor: kMainColor,
+                      ),
+                      modalStyle: S2ModalStyle(
+                        backgroundColor: Colors.grey[800],
                       ),
                     ),
                     CardRow(
@@ -322,7 +343,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     'Сумма платежа не может быть более ${totalSumm.value}');
             return;
           }
-          if (_selectedDecision != ClientDecision.Refuse &&
+          if (_selectedDecision == ClientDecision.Agree &&
               _selectedDate == null) {
             await Get.defaultDialog(
                 title: 'Ошибка!', middleText: 'Выберите дату для ТО-2!');

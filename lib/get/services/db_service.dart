@@ -5,6 +5,7 @@ import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
+import 'package:service_app/models/push_notifications.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -15,6 +16,7 @@ class DbService extends GetxService {
   static const BRANDS_TABLE_NAME = "brands";
   static const GOODS_TABLE_NAME = "goods";
   static const GOOD_PRICES_TABLE_NAME = "good_prices";
+  static const PUSH_NOTIFICATIONS_TABLE_NAME = "push_notifications";
 
   static Database _database;
 
@@ -116,6 +118,17 @@ class DbService extends GetxService {
           'price INTEGER,'
           'UNIQUE(goodId, cityId, brandId)'
           ')');
+      await db.execute('CREATE TABLE $PUSH_NOTIFICATIONS_TABLE_NAME '
+          '('
+          'id TEXT PRIMARY KEY,'
+          'createdAt DATETIME,'
+          'messageType TEXT,'
+          'guid TEXT,'
+          'title TEXT,'
+          'subtitle TEXT,'
+          'body TEXT,'
+          'isNew bool'
+          ')');
     });
     print('$runtimeType ready!');
     return this;
@@ -128,6 +141,7 @@ class DbService extends GetxService {
     await _database.delete('$BRANDS_TABLE_NAME');
     await _database.delete('$GOODS_TABLE_NAME');
     await _database.delete('$GOOD_PRICES_TABLE_NAME');
+    await _database.delete('$PUSH_NOTIFICATIONS_TABLE_NAME');
   }
 
   Future<void> saveServices(List<Service> services) async {
@@ -169,7 +183,18 @@ class DbService extends GetxService {
       where: _query,
       whereArgs: [id],
     );
-    return List.generate(maps.length, (i) => Service.fromMap(maps[i]))[0];
+    return Service.fromMap(maps.first);
+  }
+
+  Future<Service> getServiceByGUID(String guid) async {
+    String _query = "externalId = ?";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      SERVICES_TABLE_NAME,
+      where: _query,
+      whereArgs: [guid],
+    );
+    return Service.fromMap(maps.first);
   }
 
   Future<List<Service>> getServicesBySearch(
@@ -201,6 +226,23 @@ class DbService extends GetxService {
     final List<Map<String, dynamic>> maps =
         await _database.query(BRANDS_TABLE_NAME);
     return List.generate(maps.length, (i) => Brand.fromMap(maps[i]));
+  }
+
+  Future<void> savePush(List<PushNotification> push) async {
+    await _database.transaction((txn) async {
+      push.forEach((p) async {
+        await txn.insert(PUSH_NOTIFICATIONS_TABLE_NAME, p.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<List<PushNotification>> getPush(int limit) async {
+    final List<Map<String, dynamic>> maps = await _database.query(
+        PUSH_NOTIFICATIONS_TABLE_NAME,
+        orderBy: "createdAt DESC",
+        limit: limit);
+    return List.generate(maps.length, (i) => PushNotification.fromMap(maps[i]));
   }
 
   Future<void> saveGoods(List<Good> goods) async {

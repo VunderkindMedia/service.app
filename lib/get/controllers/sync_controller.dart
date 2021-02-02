@@ -11,6 +11,7 @@ class SyncController extends GetxController {
   RxString syncStatus = SyncStatus.OK.obs;
   Rx<DateTime> _lastSyncDate = DateTime.now().obs;
   RxBool _needSync = false.obs;
+  RxBool _isSync = false.obs;
 
   ApiService _apiService;
   DbService _dbService;
@@ -46,12 +47,18 @@ class SyncController extends GetxController {
   }
 
   Future<void> sync() async {
+    if (_isSync.value) return;
+
+    _isSync.value = true;
+
     try {
       syncStatus.value = SyncStatus.Loading;
 
       _syncBrands();
       _syncGoods();
       _syncGoodPrices();
+      _syncNotifications();
+
       await _syncServices();
 
       await _dbService.getExportServiceGoods().then((serviceGoods) async {
@@ -79,6 +86,8 @@ class SyncController extends GetxController {
     } finally {
       syncStatus.value = SyncStatus.OK;
     }
+
+    _isSync.value = false;
   }
 
   Future<void> _syncServices() async {
@@ -100,6 +109,12 @@ class SyncController extends GetxController {
     var goodPrices =
         await _apiService.getGoodPrices(_token, _lastSyncDate.value);
     await _dbService.saveGoodPrices(goodPrices);
+  }
+
+  Future<void> _syncNotifications() async {
+    var notifications =
+        await _apiService.getNotifications(_token, _lastSyncDate.value);
+    await _dbService.savePush(notifications);
   }
 
   Future<void> saveService(Service service) async {
@@ -148,18 +163,16 @@ class SyncController extends GetxController {
       {bool resync = false}) async {
     await _apiService
         .addServiceImage(serviceImage, _token)
-        .then((result) async {
-      if (result) {
-        serviceImage.export = false;
-        await _dbService.addServiceImage(serviceImage);
+        .then((imageModel) async {
+      if (imageModel != null) {
+        await _dbService.addServiceImage(imageModel);
       } else if (!_needSync.value) {
         _needSync.value = true;
       }
     });
   }
 
-  Future<void> deleteServiceImage(
-      Service service, ServiceImage serviceImage) async {
+  Future<void> deleteServiceImage(ServiceImage serviceImage) async {
     var deleted = true;
     if (!serviceImage.export)
       deleted = await _apiService.deleteServiceImage(serviceImage, _token);

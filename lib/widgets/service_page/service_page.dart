@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
-import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/service_page/service_goods_list.dart';
 import 'package:service_app/widgets/service_page/service_body.dart';
@@ -13,9 +12,8 @@ import 'package:service_app/widgets/attachments_page/attachments_page.dart';
 
 class ServicePage extends StatefulWidget {
   final int serviceId;
-  final Brand brand;
 
-  ServicePage({Key key, @required this.serviceId, @required this.brand});
+  ServicePage({Key key, @required this.serviceId});
 
   @override
   _ServicePageState createState() => _ServicePageState();
@@ -43,7 +41,7 @@ class _ServicePageState extends State<ServicePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: widget.brand.bColor(),
+        backgroundColor: serviceController.brand.value.bColor(),
         title: Obx(() => serviceController.service.value.id != -1
             ? Text('${serviceController.service.value.number ?? ''}')
             : SizedBox()),

@@ -11,6 +11,7 @@ import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
   final SyncController syncController = Get.find();
+
   var isSearching = false.obs;
   var hideFinished = false.obs;
 

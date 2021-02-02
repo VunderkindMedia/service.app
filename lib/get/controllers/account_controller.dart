@@ -16,8 +16,11 @@ class AccountController extends GetxController {
     ApiService apiService = Get.find();
     SharedPreferencesService sharedPreferencesService = Get.find();
 
+    var pushToken = sharedPreferencesService.getPushToken();
+
     try {
-      var accountInfo = await apiService.login(username.value, password.value);
+      var accountInfo =
+          await apiService.login(username.value, password.value, pushToken);
 
       sharedPreferencesService.setAccessToken(accountInfo.accessToken);
       sharedPreferencesService

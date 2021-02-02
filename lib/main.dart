@@ -7,6 +7,7 @@ import 'package:service_app/get/services/db_service.dart';
 import 'constants/app_colors.dart';
 import 'package:service_app/widgets/login_page/login_page.dart';
 import 'package:service_app/widgets/services_page/services_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'get/services/shared_preferences_service.dart';
 
@@ -15,6 +16,8 @@ Future<void> main() async {
   await initServices();
 
   SharedPreferencesService sharedPreferencesService = Get.find();
+
+  await initPushServices(sharedPreferencesService);
 
   runApp(
     GetMaterialApp(
@@ -40,6 +43,17 @@ Future<void> initServices() async {
   await Get.putAsync(() => SharedPreferencesService().init());
 
   print('All services started...');
+}
+
+Future<void> initPushServices(
+    SharedPreferencesService sharedPreferencesService) async {
+  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+
+  await _firebaseMessaging.getToken().then((String token) {
+    assert(token != null);
+    print(token);
+    sharedPreferencesService.setPushToken(token);
+  });
 }
 
 final ThemeData _appTheme = _buildAppTheme();
