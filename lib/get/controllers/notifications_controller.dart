@@ -39,6 +39,8 @@ class NotificationsController extends GetxController {
         {
           var service = await _dbService.getServiceByGUID(push.guid);
 
+          if (service == null) return;
+
           if (push.id.isNotEmpty) await markIsNew(push, false);
           await serviceController.init(service.id);
           await serviceController.onInit();

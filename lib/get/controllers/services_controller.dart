@@ -24,6 +24,7 @@ class ServicesController extends GetxController {
 
   int get servicesCount => _services.length;
   bool get isSync => _isSync.value;
+  String get personId => _personId;
 
   String searchString = "";
   List<String> statusFilters = <String>[];

@@ -76,7 +76,8 @@ class ServiceController extends GetxController {
     await refreshServiceImages();
     await updateClosedDates();
 
-    if (service.value.status == ServiceStatus.Start)
+    if (service.value.status == ServiceStatus.Start &&
+        service.value.userId == servicesController.personId)
       locked.value = false;
     else
       locked.value = true;
@@ -84,7 +85,7 @@ class ServiceController extends GetxController {
 
   void disposeController() {
     service = Service(-1).obs;
-    locked = true.obs;
+    locked = false.obs;
     workType = ''.obs;
     serviceGoods.clear();
     serviceImages.clear();
@@ -423,7 +424,8 @@ class ServiceController extends GetxController {
   Widget refreshFabButtons(Function callback) {
     var fabs = <Widget>[];
 
-    if (service.value.id == -1) return FloatingActionButton(onPressed: null);
+    if (service.value.id == -1 ||
+        service.value.userId != servicesController.personId) return SizedBox();
 
     switch (fabsState.value) {
       case FabsState.Main:

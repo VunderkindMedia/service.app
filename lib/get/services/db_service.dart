@@ -203,7 +203,7 @@ class DbService extends GetxService {
       where: _query,
       whereArgs: [guid],
     );
-    return Service.fromMap(maps.first);
+    return maps.length > 0 ? Service.fromMap(maps.first) : null;
   }
 
   Future<List<Service>> getServicesBySearch(
