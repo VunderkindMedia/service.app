@@ -186,6 +186,11 @@ class _GoodPageState extends State<GoodPage> {
                               sum.value = _eval(
                                   good, goodPrice.price, _countController.text);
                             },
+                            onTap: () => _countController.selection =
+                                TextSelection(
+                                    baseOffset: 0,
+                                    extentOffset:
+                                        _countController.value.text.length),
                           ),
                         ),
                         Padding(

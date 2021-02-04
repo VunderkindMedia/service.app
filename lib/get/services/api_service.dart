@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:service_app/constants/api.dart';
 import 'package:service_app/models/account_info.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/models/closed_dates.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/push_notifications.dart';
@@ -97,6 +98,23 @@ class ApiService extends GetxService {
     print("get brands ${brands.length}");
 
     return brands;
+  }
+
+  Future<List<ClosedDates>> getClosedDates(
+      String accessToken, String cityId, DateTime lSync) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+    var updParam = _getUpdtParam(lSync);
+
+    var response = await http.get('$API_CLOSED_DATES/$cityId?updt=$updParam',
+        headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var clDatesJson = List.from(responseJson['results']);
+    var clDates =
+        clDatesJson.map((json) => ClosedDates.fromJson(json)).toList();
+
+    print("get closed dates ${clDates.length}");
+
+    return clDates;
   }
 
   Future<List<Good>> getGoods(String accessToken, DateTime lSync) async {

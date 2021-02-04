@@ -12,6 +12,7 @@ import 'package:service_app/models/service.dart';
 class ServicesController extends GetxController {
   final SyncController syncController = Get.find();
 
+  var _isSync = false.obs;
   var isSearching = false.obs;
   var hideFinished = false.obs;
 
@@ -22,6 +23,7 @@ class ServicesController extends GetxController {
   RxList<Service> filteredServices = <Service>[].obs;
 
   int get servicesCount => _services.length;
+  bool get isSync => _isSync.value;
 
   String searchString = "";
   List<String> statusFilters = <String>[];
@@ -53,8 +55,10 @@ class ServicesController extends GetxController {
   }
 
   Future<void> sync() async {
+    _isSync.value = true;
     await syncController.sync();
     await _refreshServices();
+    _isSync.value = false;
   }
 
   Future<void> ref(DateTime dt) async {

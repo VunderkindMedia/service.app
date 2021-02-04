@@ -9,3 +9,4 @@ const API_BRANDS = '$SERVER/v1/catalogs/brand';
 const API_GOODS = '$SERVER/v1/catalogs/goods';
 const API_GOOD_PRICES = '$SERVER/v1/catalogs/good_price';
 const API_PUSH_NOTIFICATIONS = '$SERVER/v1/catalogs/notifications';
+const API_CLOSED_DATES = '$SERVER/v1/catalogs/city/cldates';

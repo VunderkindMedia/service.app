@@ -34,6 +34,7 @@ class ServiceController extends GetxController {
   RxList<Good> goods = <Good>[].obs;
   RxList<Good> filteredGoods = <Good>[].obs;
   RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
+  RxList<DateTime> closedDates = <DateTime>[].obs;
 
   DbService _dbService;
 
@@ -73,6 +74,7 @@ class ServiceController extends GetxController {
     workType = ''.obs;
     await refreshServiceGoods();
     await refreshServiceImages();
+    await updateClosedDates();
 
     if (service.value.status == ServiceStatus.Start)
       locked.value = false;
@@ -86,6 +88,7 @@ class ServiceController extends GetxController {
     workType = ''.obs;
     serviceGoods.clear();
     serviceImages.clear();
+    closedDates.clear();
   }
 
   Future<void> refreshServiceGoods() async {
@@ -103,6 +106,14 @@ class ServiceController extends GetxController {
     var sImages = await _dbService.getServiceImages(service.value.id);
     serviceImages.assignAll(sImages);
     print('updt simages');
+  }
+
+  Future<void> updateClosedDates() async {
+    var dbClosedDates =
+        await _dbService.getClosedDates(this.service.value.cityId);
+    dbClosedDates.forEach((cldate) {
+      closedDates.add(DateTime.parse(cldate.date));
+    });
   }
 
   Future<void> saveServiceChanges(Service service) async {
@@ -240,7 +251,17 @@ class ServiceController extends GetxController {
           heroTag: 'rfab',
           alignment: Alignment.bottomRight,
           onPressed: serviceGoods.length > 0
-              ? () {
+              ? () async {
+                  await syncController
+                      .syncClosedDates(service.value.cityId)
+                      .then((updated) async {
+                    if (updated)
+                      await _dbService
+                          .getClosedDates(this.service.value.cityId)
+                          .then((_) {
+                        updateClosedDates();
+                      });
+                  });
                   fabsState.value = FabsState.PaymentPage;
                   Get.to(PaymentPage());
                 }

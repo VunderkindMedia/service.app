@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:get/get.dart';
@@ -47,17 +48,23 @@ class _PaymentPageState extends State<PaymentPage> {
   TextEditingController _commentController = TextEditingController();
   TextEditingController _paymentController = TextEditingController();
 
+  FocusNode _commentFocus;
+  FocusNode _paymentFocus;
+
   String formattedDate(DateTime date) {
     final DateFormat formatter = DateFormat('dd.MM.yyyy');
     return _selectedDate != null ? formatter.format(date) : 'Не выбрана';
   }
 
   _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    DateTime picked = await showRoundedDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      description: 'Выберите желаемую дату монтажа для ТО-2',
+      height: 200,
+      firstDate: DateTime.now(),
+      theme: ThemeData.dark(),
+      listDateDisabled: serviceController.closedDates,
+      locale: Locale('ru'),
     );
     if (picked != null && picked != _selectedDate)
       setState(() {
@@ -68,6 +75,9 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
+
+    _commentFocus = FocusNode();
+    _paymentFocus = FocusNode();
 
     serviceController.serviceGoods
         .where((sg) => sg.workType == WorkTypes.TO1)
@@ -214,8 +224,12 @@ class _PaymentPageState extends State<PaymentPage> {
                         title: 'Решение клиента',
                         value: _selectedDecision,
                         choiceItems: _decision,
-                        onChange: (state) =>
-                            setState(() => _selectedDecision = state.value),
+                        onChange: (state) {
+                          setState(() => _selectedDecision = state.value);
+
+                          if (_selectedDecision == ClientDecision.Agree)
+                            _selectDate(Get.context);
+                        },
                         choiceStyle: S2ChoiceStyle(
                           titleStyle:
                               TextStyle(fontSize: 16.0, color: Colors.white),
@@ -230,8 +244,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       ),
                     ),
                     Visibility(
-                      visible: _selectedDecision == ClientDecision.Agree ||
-                          _selectedDecision == ClientDecision.Think,
+                      visible: _selectedDecision == ClientDecision.Agree,
                       child: GestureDetector(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -249,10 +262,16 @@ class _PaymentPageState extends State<PaymentPage> {
                             ),
                           ),
                         ),
-                        onTap: () => _selectDate(context),
+                        onTap: () {
+                          _selectDate(context);
+                          _commentFocus.requestFocus();
+                        },
                       ),
                     ),
-                    CommentField(controller: _commentController),
+                    CommentField(
+                      focusNode: _commentFocus,
+                      controller: _commentController,
+                    ),
                   ],
                 ),
               ),
@@ -269,8 +288,10 @@ class _PaymentPageState extends State<PaymentPage> {
                       title: 'Способ оплаты',
                       value: _selectedPayment,
                       choiceItems: _paymentOptions,
-                      onChange: (state) =>
-                          setState(() => _selectedPayment = state.value),
+                      onChange: (state) {
+                        setState(() => _selectedPayment = state.value);
+                        _paymentFocus.requestFocus();
+                      },
                       choiceStyle: S2ChoiceStyle(
                         titleStyle:
                             TextStyle(fontSize: 16.0, color: Colors.white),
@@ -283,14 +304,17 @@ class _PaymentPageState extends State<PaymentPage> {
                         backgroundColor: Colors.grey[800],
                       ),
                     ),
-                    CardRow(
-                      leading: Text(
-                        'Минимальная сумма платежа',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      tailing: MoneyPlate(
-                        amount: minPayment.value,
-                        style: TextStyle(fontSize: 16.0),
+                    Visibility(
+                      visible: minPayment.value > 0,
+                      child: CardRow(
+                        leading: Text(
+                          'Минимальная сумма платежа',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        tailing: MoneyPlate(
+                          amount: minPayment.value,
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                     ),
                     CardRow(
@@ -299,6 +323,7 @@ class _PaymentPageState extends State<PaymentPage> {
                         style: TextStyle(fontSize: 16.0),
                       ),
                       tailing: TextFormField(
+                        focusNode: _paymentFocus,
                         style: TextStyle(fontSize: 16.0),
                         textAlign: TextAlign.end,
                         controller: _paymentController,
@@ -306,6 +331,11 @@ class _PaymentPageState extends State<PaymentPage> {
                           FilteringTextInputFormatter.digitsOnly
                         ],
                         keyboardType: TextInputType.number,
+                        onTap: () => _paymentController.selection =
+                            TextSelection(
+                                baseOffset: 0,
+                                extentOffset:
+                                    _paymentController.value.text.length),
                       ),
                     )
                   ],

@@ -26,6 +26,11 @@ class _ServicePageState extends State<ServicePage> {
   final List<String> lists = [WorkTypes.TO1, WorkTypes.TO2];
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     super.dispose();
 
@@ -78,19 +83,17 @@ class _ServicePageState extends State<ServicePage> {
                     children: cards,
                   );
                 }),
-                Obx(
-                  () => Card(
-                    child: ListTile(
-                      title: Text(
-                        'Вложения (${serviceController.serviceImages.length})',
-                        style: kCardTitleStyle,
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        serviceController.fabsState.value = FabsState.AddImage;
-                        Get.to(AttachmentsPage());
-                      },
+                Card(
+                  child: ListTile(
+                    title: Text(
+                      'Вложения (${serviceController.serviceImages.length})',
+                      style: kCardTitleStyle,
                     ),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      serviceController.fabsState.value = FabsState.AddImage;
+                      Get.to(AttachmentsPage());
+                    },
                   ),
                 ),
                 SizedBox(height: 80)

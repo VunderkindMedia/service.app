@@ -1,5 +1,6 @@
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:service_app/models/brand.dart';
+import 'package:service_app/models/closed_dates.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/service.dart';
@@ -17,6 +18,7 @@ class DbService extends GetxService {
   static const GOODS_TABLE_NAME = "goods";
   static const GOOD_PRICES_TABLE_NAME = "good_prices";
   static const PUSH_NOTIFICATIONS_TABLE_NAME = "push_notifications";
+  static const CLOSED_DATES_TABLE_NAME = "closed_dates";
 
   static Database _database;
 
@@ -129,6 +131,12 @@ class DbService extends GetxService {
           'body TEXT,'
           'isNew bool'
           ')');
+      await db.execute('CREATE TABLE $CLOSED_DATES_TABLE_NAME '
+          '('
+          'cityId TEXT,'
+          'date DATETIME,'
+          'UNIQUE(cityId, date)'
+          ')');
     });
     print('$runtimeType ready!');
     return this;
@@ -142,6 +150,7 @@ class DbService extends GetxService {
     await _database.delete('$GOODS_TABLE_NAME');
     await _database.delete('$GOOD_PRICES_TABLE_NAME');
     await _database.delete('$PUSH_NOTIFICATIONS_TABLE_NAME');
+    await _database.delete('$CLOSED_DATES_TABLE_NAME');
   }
 
   Future<void> saveServices(List<Service> services) async {
@@ -226,6 +235,25 @@ class DbService extends GetxService {
     final List<Map<String, dynamic>> maps =
         await _database.query(BRANDS_TABLE_NAME);
     return List.generate(maps.length, (i) => Brand.fromMap(maps[i]));
+  }
+
+  Future<void> saveClosedDates(List<ClosedDates> cldates) async {
+    await _database.transaction((txn) async {
+      cldates.forEach((cldate) async {
+        await txn.insert(CLOSED_DATES_TABLE_NAME, cldate.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<List<ClosedDates>> getClosedDates(String cityID) async {
+    String _query = "cityId = ? AND date >= ?";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+        CLOSED_DATES_TABLE_NAME,
+        where: _query,
+        whereArgs: [cityID, DateTime.now().toString()]);
+    return List.generate(maps.length, (i) => ClosedDates.fromMap(maps[i]));
   }
 
   Future<void> savePush(List<PushNotification> push) async {

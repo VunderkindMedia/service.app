@@ -20,6 +20,7 @@ class SyncController extends GetxController {
   String _token;
 
   bool get needSync => _needSync.value;
+  bool get isSync => _isSync.value;
 
   @override
   void onInit() async {
@@ -80,14 +81,32 @@ class SyncController extends GetxController {
       });
 
       _lastSyncDate.value = DateTime.now();
-      _needSync.value = false;
+      if (_needSync.value) _needSync.value = false;
     } catch (e) {
       syncStatus.value = SyncStatus.Error;
+      await Get.defaultDialog(
+        title: "Нет сети",
+        middleText:
+            "Не удалось подключиться к серверу, попробуйте позднее, когда будет интернет",
+      );
     } finally {
       syncStatus.value = SyncStatus.OK;
     }
 
     _isSync.value = false;
+  }
+
+  Future<bool> syncClosedDates(String cityId) async {
+    _apiService
+        .getClosedDates(_token, cityId, _lastSyncDate.value)
+        .then((cldates) async {
+      if (cldates.length > 0) {
+        await _dbService.saveClosedDates(cldates);
+        return true;
+      }
+      return false;
+    });
+    return false;
   }
 
   Future<void> _syncServices() async {
