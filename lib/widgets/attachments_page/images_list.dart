@@ -66,10 +66,15 @@ class ImageWidget extends StatelessWidget {
     Widget imageCardWidget = getImageCardWidget(context, imageModel);
 
     if (imageModel.export) {
-      return OverlayImage(
-        image: imageCardWidget,
-        infoWidget: CircularProgressIndicator(),
-        textWidget: Text('Изображение выгружается'),
+      return GestureDetector(
+        onLongPress: () async {
+          await serviceController.deleteServiceImage(imageModel);
+        },
+        child: OverlayImage(
+          image: imageCardWidget,
+          infoWidget: CircularProgressIndicator(),
+          textWidget: Text('Изображение выгружается'),
+        ),
       );
     } else {
       return GestureDetector(
