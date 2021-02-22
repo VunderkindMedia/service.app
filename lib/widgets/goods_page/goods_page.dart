@@ -48,7 +48,7 @@ class _GoodsPageState extends State<GoodsPage> {
             ? Text('Выберите услугу')
             : TextField(
                 decoration: InputDecoration(
-                    icon: Icon(Icons.search, color: kSecondColor),
+                    icon: Icon(Icons.search, color: kTextLightColor),
                     hintText: 'Поиск',
                     hintStyle: kSearchBarTextStyle),
                 style: kSearchBarTextStyle,
@@ -169,16 +169,22 @@ class GoodItem extends StatelessWidget {
                         width: 24,
                         height: 24,
                         child: Center(
-                            child: Container(
-                                height: 8,
-                                width: 8,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    border: Border.all(
-                                        width: 1, color: Colors.grey)))),
+                          child: Container(
+                            height: 8,
+                            width: 8,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(width: 1, color: Colors.grey),
+                            ),
+                          ),
+                        ),
                       ),
               ),
-              Expanded(child: Text('${good.name}')),
+              Expanded(
+                  child: Text(
+                '${good.name}',
+                style: TextStyle(fontSize: 16.0, color: kTextLightColor),
+              )),
               if (!isBack)
                 Container(
                     margin: EdgeInsets.only(left: 16),

@@ -2,6 +2,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
@@ -27,17 +28,20 @@ class ServiceListTile extends StatelessWidget {
         ? ''
         : DateFormat('dd.MM').format(service.dateStart).toString();
 
+    Color brandColor = brand.bColor();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Icon(
           ServiceState().getStateIcon(service),
-          color: brand.bColor(),
+          color: brandColor,
         ),
         SizedBox(width: 5.0),
         Expanded(
             child: Text(
           '${service.status}',
+          style: TextStyle(color: kTextLightColor),
           maxLines: 1,
         )),
         Spacer(),
@@ -53,18 +57,19 @@ class ServiceListTile extends StatelessWidget {
     String outputAddress = service.getShortAddress();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 4.0),
+      padding: const EdgeInsets.fromLTRB(0, 4.0, 0, 4.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            service.customer,
-            style: TextStyle(fontSize: 18.0),
-          ),
-          Text(
             outputAddress,
             maxLines: 2,
-            style: TextStyle(fontSize: 18.0),
+            style: TextStyle(fontSize: 18.0, color: kTextLightColor),
+          ),
+          SizedBox(height: 6.0),
+          Text(
+            service.customer,
+            style: TextStyle(fontSize: 16.0, color: kTextLightColor),
           ),
         ],
       ),
@@ -84,7 +89,6 @@ class ServiceListTile extends StatelessWidget {
       actions: [
         IconSlideAction(
           caption: 'Отмена',
-          color: Colors.redAccent,
           icon: Icons.cancel,
           onTap: () async {
             await serviceController.init(service.id);
@@ -108,7 +112,6 @@ class ServiceListTile extends StatelessWidget {
         ),
         IconSlideAction(
           caption: 'Перенос',
-          color: Colors.blueAccent,
           icon: Icons.calendar_today,
           onTap: () async {
             await serviceController.init(service.id);
@@ -134,7 +137,6 @@ class ServiceListTile extends StatelessWidget {
       secondaryActions: [
         IconSlideAction(
           caption: 'Позвонить',
-          color: Colors.green,
           icon: Icons.call,
           onTap: () {
             servicesController.callMethod(context, service.phone);
@@ -142,7 +144,6 @@ class ServiceListTile extends StatelessWidget {
         ),
         IconSlideAction(
           caption: 'Навигатор',
-          color: Colors.grey,
           icon: Icons.navigation,
           onTap: () {
             servicesController.openNavigator(service);

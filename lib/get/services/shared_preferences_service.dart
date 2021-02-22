@@ -11,6 +11,38 @@ class SharedPreferencesService extends GetxService {
     return this;
   }
 
+  String getUserRoles(bool title) {
+    var userRolesTitle = "";
+    var userRoles = this._preferences.getString(USER_ROLES) ?? '';
+
+    switch (userRoles) {
+      case 'ServiceMember':
+        userRolesTitle = 'Будет сделано\nСпециалист сервисной службы';
+        break;
+      case 'MountingMember':
+        userRolesTitle = 'Будет сделано\nСпециалист службы монтажа';
+        break;
+      case 'MountingBossMember':
+        userRolesTitle = 'Будет сделано\nМастер участка сервисной службы';
+        break;
+      default:
+        userRolesTitle = 'Роль не определена';
+        break;
+    }
+    return !title ? userRoles : userRolesTitle;
+  }
+
+  void setUserRoles(List<dynamic> roles) {
+    String rolesStr = "";
+
+    if (roles != null) {
+      roles.forEach((role) {
+        rolesStr = rolesStr + role;
+      });
+    }
+    this._preferences.setString(USER_ROLES, rolesStr);
+  }
+
   String getAccessToken() {
     return this._preferences.getString(ACCESS_TOKEN) ?? '';
   }

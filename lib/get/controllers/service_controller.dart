@@ -121,8 +121,11 @@ class ServiceController extends GetxController {
     await syncController.saveService(service).then((value) {
       init(service.id);
     }).whenComplete(
-      () => syncController.syncService(service).then((value) =>
-          servicesController.ref(servicesController.selectedDate.value)),
+      () => syncController.syncService(service).then(
+            (value) => servicesController.ref(
+                servicesController.selectedDateStart.value,
+                servicesController.selectedDateEnd.value),
+          ),
     );
   }
 

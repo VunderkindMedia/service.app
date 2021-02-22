@@ -36,7 +36,8 @@ class _ServicePageState extends State<ServicePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       serviceController.disposeController();
-      servicesController.ref(servicesController.selectedDate.value);
+      servicesController.ref(servicesController.selectedDateStart.value,
+          servicesController.selectedDateEnd.value);
     });
   }
 

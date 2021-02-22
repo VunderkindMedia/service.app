@@ -69,13 +69,13 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<List<Service>> getServices(String accessToken, DateTime lSync) async {
+  Future<List<Service>> getServices(String accessToken, DateTime lSync,
+      DateTime dateSt, DateTime dateEnd) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
     var response = await http.get(
         _getUrlString(API_SERVICES, 150, 0, lSync,
-            dateStart: DateTime.now().add(Duration(days: -2)),
-            dateEnd: DateTime.now().add(Duration(days: 2))),
+            dateStart: dateSt, dateEnd: dateEnd),
         headers: headers);
     var responseJson = jsonDecode(response.body);
     var servicesJson = List.from(responseJson['results']);

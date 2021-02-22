@@ -16,7 +16,12 @@ class ServicesController extends GetxController {
   var isSearching = false.obs;
   var hideFinished = false.obs;
 
-  Rx<DateTime> selectedDate = DateTime.now().obs;
+  Rx<DateTime> selectedDateStart =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .obs;
+  Rx<DateTime> selectedDateEnd = DateTime(DateTime.now().year,
+          DateTime.now().month, DateTime.now().day, 23, 59, 59)
+      .obs;
 
   RxList<Service> _services = <Service>[].obs;
   RxList<Brand> brands = <Brand>[].obs;
@@ -32,6 +37,7 @@ class ServicesController extends GetxController {
   SharedPreferencesService _sharedPreferencesService;
   DbService _dbService;
   String _personName;
+  String _userRoles;
   String _personId;
 
   @override
@@ -39,32 +45,35 @@ class ServicesController extends GetxController {
     super.onInit();
 
     _dbService = Get.find();
-    _sharedPreferencesService = Get.find();
-
-    _personName = _sharedPreferencesService.getPersonName();
-    _personId = _sharedPreferencesService.getPersonExternalId();
 
     _services.listen((value) => updateFilteredServices());
 
-    ref(DateTime.now());
+    ref(selectedDateStart.value, selectedDateEnd.value);
+  }
+
+  void initController() {
+    _sharedPreferencesService = Get.find();
+
+    _personName = _sharedPreferencesService.getPersonName();
+    _userRoles = _sharedPreferencesService.getUserRoles(true);
+    _personId = _sharedPreferencesService.getPersonExternalId();
   }
 
   void disposeController() {
-    selectedDate.value = DateTime.now();
     _services.clear();
-    filteredServices.clear();
   }
 
   Future<void> sync() async {
     _isSync.value = true;
-    await syncController.sync();
+    await syncController.sync(selectedDateStart.value, selectedDateEnd.value);
     await _refreshServices();
     _isSync.value = false;
   }
 
-  Future<void> ref(DateTime dt) async {
+  Future<void> ref(DateTime dtstart, DateTime dtend) async {
     try {
-      selectedDate.value = dt;
+      selectedDateStart.value = dtstart;
+      selectedDateEnd.value = dtend;
 
       await _refreshServices();
     } catch (e) {
@@ -79,10 +88,11 @@ class ServicesController extends GetxController {
     }
 
     if (!isSearching.value) {
-      DateTime d = selectedDate.value;
-      DateTime _dateStart = DateTime(d.year, d.month, d.day);
-      DateTime _dateEnd =
-          _dateStart.add(Duration(hours: 23, minutes: 59, seconds: 59));
+      DateTime d1 = selectedDateStart.value;
+      DateTime d2 = selectedDateEnd.value;
+
+      DateTime _dateStart = DateTime(d1.year, d1.month, d1.day);
+      DateTime _dateEnd = DateTime(d2.year, d2.month, d2.day, 23, 59, 59);
 
       var dbServices =
           await _dbService.getServices(_personId, _dateStart, _dateEnd);
@@ -97,6 +107,10 @@ class ServicesController extends GetxController {
 
   String getName() {
     return _personName;
+  }
+
+  String getRoles() {
+    return _userRoles;
   }
 
   void updateFilteredServices() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/notifications_controller.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -35,35 +36,41 @@ class _NotificationsPageState extends State<NotificationsPage> {
               itemCount: notificationsController.notifications.length,
               itemBuilder: (context, i) {
                 var notification = notificationsController.notifications[i];
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: ListTile(
-                      title: Row(
-                        children: <Widget>[
-                          Text(notification.title),
-                          Spacer(),
-                          Text(
-                            DateFormat('dd.MM HH:mm')
-                                .format(notification.createdAt.toLocal())
-                                .toString(),
-                            style: TextStyle(
-                                fontSize: 12.0, color: Colors.grey[400]),
-                          ),
-                        ],
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Text(
-                          notification.body,
-                          style: TextStyle(fontSize: 16.0),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 2.0),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: ListTile(
+                        title: Row(
+                          children: <Widget>[
+                            Text(notification.title),
+                            Spacer(),
+                            Text(
+                              DateFormat('dd.MM HH:mm')
+                                  .format(notification.createdAt.toLocal())
+                                  .toString(),
+                              style: TextStyle(
+                                  fontSize: 12.0, color: kTextLightColor),
+                            ),
+                          ],
                         ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Text(
+                            notification.body,
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                        ),
+                        trailing: notification.isNew
+                            ? Icon(Icons.new_releases)
+                            : null,
+                        onTap: () async {
+                          notificationsController
+                              .openNotification(notification);
+                        },
                       ),
-                      trailing:
-                          notification.isNew ? Icon(Icons.new_releases) : null,
-                      onTap: () async {
-                        notificationsController.openNotification(notification);
-                      },
                     ),
                   ),
                 );

@@ -26,53 +26,55 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: Text('Авторизация'),
       ),
-      body: ModalProgressHUD(
-        inAsyncCall: authState,
-        child: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: Container(
-            padding: EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    Icons.handyman_rounded,
-                    size: 100,
-                    color: kSecondColor,
-                  ),
-                  SizedBox(height: 40),
-                  TextField(
-                      keyboardType: TextInputType.text,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(hintText: 'Логин'),
-                      onChanged: (text) {
-                        accountController.username.value = text;
-                      }),
-                  SizedBox(height: 24.0),
-                  TextField(
-                      keyboardType: TextInputType.text,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(hintText: 'Пароль'),
-                      onChanged: (text) {
-                        accountController.password.value = text;
-                      }),
-                  SizedBox(height: 36.0),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: RaisedButton(
-                        onPressed: () async {
-                          changeAuthState(true);
-                          await accountController.login();
-                          changeAuthState(false);
-                        },
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        child: Text('Войти')),
-                  )
-                ],
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("images/login.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: ModalProgressHUD(
+          inAsyncCall: authState,
+          child: Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
+            child: Container(
+              padding: EdgeInsets.all(24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    TextField(
+                        keyboardType: TextInputType.text,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(hintText: 'Логин'),
+                        onChanged: (text) {
+                          accountController.username.value = text;
+                        }),
+                    SizedBox(height: 24.0),
+                    TextField(
+                        keyboardType: TextInputType.text,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(hintText: 'Пароль'),
+                        onChanged: (text) {
+                          accountController.password.value = text;
+                        }),
+                    SizedBox(height: 36.0),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: RaisedButton(
+                          onPressed: () async {
+                            changeAuthState(true);
+                            await accountController.login();
+                            changeAuthState(false);
+                          },
+                          color: kMainColor,
+                          textColor: kTextLightColor,
+                          child: Text('Войти')),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

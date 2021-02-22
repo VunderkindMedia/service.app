@@ -69,7 +69,7 @@ class GoodListTile extends StatelessWidget {
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
       child: Card(
-        color: kGoodCardColor,
+        color: kMainSecondColor,
         child: ListTile(
           title: Text('${good.name}'),
           isThreeLine: true,
@@ -93,7 +93,6 @@ class GoodListTile extends StatelessWidget {
       secondaryActions: [
         IconSlideAction(
           icon: Icons.delete,
-          color: Colors.redAccent,
           onTap: !serviceController.locked.value
               ? () async {
                   await serviceController.deleteServiceGood(serviceGood);

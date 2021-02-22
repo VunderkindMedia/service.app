@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-/* const Color kMainColor = Color(0xFFEE2C2C); */
-const Color kMainColor = Color(0xFFEE4723);
-const Color kDarkMainColor = Color(0xFF7F0000);
-const Color kSecondColor = Color(0xFFFFFFFF);
+const Color kMainColor = Color(0xFFFE4A49);
+const Color kMainSecondColor = Color(0xFFE5E5E5);
+const Color kAppHeaderColor = Color(0xFFE31E24);
+const Color kBackgroundLight = Color(0xFFE5E5E5);
+const Color kTextLightColor = Color(0xFF000000);
 const Color kGoodCardColor = Color(0xFF646161);
 
 const TextStyle kSearchBarTextStyle =
-    TextStyle(fontSize: 18.0, color: kSecondColor);
+    TextStyle(fontSize: 18.0, color: kTextLightColor);

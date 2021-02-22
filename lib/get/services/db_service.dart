@@ -19,6 +19,10 @@ class DbService extends GetxService {
   static const GOOD_PRICES_TABLE_NAME = "good_prices";
   static const PUSH_NOTIFICATIONS_TABLE_NAME = "push_notifications";
   static const CLOSED_DATES_TABLE_NAME = "closed_dates";
+  static const MOUNTINGS_TABLE_NAME = "mountings";
+  static const MOUNTINGS_STAGES_TABLE_NAME = "mounting_stages";
+  static const CONSTRUCTION_TYPES_TABLE_NAME = "construction_types";
+  static const CONSTRUCTION_STAGES_TABLE_NAME = "construction_stages";
 
   static Database _database;
 
@@ -137,6 +141,65 @@ class DbService extends GetxService {
           'date DATETIME,'
           'UNIQUE(cityId, date)'
           ')');
+      await db.execute('CREATE TABLE $CONSTRUCTION_TYPES_TABLE_NAME'
+          '('
+          'id TEXT,'
+          'name TEXT,'
+          'workDir TEXT,'
+          'deleteMark BOOLEAN'
+          ')');
+      await db.execute('CREATE TABLE $CONSTRUCTION_STAGES_TABLE_NAME'
+          '('
+          'id TEXT,'
+          'name TEXT,'
+          'constructionTypeId TEXT,'
+          'deleteMark BOOLEAN'
+          ')');
+      await db.execute('CREATE TABLE $MOUNTINGS_TABLE_NAME'
+          '('
+          'id INTEGER PRIMARY KEY,'
+          'state TEXT,'
+          'createdAt DATETIME,'
+          'updatedAt DATETIME,'
+          'externalId TEXT,'
+          'number TEXT,'
+          'deleteMark BOOLEAN,'
+          'date DATETIME,'
+          'dateStart DATETIME,'
+          'constructionTypeId TEXT'
+          'cityId TEXT,'
+          'brandId TEXT,'
+          'customer TEXT,'
+          'customerAddress TEXT,'
+          'floor TEXT,'
+          'lat TEXT,'
+          'lon TEXT,'
+          /* 'intercom BOOLEAN,'
+          'thermalImager BOOLEAN,' */
+          'phone TEXT,'
+          'comment TEXT,'
+          'avalible BOOLEAN,'
+          'actCommited BOOLEAN,'
+          /* 'customerDecision TEXT,'
+          'refuseReason TEXT,'
+          'userComment TEXT,'
+          'dateStartNext DATETIME,'
+          'dateEndNext DATETIME,'
+          'sumTotal INTEGER,'
+          'sumPayment INTEGER,'
+          'sumDiscount INTEGER,' */
+          'export BOOLEAN'
+          ')');
+      await db.execute('CREATE TABLE $MOUNTINGS_STAGES_TABLE_NAME'
+          '('
+          'id TEXT,'
+          'createdAt DATETIME,'
+          'stageId TEXT,'
+          'mountingId INTEGER,'
+          'result TEXT,'
+          'comment TEXT,'
+          'fieldId INTEGER'
+          ')');
     });
     print('$runtimeType ready!');
     return this;
@@ -151,6 +214,10 @@ class DbService extends GetxService {
     await _database.delete('$GOOD_PRICES_TABLE_NAME');
     await _database.delete('$PUSH_NOTIFICATIONS_TABLE_NAME');
     await _database.delete('$CLOSED_DATES_TABLE_NAME');
+    await _database.delete('$MOUNTINGS_TABLE_NAME');
+    await _database.delete('$MOUNTINGS_STAGES_TABLE_NAME');
+    await _database.delete('$CONSTRUCTION_TYPES_TABLE_NAME');
+    await _database.delete('$CONSTRUCTION_STAGES_TABLE_NAME');
   }
 
   Future<void> saveServices(List<Service> services) async {

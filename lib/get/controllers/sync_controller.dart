@@ -47,7 +47,7 @@ class SyncController extends GetxController {
     _lastSyncDate.value = null;
   }
 
-  Future<void> sync() async {
+  Future<void> sync(DateTime dateStart, DateTime dateEnd) async {
     if (_isSync.value) return;
 
     _isSync.value = true;
@@ -60,7 +60,10 @@ class SyncController extends GetxController {
       _syncGoodPrices();
       _syncNotifications();
 
-      await _syncServices();
+      await _syncServices(
+        dateStart,
+        dateEnd,
+      );
 
       await _dbService.getExportServiceGoods().then((serviceGoods) async {
         await Future.forEach(serviceGoods, (sg) async {
@@ -109,8 +112,9 @@ class SyncController extends GetxController {
     return false;
   }
 
-  Future<void> _syncServices() async {
-    var services = await _apiService.getServices(_token, _lastSyncDate.value);
+  Future<void> _syncServices(DateTime dateStart, DateTime dateEnd) async {
+    var services = await _apiService.getServices(
+        _token, _lastSyncDate.value, dateStart, dateEnd);
     await _dbService.saveServices(services);
   }
 

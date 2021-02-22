@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:date_range_picker/date_range_picker.dart' as drp;
 import 'package:service_app/get/controllers/notifications_controller.dart';
 import 'package:service_app/models/push_notifications.dart';
-import 'package:service_app/widgets/notifications_page/notification_page.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
@@ -12,7 +11,6 @@ import 'package:service_app/models/service.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
 import 'package:service_app/widgets/services_page/services_list_tile.dart';
-import 'package:service_app/widgets/services_page/services_filter_panel.dart';
 import 'package:service_app/widgets/side-menu/side-menu.dart';
 
 class ServicesPage extends StatefulWidget {
@@ -29,16 +27,19 @@ class _ServicesPageState extends State<ServicesPage> {
 
   final GlobalKey<RefreshIndicatorState> _refKey =
       GlobalKey<RefreshIndicatorState>();
-  final PanelController _panelController = PanelController();
 
   FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDateStart;
+  DateTime selectedDateEnd;
   bool showFAB = true;
 
   @override
   void initState() {
     super.initState();
+
+    selectedDateStart = servicesController.selectedDateStart.value;
+    selectedDateEnd = servicesController.selectedDateEnd.value;
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -76,6 +77,8 @@ class _ServicesPageState extends State<ServicesPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _refKey.currentState.show();
     });
+
+    servicesController.initController();
   }
 
   Widget _buildRow(Service service) {
@@ -107,18 +110,8 @@ class _ServicesPageState extends State<ServicesPage> {
       servicesController.searchString = "";
     }
 
-    servicesController.ref(selectedDate);
+    servicesController.ref(selectedDateStart, selectedDateEnd);
 
-    setState(() {});
-  }
-
-  void _hideFilterButton(bool hide) {
-    if (hide) {
-      showFAB = true;
-    } else {
-      _panelController.open();
-      showFAB = false;
-    }
     setState(() {});
   }
 
@@ -133,15 +126,17 @@ class _ServicesPageState extends State<ServicesPage> {
               ])
             : TextField(
                 decoration: InputDecoration(
-                    icon: Icon(Icons.search, color: kSecondColor),
-                    hintText: 'Поиск',
-                    hintStyle: kSearchBarTextStyle),
+                  icon: Icon(Icons.search, color: kTextLightColor),
+                  hintText: 'Поиск',
+                  hintStyle: kSearchBarTextStyle,
+                ),
                 style: kSearchBarTextStyle,
                 autofocus: true,
                 onChanged: (value) {
                   servicesController.searchString = value;
                 },
-                onEditingComplete: () => servicesController.ref(selectedDate),
+                onEditingComplete: () =>
+                    servicesController.ref(selectedDateStart, selectedDateEnd),
               ),
         actions: [
           IconButton(
@@ -150,12 +145,28 @@ class _ServicesPageState extends State<ServicesPage> {
                 : Icon(Icons.cancel),
             onPressed: _clearSearch,
           ),
-          Obx(
-            () => IconButton(
-                icon: Icon(notificationsController.hasNew.value
-                    ? Icons.notifications_active
-                    : Icons.notifications_none),
-                onPressed: () => Get.to(NotificationsPage())),
+          IconButton(
+            icon: Icon(Icons.tune_rounded),
+            onPressed: () async {
+              final List<DateTime> picked = await drp.showDatePicker(
+                  context: context,
+                  initialFirstDate: selectedDateStart,
+                  initialLastDate: selectedDateEnd,
+                  firstDate: DateTime.now().add(Duration(days: -30)),
+                  lastDate: DateTime.now().add(Duration(days: 30)),
+                  locale: Locale('ru'));
+
+              if (picked != null) {
+                selectedDateStart = picked[0];
+                selectedDateEnd = picked.length == 2 ? picked[1] : picked[0];
+
+                if (servicesController.isSearching.value) {
+                  _clearSearch();
+                } else {
+                  servicesController.ref(selectedDateStart, selectedDateEnd);
+                }
+              }
+            },
           ),
         ],
       ),
@@ -188,59 +199,35 @@ class _ServicesPageState extends State<ServicesPage> {
                       )
                     : SizedBox(),
               ),
-              FloatingActionButton(
-                child: Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
-                heroTag: 'rfab',
-                onPressed: () => _hideFilterButton(false),
-              )
             ],
           ),
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            RefreshIndicator(
-                key: _refKey,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Obx(
-                        () => ListView.builder(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          itemCount: servicesController.filteredServices.length,
-                          itemBuilder: (context, i) {
-                            return _buildRow(
-                                servicesController.filteredServices[i]);
-                          },
-                        ),
-                      ),
+        child: RefreshIndicator(
+            color: kAppHeaderColor,
+            backgroundColor: kBackgroundLight,
+            key: _refKey,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Obx(
+                    () => ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      itemCount: servicesController.filteredServices.length,
+                      itemBuilder: (context, i) {
+                        return _buildRow(
+                            servicesController.filteredServices[i]);
+                      },
                     ),
-                  ],
+                  ),
                 ),
-                onRefresh: () async {
-                  await servicesController.sync();
-                  await notificationsController.ref();
-                }),
-            FilterPanel(
-              selectedDate: servicesController.selectedDate.value,
-              controller: _panelController,
-              onDateChange: (value) {
-                selectedDate = value;
-
-                if (servicesController.isSearching.value) {
-                  _clearSearch();
-                } else {
-                  servicesController.ref(selectedDate);
-                }
-              },
-              hideFilterButton: () => _hideFilterButton(true),
-            )
-          ],
-        ),
+              ],
+            ),
+            onRefresh: () async {
+              await servicesController.sync();
+              await notificationsController.ref();
+            }),
       ),
     );
   }

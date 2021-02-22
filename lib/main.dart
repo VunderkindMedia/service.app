@@ -61,12 +61,37 @@ final ThemeData _appTheme = _buildAppTheme();
 ThemeData _buildAppTheme() {
   /* return ThemeData.light(); */
 
-  final ThemeData base = ThemeData.dark();
+  /* final ThemeData base = ThemeData.light();
   return base.copyWith(
-      primaryColor: kMainColor,
-      buttonColor: kMainColor,
-      accentColor: kMainColor,
-      appBarTheme: AppBarTheme(color: kMainColor),
-      floatingActionButtonTheme:
-          FloatingActionButtonThemeData(backgroundColor: kMainColor));
+    primaryColor: kMainColor,
+    appBarTheme: AppBarTheme(color: Colors.white),
+    floatingActionButtonTheme:
+        FloatingActionButtonThemeData(backgroundColor: kMainColor),
+  ); */
+
+  /* return ThemeData(
+    brightness: Brightness.light,
+    primaryColor: kMainColor,
+    backgroundColor: Colors.black,
+    accentColor: Colors.green[600],
+    fontFamily: 'Lato',
+  ); */
+
+  return ThemeData(
+    brightness: Brightness.light,
+    visualDensity: VisualDensity(vertical: 0.5, horizontal: 0.5),
+    primaryColor: kAppHeaderColor,
+    primaryColorBrightness: Brightness.light,
+    canvasColor: Colors.grey[800],
+    accentColor: kMainColor,
+    accentColorBrightness: Brightness.light,
+    scaffoldBackgroundColor: kMainSecondColor,
+    cardColor: Colors.white,
+    dividerColor: Colors.white,
+    focusColor: kBackgroundLight,
+    dialogTheme: DialogTheme(
+      titleTextStyle: TextStyle(color: Colors.black),
+      contentTextStyle: TextStyle(color: Colors.black),
+    ),
+  );
 }

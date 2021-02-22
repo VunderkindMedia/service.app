@@ -27,6 +27,7 @@ class AccountController extends GetxController {
           .setPersonExternalId(accountInfo.personExternalId);
       sharedPreferencesService.setCityExternalId(accountInfo.cityExternalId);
       sharedPreferencesService.setPersonName(accountInfo.personName);
+      sharedPreferencesService.setUserRoles(accountInfo.userRole);
 
       Get.off(ServicesPage());
     } catch (e) {
@@ -47,6 +48,7 @@ class AccountController extends GetxController {
       sharedPreferencesService.setCityExternalId(null);
       sharedPreferencesService.setPersonName(null);
       sharedPreferencesService.setLastSyncDate(null);
+      sharedPreferencesService.setUserRoles(null);
 
       syncController.disposeController();
       serviceController.disposeController();
