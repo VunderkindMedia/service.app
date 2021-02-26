@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:uuid/uuid.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/models/brand.dart';
@@ -14,17 +12,13 @@ import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
 import 'package:service_app/models/service_status.dart';
-import 'package:service_app/widgets/buttons/fab_button.dart';
-import 'package:service_app/widgets/payment_page/payment_page.dart';
-import 'package:service_app/widgets/refuse_page/refuse_page.dart';
-import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
 import 'package:service_app/constants/app_colors.dart';
+import 'package:service_app/widgets/buttons/fab_button.dart';
 
 class ServiceController extends GetxController {
   final SyncController syncController = Get.find();
   final ServicesController servicesController = Get.find();
   final AccountController accountController = Get.find();
-  final picker = ImagePicker();
 
   Rx<Service> service = Service(-1).obs;
   Rx<Brand> brand = Brand(-1).obs;
@@ -226,72 +220,6 @@ class ServiceController extends GetxController {
     saveServiceChanges(service);
   }
 
-  List<Widget> _secondaryMainFabs() => <Widget>[
-        FloatingButton(
-          label: 'Отменить',
-          heroTag: 'lfab',
-          alignment: Alignment.bottomLeft,
-          onPressed: serviceGoods.length == 0
-              ? () {
-                  fabsState.value = FabsState.RefusePage;
-                  Get.to(RefusePage());
-                }
-              : () => Get.defaultDialog(
-                  title: 'Ошибка',
-                  middleText:
-                      'В заявке выбраны услуги!\n\nДля выполнения действия очистите услуги.'),
-          iconData: Icons.cancel,
-          extended: true,
-          isSecondary: true,
-        ),
-        FloatingButton(
-          label: 'Перенести',
-          heroTag: 'mfab',
-          alignment: Alignment.bottomCenter,
-          onPressed: serviceGoods.length == 0
-              ? () {
-                  fabsState.value = FabsState.ReschedulePage;
-                  Get.to(ReschedulePage());
-                }
-              : () => Get.defaultDialog(
-                  title: 'Ошибка',
-                  middleText:
-                      'В заявке выбраны услуги!\n\nДля выполнения действия очистите услуги.'),
-          iconData: Icons.calendar_today_rounded,
-          extended: true,
-          isSecondary: true,
-        ),
-      ];
-
-  List<Widget> _mainFabs() => <Widget>[
-        FloatingButton(
-          label: 'Завершить',
-          heroTag: 'rfab',
-          alignment: Alignment.bottomRight,
-          onPressed: serviceGoods.length > 0
-              ? () async {
-                  await syncController
-                      .syncClosedDates(service.value.cityId)
-                      .then((updated) async {
-                    if (updated)
-                      await _dbService
-                          .getClosedDates(this.service.value.cityId)
-                          .then((_) {
-                        updateClosedDates();
-                      });
-                  });
-                  fabsState.value = FabsState.PaymentPage;
-                  Get.to(PaymentPage());
-                }
-              : () => Get.defaultDialog(
-                  title: 'Ошибка', middleText: 'Не выбрана ни одна услуга!'),
-          iconData: Icons.check_circle,
-          extended: true,
-          isSecondary: false,
-          color: kFabAcceptColor,
-        ),
-      ];
-
   List<Widget> _exportedFabs() => <Widget>[
         FloatingButton(
           label: 'Выгрузка...',
@@ -327,127 +255,6 @@ class ServiceController extends GetxController {
         )
       ];
 
-  List<Widget> _goodAddingFabs(Function callback) => <Widget>[
-        FloatingButton(
-          label: 'Добавить',
-          heroTag: 'mfab',
-          alignment: Alignment.bottomCenter,
-          onPressed: () {
-            callback();
-            fabsState.value = FabsState.GoodAdding;
-            Get.back();
-            print('adding good');
-          },
-          iconData: Icons.add,
-          extended: true,
-          color: kFabActionColor.withOpacity(0.8),
-        ),
-      ];
-
-  List<Widget> _imageAddingFabs(Function callback) => <Widget>[
-        FloatingButton(
-          label: 'Вложение',
-          heroTag: 'lfab',
-          alignment: Alignment.bottomLeft,
-          onPressed: () async {
-            PickedFile image = await picker.getImage(
-              source: ImageSource.gallery,
-              imageQuality: 60,
-            );
-            if (image != null) {
-              String imagePath = image.path;
-              await ImageGallerySaver.saveFile(imagePath);
-              await addServiceImage(
-                  DateTime.now().microsecondsSinceEpoch.toString() + '.png',
-                  imagePath);
-            }
-            print('galerry image');
-          },
-          iconData: Icons.library_add,
-          extended: true,
-          color: kFabActionColor.withOpacity(0.8),
-        ),
-        FloatingButton(
-          label: 'Камера',
-          heroTag: 'rfab',
-          alignment: Alignment.bottomRight,
-          onPressed: () async {
-            PickedFile image = await picker.getImage(
-              source: ImageSource.camera,
-              imageQuality: 60,
-            );
-            if (image != null) {
-              String imagePath = image.path;
-              await ImageGallerySaver.saveFile(imagePath);
-              await addServiceImage(
-                  DateTime.now().microsecondsSinceEpoch.toString() + '.png',
-                  imagePath);
-            }
-            print('camera image');
-          },
-          iconData: Icons.camera_alt,
-          extended: true,
-          color: kFabActionColor.withOpacity(0.8),
-        )
-      ];
-
-  List<Widget> _refusePageFabs(Function callback) => <Widget>[
-        FloatingButton(
-          label: 'Отказ',
-          heroTag: 'mfab',
-          alignment: Alignment.bottomCenter,
-          onPressed: () {
-            callback();
-
-            if (fabsState.value == FabsState.Main) {
-              Get.back();
-              print('refusing');
-            }
-          },
-          iconData: Icons.cancel,
-          extended: true,
-          color: kFabRefuseColor,
-        ),
-      ];
-
-  List<Widget> _reschedulePage(Function callback) => <Widget>[
-        FloatingButton(
-          label: 'Перенос даты',
-          heroTag: 'mfab',
-          alignment: Alignment.bottomCenter,
-          onPressed: () {
-            callback();
-
-            if (fabsState.value == FabsState.Main) {
-              Get.back();
-              print('reshelduing');
-            }
-          },
-          iconData: Icons.calendar_today_rounded,
-          extended: true,
-          color: kFabActionColor,
-        ),
-      ];
-
-  List<Widget> _paymentPage(Function callback) => <Widget>[
-        FloatingButton(
-          label: 'Принять оплату',
-          heroTag: 'mfab',
-          alignment: Alignment.bottomCenter,
-          onPressed: () {
-            callback();
-
-            if (fabsState.value == FabsState.Main) {
-              Get.back();
-              print('payment');
-            }
-          },
-          iconData: Icons.check_circle,
-          extended: true,
-          color: kFabAcceptColor,
-        ),
-      ];
-
   Widget refreshFabButtons(Function callback) {
     var fabs = <Widget>[];
     var fabsSecondary = <Widget>[];
@@ -462,8 +269,6 @@ class ServiceController extends GetxController {
           case ServiceState.WorkInProgress:
           case ServiceState.Updated:
             if (service.value.status == ServiceStatus.Start) {
-              fabs.addAll(Iterable.castFrom(_mainFabs()));
-              fabsSecondary.addAll(Iterable.castFrom(_secondaryMainFabs()));
               locked.value = false;
             } else if (service.value.status == ServiceStatus.End)
               fabs.addAll(_finisedFabs());
@@ -479,19 +284,14 @@ class ServiceController extends GetxController {
         }
         break;
       case FabsState.GoodAdding:
-        fabs.addAll(Iterable.castFrom(_goodAddingFabs(callback)));
         break;
       case FabsState.AddImage:
-        fabs.addAll(Iterable.castFrom(_imageAddingFabs(callback)));
         break;
       case FabsState.RefusePage:
-        fabs.addAll(Iterable.castFrom(_refusePageFabs(callback)));
         break;
       case FabsState.ReschedulePage:
-        fabs.addAll(Iterable.castFrom(_reschedulePage(callback)));
         break;
       case FabsState.PaymentPage:
-        fabs.addAll(Iterable.castFrom(_paymentPage(callback)));
         break;
       default:
     }

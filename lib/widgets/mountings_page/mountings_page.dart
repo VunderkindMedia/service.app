@@ -17,7 +17,7 @@ class MountingsPage extends StatefulWidget {
 }
 
 class _MountingsPageState extends State<MountingsPage> {
-  final SyncController syncController = Get.put(SyncController());
+  final SyncController syncController = Get.find();
   final MountingsController mountingsController =
       Get.put(MountingsController());
   final NotificationsController notificationsController =

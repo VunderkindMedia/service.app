@@ -26,12 +26,17 @@ class SideMenu extends StatelessWidget {
                 Text("Вы действительно хотите выйти данной из учетной записи?"),
             actions: <Widget>[
               FlatButton(
-                  onPressed: accountController.logout, child: Text("Выйти")),
+                onPressed: accountController.logout,
+                child: Text("Выйти"),
+                color: kAppHeaderColor,
+              ),
               FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Отмена")),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Отмена"),
+                color: kAppHeaderColor,
+              ),
             ],
           );
         });

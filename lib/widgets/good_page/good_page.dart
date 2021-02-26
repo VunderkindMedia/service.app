@@ -6,7 +6,6 @@ import 'package:service_app/models/good_price.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
 import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
-import 'package:service_app/models/service_status.dart';
 
 class GoodPage extends StatefulWidget {
   final int goodId;
@@ -19,6 +18,7 @@ class GoodPage extends StatefulWidget {
 
 class _GoodPageState extends State<GoodPage> {
   final ServiceController serviceController = Get.find();
+  final loadingFlag = false.obs;
 
   double _eval(good, price, count) {
     var mprice = good.minPrice / 100;
@@ -26,24 +26,6 @@ class _GoodPageState extends State<GoodPage> {
 
     if (mprice > 0 && mprice > val) val = mprice.toDouble();
     return val;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      serviceController.fabsState.value = FabsState.GoodAdding;
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      serviceController.fabsState.value = FabsState.Main;
-    });
   }
 
   @override
@@ -69,16 +51,32 @@ class _GoodPageState extends State<GoodPage> {
         appBar: AppBar(
           title: Text('Добавление услуги'),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton:
-            Obx(() => serviceController.refreshFabButtons(() async {
-                  await serviceController.addServiceGood(
-                      good,
-                      _constructionController.text,
-                      goodPrice,
-                      double.parse(_countController.text));
-                  serviceController.fabsState.value = FabsState.Main;
-                })),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: Obx(
+          () => loadingFlag.value
+              ? FloatingActionButton.extended(
+                  onPressed: null,
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 34.0),
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.white,
+                    ),
+                  ),
+                )
+              : FloatingActionButton.extended(
+                  icon: Icon(Icons.add),
+                  onPressed: () async {
+                    loadingFlag.toggle();
+                    await serviceController.addServiceGood(
+                        good,
+                        _constructionController.text,
+                        goodPrice,
+                        double.parse(_countController.text));
+                    loadingFlag.toggle();
+                  },
+                  label: Text('Добавить'),
+                ),
+        ),
         body: SafeArea(
           child: CustomScrollView(
             slivers: [

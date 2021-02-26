@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_app/constants/app_fonts.dart';
+import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/service_page/service_goods_list.dart';
 import 'package:service_app/widgets/service_page/service_body.dart';
 import 'package:service_app/widgets/service_page/service_header.dart';
 import 'package:service_app/widgets/goods_page/goods_page.dart';
+import 'package:service_app/widgets/service_page/payment_page.dart';
+import 'package:service_app/widgets/service_page/refuse_page.dart';
+import 'package:service_app/widgets/service_page/reschedule_page.dart';
 import 'package:service_app/widgets/attachments_page/attachments_page.dart';
+import 'package:service_app/widgets/buttons/fab_button.dart';
 
 class ServicePage extends StatefulWidget {
   final int serviceId;
@@ -22,6 +28,8 @@ class ServicePage extends StatefulWidget {
 class _ServicePageState extends State<ServicePage> {
   final ServiceController serviceController = Get.find();
   final ServicesController servicesController = Get.find();
+  final SyncController syncController = Get.find();
+  final DbService _dbService = Get.find();
 
   final List<String> lists = [WorkTypes.TO1, WorkTypes.TO2];
 
@@ -53,6 +61,31 @@ class _ServicePageState extends State<ServicePage> {
         title: Obx(() => serviceController.service.value.id != -1
             ? Text('${serviceController.service.value.number ?? ''}')
             : SizedBox()),
+        actions: [
+          Obx(
+            () => Visibility(
+              visible: !serviceController.locked.value &&
+                  serviceController.serviceGoods.length > 0,
+              child: IconButton(
+                  icon: Icon(Icons.check),
+                  tooltip: 'Завершить',
+                  onPressed: () async {
+                    await syncController
+                        .syncClosedDates(serviceController.service.value.cityId)
+                        .then((updated) async {
+                      if (updated)
+                        await _dbService
+                            .getClosedDates(
+                                serviceController.service.value.cityId)
+                            .then((_) {
+                          serviceController.updateClosedDates();
+                        });
+                    });
+                    Get.to(PaymentPage());
+                  }),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -95,9 +128,11 @@ class _ServicePageState extends State<ServicePage> {
                 }),
                 Card(
                   child: ListTile(
-                    title: Text(
-                      'Вложения (${serviceController.serviceImages.length})',
-                      style: kCardTitleStyle,
+                    title: Obx(
+                      () => Text(
+                        'Вложения (${serviceController.serviceImages.length})',
+                        style: kCardTitleStyle,
+                      ),
                     ),
                     trailing: Icon(Icons.arrow_forward_ios),
                     onTap: () {
@@ -106,15 +141,45 @@ class _ServicePageState extends State<ServicePage> {
                     },
                   ),
                 ),
-                SizedBox(height: 130)
               ]),
             ),
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton:
-          Obx(() => serviceController.refreshFabButtons(null)),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Obx(
+        () => Visibility(
+          visible: !serviceController.locked.value &&
+              serviceController.serviceGoods.length == 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FloatingButton(
+                label: 'Отменить',
+                heroTag: 'lfab',
+                alignment: Alignment.bottomLeft,
+                onPressed: () {
+                  Get.to(RefusePage());
+                },
+                iconData: Icons.cancel,
+                extended: true,
+                isSecondary: true,
+              ),
+              FloatingButton(
+                label: 'Перенести',
+                heroTag: 'mfab',
+                alignment: Alignment.bottomCenter,
+                onPressed: () {
+                  Get.to(ReschedulePage());
+                },
+                iconData: Icons.calendar_today_rounded,
+                extended: true,
+                isSecondary: true,
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

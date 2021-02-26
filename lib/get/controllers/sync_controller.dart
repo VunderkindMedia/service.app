@@ -23,6 +23,7 @@ class SyncController extends GetxController {
   bool get isSync => _isSync.value;
 
   Future<SyncController> init() async {
+    Get.put(SyncController());
     return this;
   }
 
@@ -131,6 +132,9 @@ class SyncController extends GetxController {
 
   Future<void> syncServices(DateTime dateStart, DateTime dateEnd,
       [bool showError = true, bool syncAll = false]) async {
+    /* TODO: why _apiService and _dbService here can be null after restart, but ok after login */
+    if (_apiService == null) _apiService = Get.put(ApiService());
+    if (_dbService == null) _dbService = Get.put(DbService());
     if (_isSync.value) return;
 
     _isSync.value = true;
@@ -170,7 +174,7 @@ class SyncController extends GetxController {
         await Get.defaultDialog(
           title: "Нет сети",
           middleText:
-              "Не удалось подключиться к серверу, попробуйте позднее, когда будет интернет",
+              "Не удалось подключиться к серверу, попробуйте позднее, когда будет интернет\n$e",
         );
     } finally {
       syncStatus.value = SyncStatus.OK;
@@ -196,49 +200,50 @@ class SyncController extends GetxController {
       [bool syncAll = false]) async {
     var services = await _apiService.getServices(accountController.token,
         syncAll ? null : _lastSyncDate.value, dateStart, dateEnd);
-    await _dbService.saveServices(services);
+    if (services.length > 0) _dbService.saveServices(services);
   }
 
   Future<void> _syncMountings(DateTime dateStart, DateTime dateEnd,
       [bool syncAll = false]) async {
     var mountings = await _apiService.getMountings(accountController.token,
         syncAll ? null : _lastSyncDate.value, dateStart, dateEnd);
-    await _dbService.saveMountings(mountings);
+    if (mountings.length > 0) await _dbService.saveMountings(mountings);
   }
 
   Future<void> _syncBrands() async {
     var brands = await _apiService.getBrands(
         accountController.token, _lastSyncDate.value);
-    await _dbService.saveBrands(brands);
+    if (brands.length > 0) await _dbService.saveBrands(brands);
   }
 
   Future<void> _syncConstructionTypes() async {
     var constructionTypes =
         await _apiService.getConstructionTypes(accountController.token);
-    await _dbService.saveConstructionTypes(constructionTypes);
+    if (constructionTypes.length > 0)
+      await _dbService.saveConstructionTypes(constructionTypes);
   }
 
   Future<void> _syncStages() async {
     var stages = await _apiService.getStages(accountController.token);
-    await _dbService.saveStages(stages);
+    if (stages.length > 0) await _dbService.saveStages(stages);
   }
 
   Future<void> _syncGoods() async {
     var goods = await _apiService.getGoods(
         accountController.token, _lastSyncDate.value);
-    await _dbService.saveGoods(goods);
+    if (goods.length > 0) await _dbService.saveGoods(goods);
   }
 
   Future<void> _syncGoodPrices() async {
     var goodPrices = await _apiService.getGoodPrices(
         accountController.token, _lastSyncDate.value);
-    await _dbService.saveGoodPrices(goodPrices);
+    if (goodPrices.length > 0) await _dbService.saveGoodPrices(goodPrices);
   }
 
   Future<void> _syncNotifications() async {
     var notifications = await _apiService.getNotifications(
         accountController.token, _lastSyncDate.value);
-    await _dbService.savePush(notifications);
+    if (notifications.length > 0) await _dbService.savePush(notifications);
   }
 
   Future<void> saveService(Service service) async {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
-import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/commentField.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
 
@@ -13,6 +13,8 @@ class ReschedulePage extends StatefulWidget {
 
 class _ReschedulePageState extends State<ReschedulePage> {
   final ServiceController serviceController = Get.find();
+  final loadingFlag = false.obs;
+
   DateTime _selectedDate;
   TextEditingController _commentController = TextEditingController();
 
@@ -25,7 +27,7 @@ class _ReschedulePageState extends State<ReschedulePage> {
     final DateTime picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2025),
     );
     if (picked != null && picked != _selectedDate)
@@ -35,61 +37,61 @@ class _ReschedulePageState extends State<ReschedulePage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      serviceController.fabsState.value = FabsState.Main;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Перенос даты'),
-      ),
-      body: SafeArea(
-        child: CustomScrollView(slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate([
-              GestureDetector(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: CardRow(
-                    leading: Text('Дата переноса:',
-                        style: TextStyle(fontSize: 16.0)),
-                    tailing: Text(
-                        _selectedDate != null
-                            ? formattedDate(_selectedDate)
-                            : 'Нажмите для выбора',
-                        textAlign: TextAlign.end,
-                        style: TextStyle(fontSize: 16.0)),
-                  ),
-                ),
-                onTap: () => _selectDate(context),
-              ),
-              CommentField(controller: _commentController),
-            ]),
-          ),
-        ]),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton:
-          Obx(() => serviceController.refreshFabButtons(() async {
+        actions: [
+          IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () async {
                 if (_selectedDate != null &&
                     _commentController.text.length > 0) {
-                  serviceController.fabsState.value = FabsState.Main;
+                  loadingFlag.toggle();
                   await serviceController.rescheduleService(
                       serviceController.service.value,
                       _selectedDate,
                       _commentController.text);
+                  loadingFlag.toggle();
+                  Get.back();
                 } else {
                   await Get.defaultDialog(
                       title: 'Ошибка!',
                       middleText:
                           'Введите причину переноса заявки и выберите новую дату!');
                 }
-              })),
+              })
+        ],
+      ),
+      body: SafeArea(
+          child: Obx(
+        () => ModalProgressHUD(
+          inAsyncCall: loadingFlag.value,
+          child: CustomScrollView(slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate([
+                GestureDetector(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: CardRow(
+                      leading: Text('Дата переноса:',
+                          style: TextStyle(fontSize: 16.0)),
+                      tailing: Text(
+                          _selectedDate != null
+                              ? formattedDate(_selectedDate)
+                              : 'Нажмите для выбора',
+                          textAlign: TextAlign.end,
+                          style: TextStyle(fontSize: 16.0)),
+                    ),
+                  ),
+                  onTap: () => _selectDate(context),
+                ),
+                CommentField(controller: _commentController),
+              ]),
+            ),
+          ]),
+        ),
+      )),
     );
   }
 }
