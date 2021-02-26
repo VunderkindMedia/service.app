@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/account_controller.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
+import 'package:service_app/get/services/db_service.dart';
+import 'package:service_app/widgets/mountings_page/mountings_page.dart';
+import 'package:service_app/widgets/services_page/services_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,7 +14,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final AccountController accountController = Get.put(AccountController());
+  final AccountController accountController = Get.find();
+  final SyncController syncController = Get.find();
+  final DbService dbService = Get.find();
 
   bool authState = false;
 
@@ -35,6 +41,26 @@ class _LoginPageState extends State<LoginPage> {
         ),
         child: ModalProgressHUD(
           inAsyncCall: authState,
+          progressIndicator: Center(
+            child: Container(
+              width: 250.0,
+              height: 250.0,
+              color: Colors.white.withOpacity(0.9),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10.0),
+                    Text(
+                        'Выполняется авторизация и загрузка справочной информации!'),
+                  ],
+                ),
+              ),
+            ),
+          ),
           child: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
@@ -44,21 +70,27 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    TextField(
-                        keyboardType: TextInputType.text,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(hintText: 'Логин'),
-                        onChanged: (text) {
-                          accountController.username.value = text;
-                        }),
+                    Container(
+                      color: Colors.white.withOpacity(0.6),
+                      child: TextField(
+                          keyboardType: TextInputType.text,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(hintText: 'Логин'),
+                          onChanged: (text) {
+                            accountController.username.value = text;
+                          }),
+                    ),
                     SizedBox(height: 24.0),
-                    TextField(
-                        keyboardType: TextInputType.text,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(hintText: 'Пароль'),
-                        onChanged: (text) {
-                          accountController.password.value = text;
-                        }),
+                    Container(
+                      color: Colors.white.withOpacity(0.6),
+                      child: TextField(
+                          keyboardType: TextInputType.text,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(hintText: 'Пароль'),
+                          onChanged: (text) {
+                            accountController.password.value = text;
+                          }),
+                    ),
                     SizedBox(height: 36.0),
                     SizedBox(
                       width: double.infinity,
@@ -66,7 +98,25 @@ class _LoginPageState extends State<LoginPage> {
                       child: RaisedButton(
                           onPressed: () async {
                             changeAuthState(true);
-                            await accountController.login();
+                            var accountInfo = await accountController.login();
+
+                            if (accountInfo != null) {
+                              await syncController.initController();
+                              await Future.forEach(accountInfo.userRole,
+                                  (role) async {
+                                /* TODO: change to constant */
+                                switch (role) {
+                                  case "ServiceMember":
+                                    await syncController.initServiceCatalogs();
+                                    await Get.offAll(ServicesPage());
+                                    break;
+                                  case "MountingMember":
+                                    await syncController.initMountingCatalogs();
+                                    await Get.offAll(MountingsPage());
+                                    break;
+                                }
+                              });
+                            }
                             changeAuthState(false);
                           },
                           color: kMainColor,

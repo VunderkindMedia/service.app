@@ -5,14 +5,45 @@ import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
+import 'package:service_app/models/account_info.dart';
 import 'package:service_app/widgets/login_page/login_page.dart';
-import 'package:service_app/widgets/services_page/services_page.dart';
 
 class AccountController extends GetxController {
   var username = ''.obs;
   var password = ''.obs;
 
-  Future<void> login() async {
+  SharedPreferencesService _sharedPreferencesService;
+
+  String _personName;
+  String _userRoles;
+  String _userRolesTitle;
+  String _personId;
+  String _token;
+
+  String get personId => _personId;
+  String get userRoles => _userRoles;
+  String get userRolesTitle => _userRolesTitle;
+  String get personName => _personName;
+  String get token => _token;
+
+  Future<AccountController> init() async {
+    _sharedPreferencesService = Get.find();
+
+    _personName = _sharedPreferencesService.getPersonName();
+    _userRoles = _sharedPreferencesService.getUserRoles(false);
+    _userRolesTitle = _sharedPreferencesService.getUserRoles(true);
+    _personId = _sharedPreferencesService.getPersonExternalId();
+    _token = _sharedPreferencesService.getAccessToken();
+
+    return this;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
+
+  Future<AccountInfo> login() async {
     ApiService apiService = Get.find();
     SharedPreferencesService sharedPreferencesService = Get.find();
 
@@ -28,11 +59,16 @@ class AccountController extends GetxController {
       sharedPreferencesService.setCityExternalId(accountInfo.cityExternalId);
       sharedPreferencesService.setPersonName(accountInfo.personName);
       sharedPreferencesService.setUserRoles(accountInfo.userRole);
+      sharedPreferencesService.setAccessToken(accountInfo.accessToken);
 
-      Get.off(ServicesPage());
+      await init();
+
+      return accountInfo;
     } catch (e) {
       print(e);
     }
+
+    return null;
   }
 
   void logout() async {

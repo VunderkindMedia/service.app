@@ -1,20 +1,20 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:service_app/get/services/db_service.dart';
-import 'package:service_app/get/services/shared_preferences_service.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/service.dart';
 
 class ServicesController extends GetxController {
   final SyncController syncController = Get.find();
+  final AccountController accountController = Get.find();
 
   var _isSync = false.obs;
   var isSearching = false.obs;
-  var hideFinished = false.obs;
 
   Rx<DateTime> selectedDateStart =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
@@ -29,19 +29,18 @@ class ServicesController extends GetxController {
 
   int get servicesCount => _services.length;
   bool get isSync => _isSync.value;
-  String get personId => _personId;
 
   String searchString = "";
   List<String> statusFilters = <String>[];
 
-  SharedPreferencesService _sharedPreferencesService;
   DbService _dbService;
-  String _personName;
-  String _userRoles;
-  String _personId;
+
+  Future<ServicesController> init() async {
+    return this;
+  }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
 
     _dbService = Get.find();
@@ -51,22 +50,18 @@ class ServicesController extends GetxController {
     ref(selectedDateStart.value, selectedDateEnd.value);
   }
 
-  void initController() {
-    _sharedPreferencesService = Get.find();
-
-    _personName = _sharedPreferencesService.getPersonName();
-    _userRoles = _sharedPreferencesService.getUserRoles(true);
-    _personId = _sharedPreferencesService.getPersonExternalId();
-  }
-
   void disposeController() {
     _services.clear();
   }
 
-  Future<void> sync() async {
+  Future<void> sync(bool showError, [bool syncAll = false]) async {
     _isSync.value = true;
-    await syncController.sync(selectedDateStart.value, selectedDateEnd.value);
-    await _refreshServices();
+    await syncController
+        .syncServices(
+            selectedDateStart.value, selectedDateEnd.value, showError, syncAll)
+        .then((value) async {
+      await _refreshServices();
+    });
     _isSync.value = false;
   }
 
@@ -94,23 +89,15 @@ class ServicesController extends GetxController {
       DateTime _dateStart = DateTime(d1.year, d1.month, d1.day);
       DateTime _dateEnd = DateTime(d2.year, d2.month, d2.day, 23, 59, 59);
 
-      var dbServices =
-          await _dbService.getServices(_personId, _dateStart, _dateEnd);
+      var dbServices = await _dbService.getServices(
+          accountController.personId, _dateStart, _dateEnd);
       _services.assignAll(dbServices);
     }
     if (isSearching.value && searchString.isNotEmpty) {
-      var dbServices =
-          await _dbService.getServicesBySearch(_personId, searchString);
+      var dbServices = await _dbService.getServicesBySearch(
+          accountController.personId, searchString);
       _services.assignAll(dbServices);
     }
-  }
-
-  String getName() {
-    return _personName;
-  }
-
-  String getRoles() {
-    return _userRoles;
   }
 
   void updateFilteredServices() {

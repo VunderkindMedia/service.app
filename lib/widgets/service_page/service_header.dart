@@ -8,9 +8,11 @@ class ServiceHeader extends StatelessWidget {
   const ServiceHeader({
     Key key,
     @required this.service,
+    @required this.statusIcon,
   }) : super(key: key);
 
   final Service service;
+  final Widget statusIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +29,13 @@ class ServiceHeader extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: ListTile(
-            title: Text("Статус заявки: ${service.status}" +
-                "\n\nДата: $measureDate \t\t Время: $measureInterval"),
+            leading: statusIcon,
+            title: Text("Статус заявки: ${service.status}"),
             subtitle: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Text("\n\nДата: $measureDate \t\t Время: $measureInterval"),
                 Text(
                     "${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}"),
                 Visibility(

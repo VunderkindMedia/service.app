@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:date_range_picker/date_range_picker.dart' as drp;
+import 'package:service_app/get/controllers/mountings_controller.dart';
 import 'package:service_app/get/controllers/notifications_controller.dart';
+import 'package:service_app/models/mounting.dart';
 import 'package:service_app/models/push_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
-import 'package:service_app/get/controllers/service_controller.dart';
-import 'package:service_app/get/controllers/services_controller.dart';
-import 'package:service_app/models/service.dart';
 import 'package:service_app/constants/app_colors.dart';
-import 'package:service_app/widgets/service_page/service_page.dart';
-import 'package:service_app/widgets/services_page/services_list_tile.dart';
+import 'package:service_app/widgets/mountings_page/mountings_list_tile.dart';
 import 'package:service_app/widgets/side-menu/side-menu.dart';
 
-class ServicesPage extends StatefulWidget {
+class MountingsPage extends StatefulWidget {
   @override
-  _ServicesPageState createState() => _ServicesPageState();
+  _MountingsPageState createState() => _MountingsPageState();
 }
 
-class _ServicesPageState extends State<ServicesPage> {
+class _MountingsPageState extends State<MountingsPage> {
   final SyncController syncController = Get.put(SyncController());
-  final ServicesController servicesController = Get.put(ServicesController());
-  final ServiceController serviceController = Get.put(ServiceController());
+  final MountingsController mountingsController =
+      Get.put(MountingsController());
   final NotificationsController notificationsController =
       Get.put(NotificationsController());
 
@@ -40,23 +38,23 @@ class _ServicesPageState extends State<ServicesPage> {
   void initState() {
     super.initState();
 
-    selectedDateStart = servicesController.selectedDateStart.value;
-    selectedDateEnd = servicesController.selectedDateEnd.value;
+    selectedDateStart = mountingsController.selectedDateStart.value;
+    selectedDateEnd = mountingsController.selectedDateEnd.value;
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        await servicesController.sync(false);
+        await mountingsController.sync(false);
         await notificationsController.ref();
 
         print("onMessage: $message");
       },
       onLaunch: (Map<String, dynamic> message) async {
-        await servicesController.sync(false);
+        await mountingsController.sync(false);
         await notificationsController.ref();
         print("onLaunch: $message");
       },
       onResume: (Map<String, dynamic> message) async {
-        await servicesController.sync(false);
+        await mountingsController.sync(false);
         await notificationsController.ref();
 
         notificationsController.openNotification(
@@ -75,23 +73,27 @@ class _ServicesPageState extends State<ServicesPage> {
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _refKey.currentState.show();
+    });
   }
 
-  Widget _buildRow(Service service) {
-    var brand = servicesController.brands.firstWhere(
-        (brand) => brand.externalId == service.brandId,
+  Widget _buildRow(Mounting mounting) {
+    var brand = mountingsController.brands.firstWhere(
+        (brand) => brand.externalId == mounting.brandId,
         orElse: () => null);
 
     return Card(
       child: InkWell(
         splashColor: Colors.blue.withAlpha(30),
         onTap: () async {
-          await serviceController.init(service.id);
-          await serviceController.onInit();
-          await Get.to(ServicePage(serviceId: service.id));
+          /* await mountingsController.init(mounting.id);
+          await mountingsController.onInit();
+          await Get.to(MountingPage(mountingId: mounting.id)); */
         },
-        child: ServiceListTile(
-          service: service,
+        child: MountingListTile(
+          mounting: mounting,
           brand: brand,
         ),
       ),
@@ -99,15 +101,15 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   Future<void> _clearSearch() async {
-    if (servicesController.searchString.length == 0)
-      servicesController.isSearching.value =
-          !servicesController.isSearching.value;
+    if (mountingsController.searchString.length == 0)
+      mountingsController.isSearching.value =
+          !mountingsController.isSearching.value;
     else {
-      servicesController.searchString = "";
+      mountingsController.searchString = "";
       searchController.clear();
     }
 
-    await servicesController.sync(false);
+    await mountingsController.sync(false);
 
     setState(() {});
   }
@@ -116,10 +118,10 @@ class _ServicesPageState extends State<ServicesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: !servicesController.isSearching.value
+        title: !mountingsController.isSearching.value
             ? Row(children: [
                 Text("Заявки"),
-                Obx(() => Text(" (${servicesController.servicesCount})")),
+                Obx(() => Text(" (${mountingsController.mountingCount})")),
               ])
             : TextField(
                 controller: searchController,
@@ -131,14 +133,14 @@ class _ServicesPageState extends State<ServicesPage> {
                 style: kSearchBarTextStyle,
                 autofocus: true,
                 onChanged: (value) {
-                  servicesController.searchString = value;
+                  mountingsController.searchString = value;
                 },
                 onEditingComplete: () =>
-                    servicesController.ref(selectedDateStart, selectedDateEnd),
+                    mountingsController.ref(selectedDateStart, selectedDateEnd),
               ),
         actions: [
           IconButton(
-            icon: !servicesController.isSearching.value
+            icon: !mountingsController.isSearching.value
                 ? Icon(Icons.search)
                 : Icon(Icons.cancel),
             onPressed: _clearSearch,
@@ -158,15 +160,13 @@ class _ServicesPageState extends State<ServicesPage> {
                 selectedDateStart = picked[0];
                 selectedDateEnd = picked.length == 2 ? picked[1] : picked[0];
 
-                servicesController.selectedDateStart.value = selectedDateStart;
-                servicesController.selectedDateEnd.value = selectedDateEnd;
+                mountingsController.selectedDateStart.value = selectedDateStart;
+                mountingsController.selectedDateEnd.value = selectedDateEnd;
 
-                if (servicesController.isSearching.value) {
+                if (mountingsController.isSearching.value) {
                   await _clearSearch();
                 } else {
-                  await servicesController.ref(
-                      selectedDateStart, selectedDateEnd);
-                  await servicesController.sync(false, true);
+                  await mountingsController.sync(false, true);
                 }
               }
             },
@@ -185,7 +185,7 @@ class _ServicesPageState extends State<ServicesPage> {
               Obx(
                 () => syncController.needSync
                     ? FloatingActionButton.extended(
-                        onPressed: () => servicesController.sync(true),
+                        onPressed: () => mountingsController.sync(true),
                         label: Row(
                           children: [
                             Icon(
@@ -217,10 +217,10 @@ class _ServicesPageState extends State<ServicesPage> {
                   child: Obx(
                     () => ListView.builder(
                       padding: EdgeInsets.symmetric(vertical: 8.0),
-                      itemCount: servicesController.filteredServices.length,
+                      itemCount: mountingsController.filteredMountings.length,
                       itemBuilder: (context, i) {
                         return _buildRow(
-                            servicesController.filteredServices[i]);
+                            mountingsController.filteredMountings[i]);
                       },
                     ),
                   ),
@@ -228,8 +228,8 @@ class _ServicesPageState extends State<ServicesPage> {
               ],
             ),
             onRefresh: () async {
-              await servicesController.sync(true);
-              await notificationsController.ref();
+              /* await mountingsController.sync(true);
+              await notificationsController.ref(); */
             }),
       ),
     );

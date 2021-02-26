@@ -1,0 +1,53 @@
+class MountingStage {
+  final String id;
+  DateTime createdAt;
+  String stageId;
+  String mountingId;
+  String result;
+  int fileId;
+  String comment;
+  bool export;
+
+  MountingStage(this.id);
+
+  factory MountingStage.fromJson(Map<String, dynamic> json) {
+    var mountingStage = MountingStage(json['id']);
+
+    mountingStage.createdAt = DateTime.parse(json['CreatedAt']);
+    mountingStage.stageId = json['stageId'];
+    mountingStage.mountingId = json['mountingId'];
+    mountingStage.result = json['result'];
+    mountingStage.fileId = json['fileId'];
+    mountingStage.comment = json['comment'];
+    mountingStage.export = false;
+
+    return mountingStage;
+  }
+
+  factory MountingStage.fromMap(Map<String, dynamic> map) {
+    var mountingStage = MountingStage(map['id']);
+
+    mountingStage.createdAt = DateTime.parse(map['createdAt']);
+    mountingStage.stageId = map['stageId'];
+    mountingStage.mountingId = map['mountingId'];
+    mountingStage.result = map['DeleteMark'];
+    mountingStage.fileId = map['fileId'];
+    mountingStage.comment = map['comment'];
+    mountingStage.export = map['export'] == 1 ? true : false;
+
+    return mountingStage;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'createdAt': createdAt,
+      'stageId': stageId,
+      'mountingId': mountingId,
+      'result': result,
+      'fileId': fileId,
+      'comment': comment,
+      'export': export ? 1 : 0,
+    };
+  }
+}

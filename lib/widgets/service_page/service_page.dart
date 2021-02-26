@@ -43,11 +43,13 @@ class _ServicePageState extends State<ServicePage> {
 
   @override
   Widget build(BuildContext context) {
+    var serviceState = serviceController.service.value.state;
+    var serviceStatus = serviceController.service.value.status;
+
     serviceController.fabsState.value = FabsState.Main;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: serviceController.brand.value.bColor(),
         title: Obx(() => serviceController.service.value.id != -1
             ? Text('${serviceController.service.value.number ?? ''}')
             : SizedBox()),
@@ -57,8 +59,15 @@ class _ServicePageState extends State<ServicePage> {
           slivers: [
             SliverList(
               delegate: SliverChildListDelegate([
-                Obx(() =>
-                    ServiceHeader(service: serviceController.service.value)),
+                Obx(() => ServiceHeader(
+                      service: serviceController.service.value,
+                      statusIcon: Icon(
+                        ServiceState()
+                            .getStateIcon(serviceState, serviceStatus),
+                        color: serviceController.brand.value.bColor(),
+                        size: 52.0,
+                      ),
+                    )),
                 Obx(() =>
                     ServiceBody(service: serviceController.service.value)),
                 Obx(() {
@@ -97,7 +106,7 @@ class _ServicePageState extends State<ServicePage> {
                     },
                   ),
                 ),
-                SizedBox(height: 80)
+                SizedBox(height: 130)
               ]),
             ),
           ],

@@ -12,6 +12,10 @@ class NotificationsController extends GetxController {
 
   DbService _dbService;
 
+  Future<NotificationsController> init() async {
+    return this;
+  }
+
   @override
   void onInit() {
     super.onInit();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,10 +18,12 @@ import 'package:service_app/widgets/buttons/fab_button.dart';
 import 'package:service_app/widgets/payment_page/payment_page.dart';
 import 'package:service_app/widgets/refuse_page/refuse_page.dart';
 import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
+import 'package:service_app/constants/app_colors.dart';
 
 class ServiceController extends GetxController {
   final SyncController syncController = Get.find();
   final ServicesController servicesController = Get.find();
+  final AccountController accountController = Get.find();
   final picker = ImagePicker();
 
   Rx<Service> service = Service(-1).obs;
@@ -40,6 +43,10 @@ class ServiceController extends GetxController {
 
   RxString fabsState = FabsState.Main.obs;
   RxString workType = ''.obs;
+
+  Future<ServiceController> initialinit() async {
+    return this;
+  }
 
   @override
   Future<void> onInit() async {
@@ -77,7 +84,7 @@ class ServiceController extends GetxController {
     await updateClosedDates();
 
     if (service.value.status == ServiceStatus.Start &&
-        service.value.userId == servicesController.personId)
+        service.value.userId == accountController.personId)
       locked.value = false;
     else
       locked.value = true;
@@ -219,9 +226,9 @@ class ServiceController extends GetxController {
     saveServiceChanges(service);
   }
 
-  List<Widget> _mainFabs() => <Widget>[
+  List<Widget> _secondaryMainFabs() => <Widget>[
         FloatingButton(
-          label: 'Отменить заявку',
+          label: 'Отменить',
           heroTag: 'lfab',
           alignment: Alignment.bottomLeft,
           onPressed: serviceGoods.length == 0
@@ -234,9 +241,11 @@ class ServiceController extends GetxController {
                   middleText:
                       'В заявке выбраны услуги!\n\nДля выполнения действия очистите услуги.'),
           iconData: Icons.cancel,
+          extended: true,
+          isSecondary: true,
         ),
         FloatingButton(
-          label: 'Перенести дату заявки',
+          label: 'Перенести',
           heroTag: 'mfab',
           alignment: Alignment.bottomCenter,
           onPressed: serviceGoods.length == 0
@@ -249,7 +258,12 @@ class ServiceController extends GetxController {
                   middleText:
                       'В заявке выбраны услуги!\n\nДля выполнения действия очистите услуги.'),
           iconData: Icons.calendar_today_rounded,
+          extended: true,
+          isSecondary: true,
         ),
+      ];
+
+  List<Widget> _mainFabs() => <Widget>[
         FloatingButton(
           label: 'Завершить',
           heroTag: 'rfab',
@@ -273,6 +287,8 @@ class ServiceController extends GetxController {
                   title: 'Ошибка', middleText: 'Не выбрана ни одна услуга!'),
           iconData: Icons.check_circle,
           extended: true,
+          isSecondary: false,
+          color: kFabAcceptColor,
         ),
       ];
 
@@ -295,6 +311,7 @@ class ServiceController extends GetxController {
           onPressed: null,
           iconData: Icons.error_outline,
           extended: true,
+          color: kFabRefuseColor,
         )
       ];
 
@@ -306,6 +323,7 @@ class ServiceController extends GetxController {
           onPressed: null,
           iconData: Icons.check_box,
           extended: true,
+          color: kFabAcceptColor,
         )
       ];
 
@@ -322,6 +340,7 @@ class ServiceController extends GetxController {
           },
           iconData: Icons.add,
           extended: true,
+          color: kFabActionColor.withOpacity(0.8),
         ),
       ];
 
@@ -346,6 +365,7 @@ class ServiceController extends GetxController {
           },
           iconData: Icons.library_add,
           extended: true,
+          color: kFabActionColor.withOpacity(0.8),
         ),
         FloatingButton(
           label: 'Камера',
@@ -367,6 +387,7 @@ class ServiceController extends GetxController {
           },
           iconData: Icons.camera_alt,
           extended: true,
+          color: kFabActionColor.withOpacity(0.8),
         )
       ];
 
@@ -385,6 +406,7 @@ class ServiceController extends GetxController {
           },
           iconData: Icons.cancel,
           extended: true,
+          color: kFabRefuseColor,
         ),
       ];
 
@@ -403,6 +425,7 @@ class ServiceController extends GetxController {
           },
           iconData: Icons.calendar_today_rounded,
           extended: true,
+          color: kFabActionColor,
         ),
       ];
 
@@ -421,14 +444,16 @@ class ServiceController extends GetxController {
           },
           iconData: Icons.check_circle,
           extended: true,
+          color: kFabAcceptColor,
         ),
       ];
 
   Widget refreshFabButtons(Function callback) {
     var fabs = <Widget>[];
+    var fabsSecondary = <Widget>[];
 
     if (service.value.id == -1 ||
-        service.value.userId != servicesController.personId) return SizedBox();
+        service.value.userId != accountController.personId) return SizedBox();
 
     switch (fabsState.value) {
       case FabsState.Main:
@@ -438,6 +463,7 @@ class ServiceController extends GetxController {
           case ServiceState.Updated:
             if (service.value.status == ServiceStatus.Start) {
               fabs.addAll(Iterable.castFrom(_mainFabs()));
+              fabsSecondary.addAll(Iterable.castFrom(_secondaryMainFabs()));
               locked.value = false;
             } else if (service.value.status == ServiceStatus.End)
               fabs.addAll(_finisedFabs());
@@ -470,21 +496,41 @@ class ServiceController extends GetxController {
       default:
     }
 
-    if (fabs.length > 1) {
+    if (fabsSecondary.length == 0) {
+      if (fabs.length > 1) {
+        return Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: fabs,
+          ),
+        );
+      } else if (fabs.length > 0) {
+        return Padding(
+          padding: EdgeInsets.all(16.0),
+          child: fabs.first,
+        );
+      } else {
+        return SizedBox();
+      }
+    } else {
       return Padding(
         padding: EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: fabs,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: fabsSecondary,
+            ),
+            SizedBox(height: 10.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: fabs,
+            )
+          ],
         ),
       );
-    } else if (fabs.length > 0) {
-      return Padding(
-        padding: EdgeInsets.all(16.0),
-        child: fabs.first,
-      );
-    } else {
-      return SizedBox();
     }
   }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:service_app/get/controllers/account_controller.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'constants/app_colors.dart';
@@ -38,9 +40,11 @@ Future<void> main() async {
 Future<void> initServices() async {
   print('starting services ...');
 
-  Get.put(ApiService().init());
   await Get.putAsync(() => DbService().init());
   await Get.putAsync(() => SharedPreferencesService().init());
+  await Get.putAsync(() => AccountController().init());
+  await Get.putAsync(() => ApiService().init());
+  await Get.putAsync(() => SyncController().init());
 
   print('All services started...');
 }

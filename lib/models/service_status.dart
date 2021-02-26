@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:service_app/models/service.dart';
 
 class ServiceState {
   static const New = "new";
@@ -9,10 +8,10 @@ class ServiceState {
   static const Exported = "exported";
   static const ExportError = "exp_err";
 
-  IconData getStateIcon(Service service) {
+  IconData getStateIcon(String state, String status) {
     var stateIcon;
 
-    switch (service.state) {
+    switch (state) {
       case ServiceState.New:
         {
           stateIcon = Icons.fiber_new;
@@ -21,11 +20,11 @@ class ServiceState {
 
       case ServiceState.Updated:
         {
-          if (service.status == ServiceStatus.Start)
+          if (status == ServiceStatus.Start)
             stateIcon = Icons.note;
-          else if (service.status == ServiceStatus.End)
+          else if (status == ServiceStatus.End)
             stateIcon = Icons.check_box;
-          else if (service.status == ServiceStatus.Refuse)
+          else if (status == ServiceStatus.Refuse)
             stateIcon = Icons.cancel;
           else
             stateIcon = Icons.error;

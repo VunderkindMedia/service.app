@@ -3,10 +3,13 @@ import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/closed_dates.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
+import 'package:service_app/models/mounting.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
 import 'package:service_app/models/push_notifications.dart';
+import 'package:service_app/models/construction_type.dart';
+import 'package:service_app/models/stage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -237,6 +240,19 @@ class DbService extends GetxService {
     });
   }
 
+  Future<void> saveMountings(List<Mounting> mountings) async {
+    await _database.transaction((txn) async {
+      mountings.forEach((mounting) async {
+        await txn.insert(MOUNTINGS_TABLE_NAME, mounting.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+        mounting.mountingStages?.forEach((mountingStage) async {
+          await txn.insert(MOUNTINGS_STAGES_TABLE_NAME, mountingStage.toMap(),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        });
+      });
+    });
+  }
+
   Future<List<Service>> getServices(
       String userId, DateTime dStart, DateTime dEnd) async {
     String _query =
@@ -249,6 +265,19 @@ class DbService extends GetxService {
       orderBy: "dateStart",
     );
     return List.generate(maps.length, (i) => Service.fromMap(maps[i]));
+  }
+
+  Future<List<Mounting>> getMountings(DateTime dStart, DateTime dEnd) async {
+    String _query =
+        "avalible == 1 AND (dateStart >= ? AND dateStart <= ?) AND deleteMark == 0";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      MOUNTINGS_TABLE_NAME,
+      where: _query,
+      whereArgs: [dStart.toString(), dEnd.toString()],
+      orderBy: "dateStart",
+    );
+    return List.generate(maps.length, (i) => Mounting.fromMap(maps[i]));
   }
 
   Future<Service> getServiceById(int id) async {
@@ -288,12 +317,26 @@ class DbService extends GetxService {
     return List.generate(maps.length, (i) => Service.fromMap(maps[i]));
   }
 
+  Future<List<Mounting>> getMountingsBySearch(
+      String userId, String search) async {
+    String _search = '%' + search + '%';
+    String _query =
+        "avalible == 1 AND (number LIKE ? OR customerAddress LIKE ?) AND deleteMark == 0";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      MOUNTINGS_TABLE_NAME,
+      where: _query,
+      whereArgs: [_search, _search],
+      orderBy: "dateStart DESC",
+    );
+    return List.generate(maps.length, (i) => Mounting.fromMap(maps[i]));
+  }
+
   Future<void> saveBrands(List<Brand> brands) async {
     await _database.transaction((txn) async {
       brands.forEach((brand) async {
         await txn.insert(BRANDS_TABLE_NAME, brand.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
-        // print('inserted brand ${brand.name}');
       });
     });
   }
@@ -302,6 +345,37 @@ class DbService extends GetxService {
     final List<Map<String, dynamic>> maps =
         await _database.query(BRANDS_TABLE_NAME);
     return List.generate(maps.length, (i) => Brand.fromMap(maps[i]));
+  }
+
+  Future<void> saveConstructionTypes(
+      List<ConstructionType> constructionTypes) async {
+    await _database.transaction((txn) async {
+      constructionTypes.forEach((ct) async {
+        await txn.insert(CONSTRUCTION_TYPES_TABLE_NAME, ct.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<void> getConstructionTypes() async {
+    final List<Map<String, dynamic>> maps =
+        await _database.query(CONSTRUCTION_TYPES_TABLE_NAME);
+    return List.generate(maps.length, (i) => ConstructionType.fromMap(maps[i]));
+  }
+
+  Future<void> saveStages(List<Stage> stages) async {
+    await _database.transaction((txn) async {
+      stages.forEach((stage) async {
+        await txn.insert(CONSTRUCTION_STAGES_TABLE_NAME, stage.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
+  Future<void> getStages() async {
+    final List<Map<String, dynamic>> maps =
+        await _database.query(CONSTRUCTION_STAGES_TABLE_NAME);
+    return List.generate(maps.length, (i) => Stage.fromMap(maps[i]));
   }
 
   Future<void> saveClosedDates(List<ClosedDates> cldates) async {

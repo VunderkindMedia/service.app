@@ -8,15 +8,18 @@ import 'package:service_app/constants/api.dart';
 import 'package:service_app/models/account_info.dart';
 import 'package:service_app/models/brand.dart';
 import 'package:service_app/models/closed_dates.dart';
+import 'package:service_app/models/construction_type.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
+import 'package:service_app/models/mounting.dart';
 import 'package:service_app/models/push_notifications.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
+import 'package:service_app/models/stage.dart';
 
 class ApiService extends GetxService {
-  ApiService init() {
+  Future<ApiService> init() async {
     return this;
   }
 
@@ -69,6 +72,24 @@ class ApiService extends GetxService {
     }
   }
 
+  Future<List<Mounting>> getMountings(String accessToken, DateTime lSync,
+      DateTime dateSt, DateTime dateEnd) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get(
+        _getUrlString(API_SERVICES, 150, 0, lSync,
+            dateStart: dateSt, dateEnd: dateEnd),
+        headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var mountingsJson = List.from(responseJson['results']);
+    var mountings =
+        mountingsJson.map((json) => Mounting.fromJson(json)).toList();
+
+    print("get mountings ${mountings.length}");
+
+    return mountings;
+  }
+
   Future<List<Service>> getServices(String accessToken, DateTime lSync,
       DateTime dateSt, DateTime dateEnd) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
@@ -98,6 +119,39 @@ class ApiService extends GetxService {
     print("get brands ${brands.length}");
 
     return brands;
+  }
+
+  Future<List<ConstructionType>> getConstructionTypes(
+      String accessToken) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get(
+        _getUrlString(API_CONSTRUCTION_TYPES, 9999, 0, null),
+        headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var constructionTypesJson = List.from(responseJson['results']);
+    var constructionTypes = constructionTypesJson
+        .map((json) => ConstructionType.fromJson(json))
+        .toList();
+
+    print("get brands ${constructionTypes.length}");
+
+    return constructionTypes;
+  }
+
+  Future<List<Stage>> getStages(String accessToken) async {
+    var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+    var response = await http.get(
+        _getUrlString(API_CONSTRUCTION_STAGES, 9999, 0, null),
+        headers: headers);
+    var responseJson = jsonDecode(response.body);
+    var stagesJson = List.from(responseJson['results']);
+    var stages = stagesJson.map((json) => Stage.fromJson(json)).toList();
+
+    print("get brands ${stages.length}");
+
+    return stages;
   }
 
   Future<List<ClosedDates>> getClosedDates(

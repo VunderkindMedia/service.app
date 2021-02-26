@@ -1,9 +1,10 @@
-const SERVER = 'http://localhost:8081';
+/* const SERVER = 'http://localhost:8081'; */
 /* const SERVER = 'https://willdo-api.framer.ru'; */
-/* const SERVER = 'http://dev-willdo-api.framer.ru'; */
+const SERVER = 'http://dev-willdo-api.framer.ru';
 
 const API_LOGIN = '$SERVER/login';
 const API_SERVICES = '$SERVER/v1/services';
+const API_MOUNTINGS = '$SERVER/v1/mountings';
 const API_FILES = '$SERVER/v1/files';
 const API_BRANDS = '$SERVER/v1/catalogs/brand';
 const API_GOODS = '$SERVER/v1/catalogs/goods';

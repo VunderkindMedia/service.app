@@ -60,7 +60,7 @@ class _PaymentPageState extends State<PaymentPage> {
     DateTime picked = await showRoundedDatePicker(
       context: context,
       description: 'Выберите желаемую дату монтажа для ТО-2',
-      height: 200,
+      height: 450,
       firstDate: DateTime.now(),
       theme: ThemeData.dark(),
       listDateDisabled: serviceController.closedDates,
@@ -113,7 +113,7 @@ class _PaymentPageState extends State<PaymentPage> {
     var discountTO1 = 0.0;
     var discountTO2 = summTO2 * _selectedDiscount / 100;
 
-    var s1 = ((summTO1 - discountTO1) / 10).ceilToDouble() * 10;
+    var s1 = summTO1;
     var s2 = ((summTO2 - discountTO2) / 10).ceilToDouble() * 10;
 
     discountTO1 = summTO1 - s1;
@@ -197,15 +197,14 @@ class _PaymentPageState extends State<PaymentPage> {
                       }),
                       choiceStyle: S2ChoiceStyle(
                         titleStyle:
-                            TextStyle(fontSize: 16.0, color: Colors.white),
+                            TextStyle(fontSize: 16.0, color: Colors.black),
                       ),
                       modalHeaderStyle: S2ModalHeaderStyle(
                         textStyle: TextStyle(),
-                        backgroundColor: kMainColor,
+                        backgroundColor: kBackgroundLight,
                       ),
-                      modalStyle: S2ModalStyle(
-                        backgroundColor: Colors.grey[800],
-                      ),
+                      modalStyle:
+                          S2ModalStyle(backgroundColor: kMainSecondColor),
                     ),
                   ],
                 ),
@@ -232,15 +231,14 @@ class _PaymentPageState extends State<PaymentPage> {
                         },
                         choiceStyle: S2ChoiceStyle(
                           titleStyle:
-                              TextStyle(fontSize: 16.0, color: Colors.white),
+                              TextStyle(fontSize: 16.0, color: Colors.black),
                         ),
                         modalHeaderStyle: S2ModalHeaderStyle(
                           textStyle: TextStyle(),
-                          backgroundColor: kMainColor,
+                          backgroundColor: kBackgroundLight,
                         ),
-                        modalStyle: S2ModalStyle(
-                          backgroundColor: Colors.grey[800],
-                        ),
+                        modalStyle:
+                            S2ModalStyle(backgroundColor: kMainSecondColor),
                       ),
                     ),
                     Visibility(
@@ -294,15 +292,14 @@ class _PaymentPageState extends State<PaymentPage> {
                       },
                       choiceStyle: S2ChoiceStyle(
                         titleStyle:
-                            TextStyle(fontSize: 16.0, color: Colors.white),
+                            TextStyle(fontSize: 16.0, color: Colors.black),
                       ),
                       modalHeaderStyle: S2ModalHeaderStyle(
                         textStyle: TextStyle(),
-                        backgroundColor: kMainColor,
+                        backgroundColor: kBackgroundLight,
                       ),
-                      modalStyle: S2ModalStyle(
-                        backgroundColor: Colors.grey[800],
-                      ),
+                      modalStyle:
+                          S2ModalStyle(backgroundColor: kMainSecondColor),
                     ),
                     Visibility(
                       visible: minPayment.value > 0,

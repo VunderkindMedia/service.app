@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/models/service_image.dart';
@@ -29,6 +30,7 @@ class ImagesList extends StatelessWidget {
 class ImageWidget extends StatelessWidget {
   final SyncController syncController = Get.find();
   final ServiceController serviceController = Get.find();
+  final AccountController accountController = Get.find();
   final ServiceImage imageModel;
   final int cacheWidth;
   final int cacheHeight;
@@ -48,7 +50,7 @@ class ImageWidget extends StatelessWidget {
       );
     } else {
       var url = syncController.getServiceImageUrl(imageModel);
-      var accessToken = syncController.getAuthToken();
+      var accessToken = accountController.token;
       return CachedNetworkImage(
         imageUrl: url,
         httpHeaders: {'authorization': 'Bearer $accessToken'},

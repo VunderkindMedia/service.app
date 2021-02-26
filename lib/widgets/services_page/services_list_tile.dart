@@ -34,7 +34,7 @@ class ServiceListTile extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Icon(
-          ServiceState().getStateIcon(service),
+          ServiceState().getStateIcon(service.state, service.status),
           color: brandColor,
         ),
         SizedBox(width: 5.0),
@@ -83,7 +83,9 @@ class ServiceListTile extends StatelessWidget {
       actionExtentRatio: 0.25,
       child: ListTile(
         isThreeLine: true,
-        title: buildTitle(servicesController.isSearching.value),
+        title: buildTitle(servicesController.isSearching.value ||
+            servicesController.selectedDateStart.value !=
+                servicesController.selectedDateEnd.value),
         subtitle: buildSubtitle(),
       ),
       actions: [
