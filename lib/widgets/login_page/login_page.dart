@@ -18,12 +18,41 @@ class _LoginPageState extends State<LoginPage> {
   final SyncController syncController = Get.find();
   final DbService dbService = Get.find();
 
+  final TextEditingController inputController = TextEditingController();
+
   bool authState = false;
 
   void changeAuthState(bool currState) {
     setState(() {
       authState = currState;
     });
+  }
+
+  Future<void> _login() async {
+    FocusScope.of(context).unfocus();
+
+    changeAuthState(true);
+    var accountInfo = await accountController.login();
+
+    if (accountInfo != null) {
+      await syncController.initController();
+      await Future.forEach(accountInfo.userRole, (role) async {
+        /* TODO: change to constant */
+        switch (role) {
+          case "ServiceMember":
+            await syncController.initServiceCatalogs();
+            await Get.offAll(ServicesPage());
+            break;
+          case "MountingMember":
+            await syncController.initMountingCatalogs();
+            await Get.offAll(MountingsPage());
+            break;
+        }
+      });
+    } else {
+      FocusScope.of(context).previousFocus();
+    }
+    changeAuthState(false);
   }
 
   @override
@@ -84,12 +113,18 @@ class _LoginPageState extends State<LoginPage> {
                     Container(
                       color: Colors.white.withOpacity(0.6),
                       child: TextField(
-                          keyboardType: TextInputType.text,
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(hintText: 'Пароль'),
-                          onChanged: (text) {
-                            accountController.password.value = text;
-                          }),
+                        controller: inputController,
+                        keyboardType: TextInputType.text,
+                        textAlign: TextAlign.center,
+                        obscureText: true,
+                        decoration: InputDecoration(hintText: 'Пароль'),
+                        onChanged: (text) {
+                          accountController.password.value = text;
+                        },
+                        onSubmitted: (_) async {
+                          await _login();
+                        },
+                      ),
                     ),
                     SizedBox(height: 36.0),
                     SizedBox(
@@ -97,27 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                       height: 48,
                       child: RaisedButton(
                           onPressed: () async {
-                            changeAuthState(true);
-                            var accountInfo = await accountController.login();
-
-                            if (accountInfo != null) {
-                              await syncController.initController();
-                              await Future.forEach(accountInfo.userRole,
-                                  (role) async {
-                                /* TODO: change to constant */
-                                switch (role) {
-                                  case "ServiceMember":
-                                    await syncController.initServiceCatalogs();
-                                    await Get.offAll(ServicesPage());
-                                    break;
-                                  case "MountingMember":
-                                    await syncController.initMountingCatalogs();
-                                    await Get.offAll(MountingsPage());
-                                    break;
-                                }
-                              });
-                            }
-                            changeAuthState(false);
+                            await _login();
                           },
                           color: kMainColor,
                           textColor: kTextLightColor,

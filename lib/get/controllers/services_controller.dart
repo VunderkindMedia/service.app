@@ -27,7 +27,8 @@ class ServicesController extends GetxController {
   RxList<Brand> brands = <Brand>[].obs;
   RxList<Service> filteredServices = <Service>[].obs;
 
-  int get servicesCount => _services.length;
+  int get servicesCount =>
+      filteredServices.length == 0 ? _services.length : filteredServices.length;
   bool get isSync => _isSync.value;
 
   String searchString = "";

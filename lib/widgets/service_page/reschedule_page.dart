@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/widgets/buttons/action_button.dart';
 import 'package:service_app/widgets/text/commentField.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
 
@@ -40,27 +42,28 @@ class _ReschedulePageState extends State<ReschedulePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Перенос даты'),
         actions: [
-          IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () async {
-                if (_selectedDate != null &&
-                    _commentController.text.length > 0) {
-                  loadingFlag.toggle();
-                  await serviceController.rescheduleService(
-                      serviceController.service.value,
-                      _selectedDate,
-                      _commentController.text);
-                  loadingFlag.toggle();
-                  Get.back();
-                } else {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!',
-                      middleText:
-                          'Введите причину переноса заявки и выберите новую дату!');
-                }
-              })
+          MainActionButton(
+            label: 'Подтвердить перенос даты',
+            color: kFabActionColor,
+            icon: Icons.create_outlined,
+            onPressed: () async {
+              if (_selectedDate != null && _commentController.text.length > 0) {
+                loadingFlag.toggle();
+                await serviceController.rescheduleService(
+                    serviceController.service.value,
+                    _selectedDate,
+                    _commentController.text);
+                loadingFlag.toggle();
+                Get.back();
+              } else {
+                await Get.defaultDialog(
+                    title: 'Ошибка!',
+                    middleText:
+                        'Введите причину переноса заявки и выберите новую дату!');
+              }
+            },
+          ),
         ],
       ),
       body: SafeArea(

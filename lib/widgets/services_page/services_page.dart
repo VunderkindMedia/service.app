@@ -144,7 +144,7 @@ class _ServicesPageState extends State<ServicesPage> {
             onPressed: _clearSearch,
           ),
           IconButton(
-            icon: Icon(Icons.tune_rounded),
+            icon: Icon(Icons.calendar_today),
             onPressed: () async {
               final List<DateTime> picked = await drp.showDatePicker(
                   context: context,

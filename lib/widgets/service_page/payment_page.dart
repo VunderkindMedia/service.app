@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:service_app/constants/app_colors.dart';
+import 'package:service_app/widgets/buttons/action_button.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:get/get.dart';
 import 'package:service_app/constants/app_fonts.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
@@ -161,28 +163,30 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Завершение работ'),
         actions: [
-          IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () async {
-                await checkFilling().then((check) async {
-                  if (check) {
-                    loadingFlag.toggle();
-                    await serviceController.finishService(
-                        serviceController.service.value,
-                        _selectedDecision,
-                        _selectedDate,
-                        _commentController.text,
-                        _selectedPayment,
-                        totalSumm.toInt() * 100,
-                        int.parse(_paymentController.text) * 100,
-                        discountSumm.value.toInt() * 100);
-                    Get.back();
-                    loadingFlag.toggle();
-                  }
-                });
-              }),
+          MainActionButton(
+            label: 'Принять оплату и завершить',
+            color: kFabAcceptColor,
+            icon: Icons.check,
+            onPressed: () async {
+              await checkFilling().then((check) async {
+                if (check) {
+                  loadingFlag.toggle();
+                  await serviceController.finishService(
+                      serviceController.service.value,
+                      _selectedDecision,
+                      _selectedDate,
+                      _commentController.text,
+                      _selectedPayment,
+                      totalSumm.toInt() * 100,
+                      int.parse(_paymentController.text) * 100,
+                      discountSumm.value.toInt() * 100);
+                  Get.back();
+                  loadingFlag.toggle();
+                }
+              });
+            },
+          ),
         ],
       ),
       body: SafeArea(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
@@ -15,6 +16,7 @@ import 'package:service_app/widgets/service_page/refuse_page.dart';
 import 'package:service_app/widgets/service_page/reschedule_page.dart';
 import 'package:service_app/widgets/attachments_page/attachments_page.dart';
 import 'package:service_app/widgets/buttons/fab_button.dart';
+import 'package:service_app/widgets/buttons/action_button.dart';
 
 class ServicePage extends StatefulWidget {
   final int serviceId;
@@ -66,23 +68,25 @@ class _ServicePageState extends State<ServicePage> {
             () => Visibility(
               visible: !serviceController.locked.value &&
                   serviceController.serviceGoods.length > 0,
-              child: IconButton(
-                  icon: Icon(Icons.check),
-                  tooltip: 'Завершить',
-                  onPressed: () async {
-                    await syncController
-                        .syncClosedDates(serviceController.service.value.cityId)
-                        .then((updated) async {
-                      if (updated)
-                        await _dbService
-                            .getClosedDates(
-                                serviceController.service.value.cityId)
-                            .then((_) {
-                          serviceController.updateClosedDates();
-                        });
-                    });
-                    Get.to(PaymentPage());
-                  }),
+              child: MainActionButton(
+                label: 'Завершить',
+                color: kFabAcceptColor,
+                icon: Icons.check,
+                onPressed: () async {
+                  await syncController
+                      .syncClosedDates(serviceController.service.value.cityId)
+                      .then((updated) async {
+                    if (updated)
+                      await _dbService
+                          .getClosedDates(
+                              serviceController.service.value.cityId)
+                          .then((_) {
+                        serviceController.updateClosedDates();
+                      });
+                  });
+                  Get.to(PaymentPage());
+                },
+              ),
             ),
           ),
         ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/widgets/buttons/action_button.dart';
 import 'package:service_app/widgets/text/commentField.dart';
 
 class RefusePage extends StatefulWidget {
@@ -27,27 +29,29 @@ class _RefusePageState extends State<RefusePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Отказ клиента'),
         actions: [
-          IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () async {
-                if (_selectedValue.length > 0 &&
-                    _commentController.text.length > 0) {
-                  loadingFlag.toggle();
-                  await serviceController.refuseService(
-                      serviceController.service.value,
-                      _selectedValue,
-                      _commentController.text);
-                  loadingFlag.toggle();
-                  Get.back();
-                } else {
-                  await Get.defaultDialog(
-                      title: 'Ошибка!',
-                      middleText:
-                          'Выберите причину отказа и заполните комментарий!');
-                }
-              })
+          MainActionButton(
+            label: 'Подтвердить отказ от заявки',
+            color: kFabRefuseColor,
+            icon: Icons.cancel,
+            onPressed: () async {
+              if (_selectedValue.length > 0 &&
+                  _commentController.text.length > 0) {
+                loadingFlag.toggle();
+                await serviceController.refuseService(
+                    serviceController.service.value,
+                    _selectedValue,
+                    _commentController.text);
+                loadingFlag.toggle();
+                Get.back();
+              } else {
+                await Get.defaultDialog(
+                    title: 'Ошибка!',
+                    middleText:
+                        'Выберите причину отказа и заполните комментарий!');
+              }
+            },
+          ),
         ],
       ),
       body: SafeArea(
