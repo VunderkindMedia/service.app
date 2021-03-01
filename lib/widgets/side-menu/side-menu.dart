@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:service_app/constants/app_colors.dart';
+import 'package:service_app/get/controllers/mountings_controller.dart';
 
 import 'package:service_app/widgets/notifications_page/notification_page.dart';
 import 'package:service_app/get/controllers/account_controller.dart';
@@ -9,10 +10,13 @@ import 'package:service_app/get/controllers/notifications_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/widgets/text/iconedText.dart';
 import 'package:service_app/widgets/side-menu/services-filter.dart';
+import 'package:service_app/widgets/side-menu/state-filter.dart';
 
 class SideMenu extends StatelessWidget {
   final AccountController accountController = Get.find();
   final ServicesController servicesController = Get.put(ServicesController());
+  final MountingsController mountingsController =
+      Get.put(MountingsController());
   final NotificationsController notificationsController =
       Get.put(NotificationsController());
 
@@ -44,12 +48,56 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String dtstart = DateFormat('dd.MM')
-        .format(servicesController.selectedDateStart.value)
-        .toString();
-    String dtend = DateFormat('dd.MM')
-        .format(servicesController.selectedDateEnd.value)
-        .toString();
+    Widget servicesList = SizedBox();
+    Widget mountingsList = SizedBox();
+
+    /* TODO: change to constant */
+    switch (accountController.userRoles) {
+      case "ServiceMember":
+        String dtstart = DateFormat('dd.MM')
+            .format(servicesController.selectedDateStart.value)
+            .toString();
+        String dtend = DateFormat('dd.MM')
+            .format(servicesController.selectedDateEnd.value)
+            .toString();
+
+        servicesList = ExpansionTile(
+          title: IconedText(
+            child: Text('Список заявок\n$dtstart - $dtend'),
+            icon: Icon(
+              Icons.list_alt_rounded,
+              color: Colors.black,
+            ),
+          ),
+          initiallyExpanded: true,
+          children: [
+            ServicesFilter(),
+          ],
+        );
+        break;
+      case "MountingMember":
+        String dtstart = DateFormat('dd.MM')
+            .format(mountingsController.selectedDateStart.value)
+            .toString();
+        String dtend = DateFormat('dd.MM')
+            .format(mountingsController.selectedDateEnd.value)
+            .toString();
+
+        mountingsList = ExpansionTile(
+          title: IconedText(
+            child: Text('Заявки на монтаж\n$dtstart - $dtend'),
+            icon: Icon(
+              Icons.list_alt,
+              color: Colors.black,
+            ),
+          ),
+          initiallyExpanded: true,
+          children: [
+            MountingsFilter(),
+          ],
+        );
+        break;
+    }
 
     return Drawer(
       child: Container(
@@ -81,19 +129,8 @@ class SideMenu extends StatelessWidget {
                 ),
               ),
             ),
-            ExpansionTile(
-              title: IconedText(
-                child: Text('Список заявок\n$dtstart - $dtend'),
-                icon: Icon(
-                  Icons.list_alt_rounded,
-                  color: Colors.black,
-                ),
-              ),
-              initiallyExpanded: true,
-              children: [
-                ServicesFilter(),
-              ],
-            ),
+            servicesList,
+            mountingsList,
             ListTile(
               leading: Obx(
                 () => Icon(

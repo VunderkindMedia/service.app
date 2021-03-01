@@ -56,8 +56,6 @@ class _ServicePageState extends State<ServicePage> {
     var serviceState = serviceController.service.value.state;
     var serviceStatus = serviceController.service.value.status;
 
-    serviceController.fabsState.value = FabsState.Main;
-
     return Scaffold(
       appBar: AppBar(
         title: Obx(() => serviceController.service.value.id != -1
@@ -140,7 +138,6 @@ class _ServicePageState extends State<ServicePage> {
                     ),
                     trailing: Icon(Icons.arrow_forward_ios),
                     onTap: () {
-                      serviceController.fabsState.value = FabsState.AddImage;
                       Get.to(AttachmentsPage());
                     },
                   ),

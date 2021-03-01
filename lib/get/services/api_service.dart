@@ -72,18 +72,18 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<List<Mounting>> getMountings(String accessToken, DateTime lSync,
-      DateTime dateSt, DateTime dateEnd) async {
+  Future<List<Mounting>> getMountings(String accessToken, String userId,
+      DateTime lSync, DateTime dateSt, DateTime dateEnd) async {
     var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
     var response = await http.get(
-        _getUrlString(API_SERVICES, 150, 0, lSync,
+        _getUrlString(API_MOUNTINGS, 150, 0, lSync,
             dateStart: dateSt, dateEnd: dateEnd),
         headers: headers);
     var responseJson = jsonDecode(response.body);
     var mountingsJson = List.from(responseJson['results']);
     var mountings =
-        mountingsJson.map((json) => Mounting.fromJson(json)).toList();
+        mountingsJson.map((json) => Mounting.fromJson(json, userId)).toList();
 
     print("get mountings ${mountings.length}");
 
@@ -134,7 +134,7 @@ class ApiService extends GetxService {
         .map((json) => ConstructionType.fromJson(json))
         .toList();
 
-    print("get brands ${constructionTypes.length}");
+    print("get construction types ${constructionTypes.length}");
 
     return constructionTypes;
   }
@@ -149,7 +149,7 @@ class ApiService extends GetxService {
     var stagesJson = List.from(responseJson['results']);
     var stages = stagesJson.map((json) => Stage.fromJson(json)).toList();
 
-    print("get brands ${stages.length}");
+    print("get stages ${stages.length}");
 
     return stages;
   }

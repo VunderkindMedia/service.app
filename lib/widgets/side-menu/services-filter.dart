@@ -26,15 +26,6 @@ class ServicesFilterState extends State<ServicesFilter> {
 
       yield FilterChip(
           showCheckmark: false,
-          /* avatar: Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
-            child: CircleAvatar(
-              backgroundColor: selected ? kMainColor : kMainSecondColor,
-              child: Icon(ServiceStatus().getStatusIcon(stat),
-                  color: Colors.black),
-              radius: 25.0,
-            ),
-          ), */
           label: Text(stat),
           elevation: selected ? 0.0 : 2.0,
           selected: selected,

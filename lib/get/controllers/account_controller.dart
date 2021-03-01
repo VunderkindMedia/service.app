@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/mountings_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
@@ -74,11 +75,24 @@ class AccountController extends GetxController {
   void logout() async {
     DbService dbService = Get.find();
     SyncController syncController = Get.find();
-    ServiceController serviceController = Get.find();
-    ServicesController servicesController = Get.find();
+
     SharedPreferencesService sharedPreferencesService = Get.find();
 
     try {
+      switch (userRoles) {
+        case "ServiceMember":
+          ServiceController serviceController = Get.find();
+          ServicesController servicesController = Get.find();
+          serviceController.disposeController();
+          servicesController.disposeController();
+          break;
+        case "MountingMember":
+          /* TODO: add mounting controller */
+          MountingsController mountingsController = Get.find();
+          mountingsController.disposeController();
+          break;
+      }
+
       sharedPreferencesService.setAccessToken(null);
       sharedPreferencesService.setPersonExternalId(null);
       sharedPreferencesService.setCityExternalId(null);
@@ -87,8 +101,7 @@ class AccountController extends GetxController {
       sharedPreferencesService.setUserRoles(null);
 
       syncController.disposeController();
-      serviceController.disposeController();
-      servicesController.disposeController();
+
       await dbService.disposeTables();
 
       Get.offAll(LoginPage());

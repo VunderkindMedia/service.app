@@ -5,7 +5,7 @@ import 'package:service_app/models/push_notifications.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
 
 class NotificationsController extends GetxController {
-  final ServiceController serviceController = Get.find();
+  ServiceController serviceController;
   var hasNew = false.obs;
 
   RxList<PushNotification> notifications = <PushNotification>[].obs;
@@ -13,6 +13,8 @@ class NotificationsController extends GetxController {
   DbService _dbService;
 
   Future<NotificationsController> init() async {
+    if (serviceController == null)
+      serviceController = Get.put(ServiceController());
     return this;
   }
 

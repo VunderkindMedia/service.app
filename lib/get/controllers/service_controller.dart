@@ -27,7 +27,6 @@ class ServiceController extends GetxController {
   RxList<ServiceImage> serviceImages = <ServiceImage>[].obs;
 
   RxString search = ''.obs;
-  RxBool isSarching = false.obs;
   RxList<Good> goods = <Good>[].obs;
   RxList<Good> filteredGoods = <Good>[].obs;
   RxList<GoodPrice> goodPrices = <GoodPrice>[].obs;
@@ -50,6 +49,10 @@ class ServiceController extends GetxController {
 
     fabsState.listen((value) {
       refreshFabButtons(null);
+    });
+
+    search.listen((value) {
+      refreshGoods();
     });
   }
 
@@ -335,7 +338,7 @@ class ServiceController extends GetxController {
   }
 
   void refreshGoods() {
-    if (isSarching.value)
+    if (search.value.length > 0)
       filteredGoods.assignAll(goods
           .where((good) =>
               (good.name.toLowerCase().contains(search.value.toLowerCase()) ||

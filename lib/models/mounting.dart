@@ -1,3 +1,5 @@
+import 'package:service_app/models/mounting_stage.dart';
+
 class Mounting {
   final int id;
   String state;
@@ -36,8 +38,13 @@ class Mounting {
 
   Mounting(this.id);
 
-  factory Mounting.fromJson(Map<String, dynamic> json) {
+  factory Mounting.fromJson(Map<String, dynamic> json, userId) {
     var mounting = Mounting(json['ID']);
+    var avalibleDocument = false;
+
+    json['WorkersID']?.forEach((worker) {
+      if (worker == userId) avalibleDocument = true;
+    });
 
     mounting.state = json['state'];
     mounting.createdAt = DateTime.parse(json['CreatedAt']);
@@ -49,6 +56,7 @@ class Mounting {
     mounting.dateStart = DateTime.parse(json['DateStart']);
     mounting.cityId = json['CityID'];
     mounting.brandId = json['BrandID'];
+    mounting.constructionTypeId = json['ConstructionTypeID'];
     mounting.customer = json['Customer'];
     mounting.customerAddress = json['CustomerAddress'];
     mounting.floor = json['Floor'];
@@ -58,7 +66,6 @@ class Mounting {
     service.thermalImager = json['ThermalImager']; */
     mounting.phone = json['Phone'];
     mounting.comment = json['Comment'];
-    mounting.avalible = json['Avalible'];
     mounting.actCommited = json['ActCommited'];
     /* service.sumPayment = json['SumPayment'];
     service.sumDiscount = json['SumDiscount'];
@@ -68,10 +75,12 @@ class Mounting {
     service.userComment = json['UserComment'];
     service.dateStartNext = DateTime.parse(json['DateStartNext']);
     service.dateEndNext = DateTime.parse(json['DateEndNext']); */
+    mounting.avalible = avalibleDocument;
     mounting.export = false;
 
     var mountingStages =
-        json['MountingStages']?.map((json) => Mounting.fromJson(json)) ?? [];
+        json['MountingStages']?.map((json) => MountingStage.fromJson(json)) ??
+            [];
 
     if (mountingStages.isNotEmpty) {
       mounting.mountingStages = mountingStages.toList();

@@ -115,6 +115,8 @@ class SyncController extends GetxController {
       syncStatus.value = SyncStatus.Loading;
 
       _syncMountings(dateStart, dateEnd, syncAll);
+
+      await _syncMountings(dateStart, dateEnd, syncAll);
     } catch (e) {
       syncStatus.value = SyncStatus.Error;
       if (showError)
@@ -146,6 +148,7 @@ class SyncController extends GetxController {
 
       await _syncServices(dateStart, dateEnd, syncAll);
 
+      // Upload all changes to server
       await _dbService.getExportServiceGoods().then((serviceGoods) async {
         await Future.forEach(serviceGoods, (sg) async {
           await syncServiceGood(sg, resync: true);
@@ -205,8 +208,13 @@ class SyncController extends GetxController {
 
   Future<void> _syncMountings(DateTime dateStart, DateTime dateEnd,
       [bool syncAll = false]) async {
-    var mountings = await _apiService.getMountings(accountController.token,
-        syncAll ? null : _lastSyncDate.value, dateStart, dateEnd);
+    print(accountController.token);
+    var mountings = await _apiService.getMountings(
+        accountController.token,
+        accountController.personId,
+        syncAll ? null : _lastSyncDate.value,
+        dateStart,
+        dateEnd);
     if (mountings.length > 0) await _dbService.saveMountings(mountings);
   }
 

@@ -96,7 +96,6 @@ class ServiceListTile extends StatelessWidget {
             await serviceController.init(service.id);
             if (!serviceController.locked.value &&
                 serviceController.serviceGoods.length == 0) {
-              serviceController.fabsState.value = FabsState.RefusePage;
               Get.to(RefusePage());
             } else {
               if (serviceController.serviceGoods.length > 0) {
@@ -119,7 +118,6 @@ class ServiceListTile extends StatelessWidget {
             await serviceController.init(service.id);
             if (!serviceController.locked.value &&
                 serviceController.serviceGoods.length == 0) {
-              serviceController.fabsState.value = FabsState.ReschedulePage;
               Get.to(ReschedulePage());
             } else {
               if (serviceController.serviceGoods.length > 0) {

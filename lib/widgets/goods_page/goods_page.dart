@@ -4,7 +4,6 @@ import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/widgets/good_page/good_page.dart';
-import 'package:service_app/models/service_status.dart';
 
 class GoodsPage extends StatefulWidget {
   @override
@@ -13,6 +12,8 @@ class GoodsPage extends StatefulWidget {
 
 class _GoodsPageState extends State<GoodsPage> {
   final ServiceController serviceController = Get.find();
+  final FocusNode inputNode = FocusNode();
+  final TextEditingController textEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -27,16 +28,13 @@ class _GoodsPageState extends State<GoodsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       serviceController.search.value = '';
       serviceController.filteredGoods.clear();
-      serviceController.fabsState.value = FabsState.Main;
     });
   }
 
   void _clearSearch() {
-    serviceController.isSarching.value = !serviceController.isSarching.value;
-
-    if (!serviceController.isSarching.value) {
+    if (serviceController.search.value.length > 0) {
+      textEditingController.clear();
       serviceController.search.value = '';
-      serviceController.filteredGoods.clear();
     }
   }
 
@@ -44,35 +42,27 @@ class _GoodsPageState extends State<GoodsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => !serviceController.isSarching.value
-            ? Text('Выберите услугу')
-            : TextField(
-                decoration: InputDecoration(
-                    icon: Icon(Icons.search, color: kTextLightColor),
-                    hintText: 'Поиск',
-                    hintStyle: kSearchBarTextStyle),
-                style: kSearchBarTextStyle,
-                autofocus: true,
-                onChanged: (value) {
-                  serviceController.search.value = value;
-                  serviceController.refreshGoods();
-                },
-                onEditingComplete: () {},
-              )),
+        title: TextField(
+          controller: textEditingController,
+          focusNode: inputNode,
+          decoration: InputDecoration(
+              hintText: 'Поиск услуг...', hintStyle: kSearchBarTextStyle),
+          style: kSearchBarTextStyle,
+          onSubmitted: (value) {
+            serviceController.search.value = value;
+            inputNode.unfocus();
+          },
+        ),
         actions: [
-          Obx(
-            () => IconButton(
-              icon: !serviceController.isSarching.value
-                  ? Icon(Icons.search)
-                  : Icon(Icons.cancel),
-              onPressed: _clearSearch,
-            ),
-          )
+          IconButton(
+            icon: Icon(Icons.cancel),
+            onPressed: _clearSearch,
+          ),
         ],
       ),
       body: SafeArea(
         child: Obx(
-          () => serviceController.isSarching.value
+          () => serviceController.search.value.length > 0
               ? ListView.builder(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   itemCount: serviceController.filteredGoods.length,

@@ -10,7 +10,6 @@ import 'package:service_app/models/brand.dart';
 
 class MountingListTile extends StatelessWidget {
   final MountingsController mountingsController = Get.find();
-  /* final ServiceController serviceController = Get.find(); */
   final Mounting mounting;
   final Brand brand;
 
@@ -28,13 +27,13 @@ class MountingListTile extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Icon(
-          ServiceState().getStateIcon(mounting.state, ""),
+          ServiceState().getStateIcon(mounting.state, ServiceStatus.Start),
           color: brandColor,
         ),
         SizedBox(width: 5.0),
         Expanded(
             child: Text(
-          '${mounting.state}',
+          '${mounting.number}',
           style: TextStyle(color: kTextLightColor),
           maxLines: 1,
         )),

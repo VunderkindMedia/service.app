@@ -6,6 +6,7 @@ import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
+import 'package:service_app/widgets/mountings_page/mountings_page.dart';
 import 'constants/app_colors.dart';
 import 'package:service_app/widgets/login_page/login_page.dart';
 import 'package:service_app/widgets/services_page/services_page.dart';
@@ -18,8 +19,20 @@ Future<void> main() async {
   await initServices();
 
   SharedPreferencesService sharedPreferencesService = Get.find();
+  AccountController accountController = Get.find();
 
   await initPushServices(sharedPreferencesService);
+
+  Widget homeScreen;
+
+  switch (accountController.userRoles) {
+    case "ServiceMember":
+      homeScreen = ServicesPage();
+      break;
+    case "MountingMember":
+      homeScreen = MountingsPage();
+      break;
+  }
 
   runApp(
     GetMaterialApp(
@@ -27,7 +40,7 @@ Future<void> main() async {
       theme: _appTheme,
       home: sharedPreferencesService.getAccessToken().length == 0
           ? LoginPage()
-          : ServicesPage(),
+          : homeScreen,
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
       supportedLocales: const <Locale>[
         const Locale('en'),
