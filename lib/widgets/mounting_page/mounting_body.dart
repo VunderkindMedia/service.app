@@ -1,51 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:service_app/constants/app_fonts.dart';
-import 'package:service_app/get/controllers/services_controller.dart';
-import 'package:service_app/models/service.dart';
+import 'package:service_app/models/mounting.dart';
 import 'package:service_app/widgets/text/iconedText.dart';
 import 'package:service_app/widgets/text/contactActionButton.dart';
 
-class ServiceBody extends StatelessWidget {
-  /* TODO: refactoring - change to parameters functions callPhone, openNavigator (like mounting_page.dart) */
-  ServiceBody({
-    Key key,
-    @required this.service,
-  }) : super(key: key);
+class MountingBody extends StatelessWidget {
+  const MountingBody(
+      {Key key, @required this.mounting, this.callPhone, this.openNavigator})
+      : super(key: key);
 
-  final ServicesController servicesController = Get.find();
-  final Service service;
+  final Mounting mounting;
+  final Function callPhone;
+  final Function openNavigator;
 
   @override
   Widget build(BuildContext context) {
-    if (service.id == -1) return SizedBox();
-
     return Card(
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
-          children: <Widget>[
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             ListTile(
-              title: Text(service.customer),
+              title: Text(mounting.customer),
               subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   IconedText(
-                    child: Text("${service.phone}", style: kCardTextStyle),
+                    child: Text('${mounting.phone}', style: kCardTextStyle),
                     icon: Icon(Icons.contact_phone),
                   ),
                   IconedText(
-                    child: Text(
-                        "${service.getShortAddress()}" +
-                            ((service.floor != '0')
-                                ? ", этаж " + service.floor.toString()
-                                : "") +
-                            ((service.intercom) ? "\nДомофон" : ""),
+                    child: Text('${mounting.getShortAddress()}',
                         style: kCardTextStyle),
                     icon: Icon(Icons.home),
                   ),
                   IconedText(
-                    child: Text("${service.comment.trim()}",
+                    child: Text('${mounting.comment.trim()}',
                         style: kCardTextStyle),
                     icon: Icon(Icons.comment),
                   ),
@@ -58,13 +51,12 @@ class ServiceBody extends StatelessWidget {
                 ContactActionButton(
                   text: 'Позвонить',
                   icon: Icon(Icons.call),
-                  function: () =>
-                      servicesController.callMethod(context, service.phone),
+                  function: callPhone,
                 ),
                 ContactActionButton(
                   text: 'Навигатор',
                   icon: Icon(Icons.navigation),
-                  function: () => servicesController.openNavigator(service),
+                  function: openNavigator,
                 ),
               ],
             ),

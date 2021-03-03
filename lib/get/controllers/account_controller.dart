@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:service_app/get/controllers/mounting_controller.dart';
 import 'package:service_app/get/controllers/mountings_controller.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/get/controllers/services_controller.dart';
@@ -81,15 +82,16 @@ class AccountController extends GetxController {
     try {
       switch (userRoles) {
         case "ServiceMember":
-          ServiceController serviceController = Get.find();
           ServicesController servicesController = Get.find();
-          serviceController.disposeController();
+          ServiceController serviceController = Get.find();
           servicesController.disposeController();
+          serviceController.disposeController();
           break;
         case "MountingMember":
-          /* TODO: add mounting controller */
           MountingsController mountingsController = Get.find();
+          MountingController mountingController = Get.find();
           mountingsController.disposeController();
+          mountingController.disposeController();
           break;
       }
 

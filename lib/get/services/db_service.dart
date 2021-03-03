@@ -4,6 +4,7 @@ import 'package:service_app/models/closed_dates.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/mounting.dart';
+import 'package:service_app/models/mounting_stage.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
@@ -280,6 +281,19 @@ class DbService extends GetxService {
     return List.generate(maps.length, (i) => Mounting.fromMap(maps[i]));
   }
 
+  Future<dynamic> getRecordByField(
+      String tableName, String field, dynamic value) async {
+    String _query = "$field = ?";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      tableName,
+      where: _query,
+      whereArgs: [value],
+    );
+    return maps.first;
+  }
+
+  /* TODO: change calls to getRecordByField */
   Future<Service> getServiceById(int id) async {
     String _query = "id = ?";
 
@@ -289,6 +303,17 @@ class DbService extends GetxService {
       whereArgs: [id],
     );
     return Service.fromMap(maps.first);
+  }
+
+  Future<Mounting> getMountingById(int id) async {
+    String _query = "id = ?";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      MOUNTINGS_TABLE_NAME,
+      where: _query,
+      whereArgs: [id],
+    );
+    return Mounting.fromMap(maps.first);
   }
 
   Future<Service> getServiceByGUID(String guid) async {
@@ -498,11 +523,25 @@ class DbService extends GetxService {
     });
   }
 
+  Future<List<MountingStage>> getMountingStages(int mountingId) async {
+    var _query = "mountingId = ?";
+
+    final List<Map<String, dynamic>> maps = await _database.query(
+      MOUNTINGS_STAGES_TABLE_NAME,
+      where: _query,
+      whereArgs: [mountingId],
+    );
+    return List.generate(maps.length, (i) => MountingStage.fromMap(maps[i]));
+  }
+
   Future<List<ServiceGood>> getServiceGoods(int serviceId) async {
     var _query = "serviceId = ?";
 
-    final List<Map<String, dynamic>> maps = await _database
-        .query(SERVICE_GOODS_NAME, where: _query, whereArgs: [serviceId]);
+    final List<Map<String, dynamic>> maps = await _database.query(
+      SERVICE_GOODS_NAME,
+      where: _query,
+      whereArgs: [serviceId],
+    );
     return List.generate(maps.length, (i) => ServiceGood.fromMap(maps[i]));
   }
 

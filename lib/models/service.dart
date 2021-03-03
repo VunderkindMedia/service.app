@@ -188,6 +188,7 @@ class Service {
           outputAddress.substring(outputAddress.indexOf(',') + 1).trimLeft();
     }
 
+    /* TODO: return with short address + floor + intercom */
     return outputAddress;
   }
 }

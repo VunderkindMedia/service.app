@@ -8,7 +8,6 @@ import 'package:service_app/widgets/buttons/action_button.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:get/get.dart';
 import 'package:service_app/constants/app_fonts.dart';
-import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/service_controller.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/cardRow.dart';

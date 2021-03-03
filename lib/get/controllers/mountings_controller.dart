@@ -1,4 +1,8 @@
+import 'dart:core';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/services/db_service.dart';
@@ -102,5 +106,47 @@ class MountingsController extends GetxController {
             ? mounting.checkState(statusFilters)
             : true)
         .toList());
+  }
+
+  void callMethod(BuildContext context, String phones) async {
+    var phonesList = phones.split(",");
+    var selectedPhone = "";
+
+    if (phonesList.length > 1) {
+      List<SimpleDialogOption> chooseList = [];
+
+      phones.split(",").forEach((element) {
+        SimpleDialogOption option = SimpleDialogOption(
+          child: Text(element.trim()),
+          onPressed: () {
+            Navigator.pop(context, element);
+          },
+        );
+
+        chooseList.add(option);
+      });
+
+      selectedPhone = await showDialog<String>(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              title: const Text('Выберите номер'),
+              children: chooseList,
+            );
+          });
+    } else {
+      selectedPhone = phonesList.first;
+    }
+
+    if (selectedPhone != null) launch('tel:$selectedPhone');
+  }
+
+  void openNavigator(Mounting mounting) {
+    if (mounting.lat != "" && mounting.lon != "") {
+      MapsLauncher.launchCoordinates(
+          double.parse(mounting.lat), double.parse(mounting.lon));
+    } else {
+      MapsLauncher.launchQuery('${mounting.getShortAddress()}');
+    }
   }
 }

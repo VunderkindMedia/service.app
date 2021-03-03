@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:date_range_picker/date_range_picker.dart' as drp;
+import 'package:service_app/get/controllers/mounting_controller.dart';
 import 'package:service_app/get/controllers/mountings_controller.dart';
 import 'package:service_app/get/controllers/notifications_controller.dart';
 import 'package:service_app/models/mounting.dart';
@@ -8,6 +9,7 @@ import 'package:service_app/models/push_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/constants/app_colors.dart';
+import 'package:service_app/widgets/mounting_page/mounting_page.dart';
 import 'package:service_app/widgets/mountings_page/mountings_list_tile.dart';
 import 'package:service_app/widgets/side-menu/side-menu.dart';
 
@@ -20,6 +22,7 @@ class _MountingsPageState extends State<MountingsPage> {
   final SyncController syncController = Get.find();
   final MountingsController mountingsController =
       Get.put(MountingsController());
+  final MountingController mountingController = Get.put(MountingController());
   final NotificationsController notificationsController =
       Get.put(NotificationsController());
 
@@ -73,10 +76,6 @@ class _MountingsPageState extends State<MountingsPage> {
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _refKey.currentState.show();
-    });
   }
 
   Widget _buildRow(Mounting mounting) {
@@ -88,9 +87,9 @@ class _MountingsPageState extends State<MountingsPage> {
       child: InkWell(
         splashColor: Colors.blue.withAlpha(30),
         onTap: () async {
-          /* await mountingsController.init(mounting.id);
-          await mountingsController.onInit();
-          await Get.to(MountingPage(mountingId: mounting.id)); */
+          await mountingController.init(mounting.id);
+          await mountingController.onInit();
+          await Get.to(MountingPage(mountingId: mounting.id));
         },
         child: MountingListTile(
           mounting: mounting,
@@ -228,8 +227,8 @@ class _MountingsPageState extends State<MountingsPage> {
               ],
             ),
             onRefresh: () async {
-              /* await mountingsController.sync(true);
-              await notificationsController.ref(); */
+              await mountingsController.sync(true);
+              await notificationsController.ref();
             }),
       ),
     );

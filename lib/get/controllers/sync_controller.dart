@@ -10,13 +10,16 @@ import 'package:service_app/models/service_image.dart';
 
 class SyncController extends GetxController {
   AccountController accountController = Get.find();
+  ApiService _apiService = Get.find();
+  DbService _dbService = Get.find();
+
   RxString syncStatus = SyncStatus.OK.obs;
   Rx<DateTime> _lastSyncDate = DateTime.now().obs;
   RxBool _needSync = false.obs;
   RxBool _isSync = false.obs;
 
-  ApiService _apiService;
-  DbService _dbService;
+  /* ApiService _apiService;
+  DbService _dbService; */
   SharedPreferencesService _sharedPreferencesService;
 
   bool get needSync => _needSync.value;
@@ -33,8 +36,8 @@ class SyncController extends GetxController {
   }
 
   Future<void> initController() async {
-    _apiService = Get.find();
-    _dbService = Get.find();
+    /* _apiService = Get.find();
+    _dbService = Get.find(); */
     _sharedPreferencesService = Get.find();
 
     _lastSyncDate.value = _sharedPreferencesService.getLastSyncDate();
@@ -114,8 +117,6 @@ class SyncController extends GetxController {
     try {
       syncStatus.value = SyncStatus.Loading;
 
-      _syncMountings(dateStart, dateEnd, syncAll);
-
       await _syncMountings(dateStart, dateEnd, syncAll);
     } catch (e) {
       syncStatus.value = SyncStatus.Error;
@@ -135,8 +136,8 @@ class SyncController extends GetxController {
   Future<void> syncServices(DateTime dateStart, DateTime dateEnd,
       [bool showError = true, bool syncAll = false]) async {
     /* TODO: why _apiService and _dbService here can be null after restart, but ok after login */
-    if (_apiService == null) _apiService = Get.put(ApiService());
-    if (_dbService == null) _dbService = Get.put(DbService());
+    /* if (_apiService == null) _apiService = Get.put(ApiService());
+    if (_dbService == null) _dbService = Get.put(DbService()); */
     if (_isSync.value) return;
 
     _isSync.value = true;
@@ -208,7 +209,6 @@ class SyncController extends GetxController {
 
   Future<void> _syncMountings(DateTime dateStart, DateTime dateEnd,
       [bool syncAll = false]) async {
-    print(accountController.token);
     var mountings = await _apiService.getMountings(
         accountController.token,
         accountController.personId,

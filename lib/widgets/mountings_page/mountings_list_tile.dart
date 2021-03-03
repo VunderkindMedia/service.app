@@ -87,14 +87,14 @@ class MountingListTile extends StatelessWidget {
           caption: 'Позвонить',
           icon: Icons.call,
           onTap: () {
-            /* mountingsController.callMethod(context, mounting.phone); */
+            mountingsController.callMethod(context, mounting.phone);
           },
         ),
         IconSlideAction(
           caption: 'Навигатор',
           icon: Icons.navigation,
           onTap: () {
-            /* mountingsController.openNavigator(mounting); */
+            mountingsController.openNavigator(mounting);
           },
         ),
       ],
