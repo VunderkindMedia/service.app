@@ -4,6 +4,7 @@ import 'package:service_app/models/closed_dates.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/mounting.dart';
+import 'package:service_app/models/mounting_image.dart';
 import 'package:service_app/models/mounting_stage.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
@@ -25,6 +26,7 @@ class DbService extends GetxService {
   static const CLOSED_DATES_TABLE_NAME = "closed_dates";
   static const MOUNTINGS_TABLE_NAME = "mountings";
   static const MOUNTINGS_STAGES_TABLE_NAME = "mounting_stages";
+  static const MOUNTINGS_IMAGES_TABLE_NAME = "mounting_images";
   static const CONSTRUCTION_TYPES_TABLE_NAME = "construction_types";
   static const CONSTRUCTION_STAGES_TABLE_NAME = "construction_stages";
 
@@ -202,7 +204,18 @@ class DbService extends GetxService {
           'mountingId INTEGER,'
           'result TEXT,'
           'comment TEXT,'
-          'fieldId INTEGER'
+          'UNIQUE(id, mountingId, stageId)'
+          ')');
+      await db.execute('CREATE TABLE $MOUNTINGS_IMAGES_TABLE_NAME'
+          '('
+          'id TEXT,'
+          'mountingId INTEGER,'
+          'stageId TEXT,'
+          'fileId INTEGER,'
+          'fileName TEXT,'
+          'local TEXT,'
+          'export BOOLEAN,'
+          'UNIQUE(id, mountingId, stageId)'
           ')');
     });
     print('$runtimeType ready!');
@@ -220,6 +233,7 @@ class DbService extends GetxService {
     await _database.delete('$CLOSED_DATES_TABLE_NAME');
     await _database.delete('$MOUNTINGS_TABLE_NAME');
     await _database.delete('$MOUNTINGS_STAGES_TABLE_NAME');
+    await _database.delete('$MOUNTINGS_IMAGES_TABLE_NAME');
     await _database.delete('$CONSTRUCTION_TYPES_TABLE_NAME');
     await _database.delete('$CONSTRUCTION_STAGES_TABLE_NAME');
   }
@@ -382,7 +396,7 @@ class DbService extends GetxService {
     });
   }
 
-  Future<void> getConstructionTypes() async {
+  Future<List<ConstructionType>> getConstructionTypes() async {
     final List<Map<String, dynamic>> maps =
         await _database.query(CONSTRUCTION_TYPES_TABLE_NAME);
     return List.generate(maps.length, (i) => ConstructionType.fromMap(maps[i]));
@@ -397,7 +411,7 @@ class DbService extends GetxService {
     });
   }
 
-  Future<void> getStages() async {
+  Future<List<Stage>> getStages() async {
     final List<Map<String, dynamic>> maps =
         await _database.query(CONSTRUCTION_STAGES_TABLE_NAME);
     return List.generate(maps.length, (i) => Stage.fromMap(maps[i]));
@@ -495,6 +509,15 @@ class DbService extends GetxService {
     });
   }
 
+  Future<void> saveMountingimages(List<MountingImage> mountingImage) async {
+    await _database.transaction((txn) async {
+      mountingImage.forEach((si) async {
+        await txn.insert(MOUNTINGS_IMAGES_TABLE_NAME, si.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+    });
+  }
+
   Future<void> addServiceGood(ServiceGood serviceGood) async {
     await _database.transaction((txn) async {
       await txn.insert(SERVICE_GOODS_NAME, serviceGood.toMap(),
@@ -551,6 +574,14 @@ class DbService extends GetxService {
         where: "serviceId = ?",
         whereArgs: [serviceId]);
     return List.generate(maps.length, (i) => ServiceImage.fromMap(maps[i]));
+  }
+
+  Future<List<MountingImage>> getMountingImages(int mountingId) async {
+    final List<Map<String, dynamic>> maps = await _database.query(
+        MOUNTINGS_IMAGES_TABLE_NAME,
+        where: "mountingId = ?",
+        whereArgs: [mountingId]);
+    return List.generate(maps.length, (i) => MountingImage.fromMap(maps[i]));
   }
 
   Future<List<Service>> getExportServices(String userId) async {

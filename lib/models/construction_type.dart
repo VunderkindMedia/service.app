@@ -19,9 +19,9 @@ class ConstructionType {
   factory ConstructionType.fromMap(Map<String, dynamic> map) {
     var constructionType = ConstructionType(map['id']);
 
-    constructionType.name = map['workType'];
-    constructionType.code = map['serviceId'];
-    constructionType.workDir = map['construction'];
+    constructionType.name = map['name'];
+    constructionType.code = map['code'];
+    constructionType.workDir = map['workDir'];
 
     return constructionType;
   }

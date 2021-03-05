@@ -49,6 +49,14 @@ class MountingsController extends GetxController {
 
     _dbService = Get.find();
 
+    var dbBrands = await _dbService.getBrands();
+    var dbConstructionTypes = await _dbService.getConstructionTypes();
+    var dbStages = await _dbService.getStages();
+
+    brands.assignAll(dbBrands);
+    constructionTypes.assignAll(dbConstructionTypes);
+    stages.assignAll(dbStages);
+
     _mountings.listen((value) => updateFilteredMountings());
 
     ref(selectedDateStart.value, selectedDateEnd.value);

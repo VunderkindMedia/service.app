@@ -23,11 +23,15 @@ class MountingBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ListTile(
-              title: Text(mounting.customer),
+              title: Text(
+                mounting.customer,
+                style: kCardTitleStyle,
+              ),
               subtitle: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  SizedBox(height: 10.0),
                   IconedText(
                     child: Text('${mounting.phone}', style: kCardTextStyle),
                     icon: Icon(Icons.contact_phone),

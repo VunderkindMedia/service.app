@@ -16,7 +16,6 @@ class AttachmentsPage extends StatefulWidget {
 class _AttachmentsPageState extends State<AttachmentsPage> {
   final ServiceController serviceController = Get.find();
   final loadingFlag = false.obs;
-
   final picker = ImagePicker();
 
   @override
@@ -35,67 +34,69 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Obx(() => loadingFlag.value
-          ? FloatingActionButton.extended(
-              onPressed: null,
-              icon: Icon(Icons.archive),
-              label: Text('Сохранение'),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FloatingButton(
-                  label: 'Вложение',
-                  heroTag: 'lfab',
-                  alignment: Alignment.bottomLeft,
-                  onPressed: () async {
-                    PickedFile image = await picker.getImage(
-                      source: ImageSource.gallery,
-                      imageQuality: 60,
-                    );
-                    if (image != null) {
-                      loadingFlag.toggle();
-                      String imagePath = image.path;
-                      await ImageGallerySaver.saveFile(imagePath);
-                      await serviceController.addServiceImage(
-                          DateTime.now().microsecondsSinceEpoch.toString() +
-                              '.png',
-                          imagePath);
-                      loadingFlag.toggle();
-                    }
-                    print('galerry image');
-                  },
-                  iconData: Icons.library_add,
-                  extended: true,
-                  color: kFabActionColor.withOpacity(0.8),
-                ),
-                FloatingButton(
-                  label: 'Камера',
-                  heroTag: 'rfab',
-                  alignment: Alignment.bottomRight,
-                  onPressed: () async {
-                    PickedFile image = await picker.getImage(
-                      source: ImageSource.camera,
-                      imageQuality: 60,
-                    );
-                    if (image != null) {
-                      loadingFlag.toggle();
-                      String imagePath = image.path;
-                      await ImageGallerySaver.saveFile(imagePath);
-                      await serviceController.addServiceImage(
-                          DateTime.now().microsecondsSinceEpoch.toString() +
-                              '.png',
-                          imagePath);
-                      loadingFlag.toggle();
-                    }
-                    print('camera image');
-                  },
-                  iconData: Icons.camera_alt,
-                  extended: true,
-                  color: kFabActionColor.withOpacity(0.8),
-                )
-              ],
-            )),
+      floatingActionButton: Obx(
+        () => loadingFlag.value
+            ? FloatingActionButton.extended(
+                onPressed: null,
+                icon: Icon(Icons.archive),
+                label: Text('Сохранение'),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FloatingButton(
+                    label: 'Вложение',
+                    heroTag: 'lfab',
+                    alignment: Alignment.bottomLeft,
+                    onPressed: () async {
+                      PickedFile image = await picker.getImage(
+                        source: ImageSource.gallery,
+                        imageQuality: 60,
+                      );
+                      if (image != null) {
+                        loadingFlag.toggle();
+                        String imagePath = image.path;
+                        await ImageGallerySaver.saveFile(imagePath);
+                        await serviceController.addServiceImage(
+                            DateTime.now().microsecondsSinceEpoch.toString() +
+                                '.png',
+                            imagePath);
+                        loadingFlag.toggle();
+                      }
+                      print('galerry image');
+                    },
+                    iconData: Icons.library_add,
+                    extended: true,
+                    color: kFabActionColor.withOpacity(0.8),
+                  ),
+                  FloatingButton(
+                    label: 'Камера',
+                    heroTag: 'rfab',
+                    alignment: Alignment.bottomRight,
+                    onPressed: () async {
+                      PickedFile image = await picker.getImage(
+                        source: ImageSource.camera,
+                        imageQuality: 60,
+                      );
+                      if (image != null) {
+                        loadingFlag.toggle();
+                        String imagePath = image.path;
+                        await ImageGallerySaver.saveFile(imagePath);
+                        await serviceController.addServiceImage(
+                            DateTime.now().microsecondsSinceEpoch.toString() +
+                                '.png',
+                            imagePath);
+                        loadingFlag.toggle();
+                      }
+                      print('camera image');
+                    },
+                    iconData: Icons.camera_alt,
+                    extended: true,
+                    color: kFabActionColor.withOpacity(0.8),
+                  )
+                ],
+              ),
+      ),
     );
   }
 }

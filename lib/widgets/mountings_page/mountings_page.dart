@@ -119,7 +119,7 @@ class _MountingsPageState extends State<MountingsPage> {
       appBar: AppBar(
         title: !mountingsController.isSearching.value
             ? Row(children: [
-                Text("Заявки"),
+                Text("Монтажи"),
                 Obx(() => Text(" (${mountingsController.mountingCount})")),
               ])
             : TextField(

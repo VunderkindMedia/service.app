@@ -9,6 +9,7 @@ const Color kGoodCardColor = Color(0xFF646161);
 const Color kFabAcceptColor = Color(0xFF68BA61);
 const Color kFabRefuseColor = Color(0xFFD05353);
 const Color kFabActionColor = Color(0xFFF9E784);
+const Color kFabNeutralColor = Colors.grey;
 
 const TextStyle kSearchBarTextStyle =
     TextStyle(fontSize: 18.0, color: kTextLightColor);

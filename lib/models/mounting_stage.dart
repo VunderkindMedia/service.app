@@ -1,3 +1,8 @@
+class MountingResult {
+  static const Done = "done";
+  static const Cancel = "cancel";
+}
+
 class MountingStage {
   final String id;
   DateTime createdAt;
@@ -5,6 +10,7 @@ class MountingStage {
   String mountingId;
   String result;
   int fileId;
+  String local;
   String comment;
   bool export;
 
@@ -19,6 +25,7 @@ class MountingStage {
     mountingStage.result = json['result'];
     mountingStage.fileId = json['fileId'];
     mountingStage.comment = json['comment'];
+    mountingStage.local = json['local'];
     mountingStage.export = false;
 
     return mountingStage;
@@ -33,6 +40,7 @@ class MountingStage {
     mountingStage.result = map['DeleteMark'];
     mountingStage.fileId = map['fileId'];
     mountingStage.comment = map['comment'];
+    mountingStage.local = map['local'];
     mountingStage.export = map['export'] == 1 ? true : false;
 
     return mountingStage;
@@ -47,6 +55,7 @@ class MountingStage {
       'result': result,
       'fileId': fileId,
       'comment': comment,
+      'local': local,
       'export': export ? 1 : 0,
     };
   }

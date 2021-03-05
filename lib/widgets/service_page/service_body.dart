@@ -26,7 +26,10 @@ class ServiceBody extends StatelessWidget {
         child: Column(
           children: <Widget>[
             ListTile(
-              title: Text(service.customer),
+              title: Text(
+                service.customer,
+                style: kCardTitleStyle,
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[

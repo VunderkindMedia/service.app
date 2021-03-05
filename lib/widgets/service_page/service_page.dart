@@ -142,6 +142,7 @@ class _ServicePageState extends State<ServicePage> {
                     },
                   ),
                 ),
+                SizedBox(height: 70.0)
               ]),
             ),
           ],

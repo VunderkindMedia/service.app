@@ -46,6 +46,9 @@ class ServicesController extends GetxController {
 
     _dbService = Get.find();
 
+    var dbBrands = await _dbService.getBrands();
+    brands.assignAll(dbBrands);
+
     _services.listen((value) => updateFilteredServices());
 
     ref(selectedDateStart.value, selectedDateEnd.value);
@@ -78,11 +81,6 @@ class ServicesController extends GetxController {
   }
 
   Future<void> _refreshServices() async {
-    if (brands.isEmpty) {
-      var dbBrands = await _dbService.getBrands();
-      brands.assignAll(dbBrands);
-    }
-
     if (!isSearching.value) {
       DateTime d1 = selectedDateStart.value;
       DateTime d2 = selectedDateEnd.value;

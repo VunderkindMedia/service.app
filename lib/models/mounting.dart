@@ -102,6 +102,7 @@ class Mounting {
     mounting.dateStart = DateTime.parse(map['dateStart']);
     mounting.cityId = map['cityId'];
     mounting.brandId = map['brandId'];
+    mounting.constructionTypeId = map['constructionTypeId'];
     mounting.customer = map['customer'];
     mounting.customerAddress = map['customerAddress'];
     mounting.floor = map['floor'];
@@ -142,6 +143,7 @@ class Mounting {
       'dateStart': dateStart.toString(),
       'cityId': cityId,
       'brandId': brandId,
+      'constructionTypeId': constructionTypeId,
       'customer': customer,
       'customerAddress': customerAddress,
       'floor': floor,

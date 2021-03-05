@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_status.dart';
 import 'package:service_app/widgets/text/cardRow.dart';
 
 class ServiceHeader extends StatelessWidget {
-  const ServiceHeader({
-    Key key,
-    @required this.service,
-    @required this.statusIcon,
-  }) : super(key: key);
+  ServiceHeader({@required this.service, @required this.statusIcon});
 
+  final ServiceController serviceController = Get.find();
   final Service service;
   final Widget statusIcon;
 
@@ -30,14 +30,24 @@ class ServiceHeader extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         child: ListTile(
             leading: statusIcon,
-            title: Text("Статус заявки: ${service.status}"),
+            title: Text(
+              "Статус заявки: ${service.status}",
+              style: kCardTitleStyle,
+            ),
             subtitle: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("\n\nДата: $measureDate \t\t Время: $measureInterval"),
                 Text(
-                    "${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}"),
+                  "\nДата: $measureDate\nВремя: $measureInterval",
+                  style: kCardSubtitleStyle,
+                ),
+                Text("Бренд: ${serviceController.brand.value.name}",
+                    style: kCardSubtitleStyle),
+                Text(
+                  "${(service.thermalImager ? '\n\nТребуется тепловизор' : '')}",
+                  style: kCardSubtitleStyle,
+                ),
                 Visibility(
                     visible: service.status == ServiceStatus.Refuse,
                     child: Column(
