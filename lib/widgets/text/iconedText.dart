@@ -13,6 +13,7 @@ class IconedText extends StatelessWidget {
       child: Row(
         children: <Widget>[
           icon,
+          SizedBox(width: 30.0),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),

@@ -9,6 +9,7 @@ import 'package:service_app/widgets/mounting_page/mounting_header.dart';
 import 'package:service_app/widgets/mounting_page/mounting_body.dart';
 import 'package:service_app/widgets/mounting_page/mounting_stages.dart';
 import 'package:service_app/widgets/buttons/fab_button.dart';
+import 'package:service_app/widgets/buttons/action_button.dart';
 
 class MountingPage extends StatefulWidget {
   final int mountingId;
@@ -43,12 +44,22 @@ class _MountingPageState extends State<MountingPage> {
 
     var mounting = mountingController.mounting.value;
 
-    /* var mountingState = mountingController.mounting.value.state; */
-
     return Scaffold(
       appBar: AppBar(
         title: Text('${mountingController.mounting.value.number}'),
-        actions: [],
+        actions: [
+          Obx(
+            () => Visibility(
+              visible: !mountingController.needSync.value,
+              child: MainActionButton(
+                label: 'Сохранить',
+                color: kFabAcceptColor,
+                icon: Icons.save_rounded,
+                onPressed: () async {},
+              ),
+            ),
+          )
+        ],
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -68,10 +79,13 @@ class _MountingPageState extends State<MountingPage> {
                         openNavigator: () =>
                             mountingsController.openNavigator(mounting),
                       )),
-                  Obx(() => MountingStages(
-                        mounting: mountingController.mounting.value,
-                        stages: mountingController.constructionStages,
-                      )),
+                  Obx(
+                    () => mountingController.mountingStages.length > 0
+                        ? MountingStages(
+                            mounting: mountingController.mounting.value)
+                        : SizedBox(),
+                  ),
+                  SizedBox(height: 70.0),
                 ],
               ),
             ),
@@ -80,28 +94,7 @@ class _MountingPageState extends State<MountingPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Obx(
-        () => Visibility(
-          visible: !mountingController.locked.value &&
-              mountingController.mounting.value
-                  .checkState([ServiceState.New, ServiceState.Updated]),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              FloatingButton(
-                label: mountingController.mountingStages.length == 0
-                    ? 'Начать работу'
-                    : 'Возобновить',
-                heroTag: 'mfab',
-                color: kFabActionColor,
-                alignment: Alignment.bottomCenter,
-                onPressed: () {},
-                iconData: Icons.handyman,
-                extended: true,
-                isSecondary: true,
-              )
-            ],
-          ),
-        ),
+        () => mountingController.mainAction.value,
       ),
     );
   }

@@ -12,6 +12,8 @@ import 'package:service_app/models/construction_type.dart';
 import 'package:service_app/models/good.dart';
 import 'package:service_app/models/good_price.dart';
 import 'package:service_app/models/mounting.dart';
+import 'package:service_app/models/mounting_image.dart';
+import 'package:service_app/models/mounting_stage.dart';
 import 'package:service_app/models/push_notifications.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
@@ -228,14 +230,10 @@ class ApiService extends GetxService {
       var response = await http.post(
         '$API_SERVICES/${serviceGood.serviceId.toString()}/good',
         headers: headers,
-        body: jsonEncode(
-          serviceGood.toMap(),
-        ),
+        body: jsonEncode(serviceGood.toMap()),
       );
 
-      if (response.statusCode != 200) {
-        return null;
-      }
+      if (response.statusCode != 200) return null;
 
       return ServiceGood.fromJson(jsonDecode(response.body));
     } catch (e) {
@@ -252,9 +250,7 @@ class ApiService extends GetxService {
           '$API_SERVICES/${serviceGood.serviceId.toString()}/good/${serviceGood.id}',
           headers: headers);
 
-      if (response.statusCode != 200) {
-        throw response.body;
-      }
+      if (response.statusCode != 200) throw response.body;
 
       return true;
     } catch (e) {
@@ -263,6 +259,76 @@ class ApiService extends GetxService {
         message: e.toString(),
       ));
       return false;
+    }
+  }
+
+  Future<MountingStage> addMountingStage(
+      MountingStage mountingStage, String accessToken) async {
+    try {
+      var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+      var response = await http.post(
+        '$API_MOUNTINGS/${mountingStage.mountingId.toString()}/stage',
+        headers: headers,
+        body: jsonEncode(mountingStage.toMap()),
+      );
+
+      if (response.statusCode != 200) return null;
+
+      return MountingStage.fromJson(jsonDecode(response.body));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> deleteMountingStage(
+      MountingStage mountingStage, String accessToken) async {
+    try {
+      var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+
+      var response = await http.delete(
+          '$API_MOUNTINGS/${mountingStage.mountingId.toString()}/stage/${mountingStage.id}',
+          headers: headers);
+
+      if (response.statusCode != 200) throw response.body;
+
+      return true;
+    } catch (e) {
+      Get.showSnackbar(GetBar(
+        title: 'Error!',
+        message: e.toString(),
+      ));
+      return false;
+    }
+  }
+
+  Future<MountingImage> addMountingImage(
+      MountingImage mountingImage, String accessToken) async {
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$API_FILES'
+            '/mounting/${mountingImage.mountingId.toString()}'
+            '/${mountingImage.id}?stageId=${mountingImage.stageId}'),
+      );
+      request.headers['authorization'] = 'Bearer $accessToken';
+      request.headers['content-type'] = 'multipart/form-data';
+      request.files.add(http.MultipartFile(
+          'attachment',
+          File(mountingImage.local).readAsBytes().asStream(),
+          File(mountingImage.local).lengthSync(),
+          filename: mountingImage.local.split('/').last));
+      var response = await request.send();
+
+      if (response.statusCode != 200) {
+        return null;
+      }
+
+      request = null;
+      var respStr = await response.stream.bytesToString();
+
+      return MountingImage.fromJson(jsonDecode(respStr));
+    } catch (e) {
+      return null;
     }
   }
 
@@ -297,14 +363,11 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<bool> deleteServiceImage(
-      ServiceImage serviceImage, String accessToken) async {
+  Future<bool> deleteDocumentImage(String fileId, String accessToken) async {
     try {
       var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
 
-      var response = await http.delete(
-          '$API_FILES/${serviceImage.fileId.toString()}',
-          headers: headers);
+      var response = await http.delete('$API_FILES/$fileId', headers: headers);
 
       if (response.statusCode != 200) {
         throw response.body;
@@ -339,11 +402,27 @@ class ApiService extends GetxService {
         body: jsonEncode(service.toMap()),
       );
 
-      if (response.statusCode != 200) {
-        return null;
-      }
+      if (response.statusCode != 200) return null;
 
       return Service.fromJson(jsonDecode(response.body));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<dynamic> setMounting(Mounting mounting, String accessToken) async {
+    try {
+      var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
+      var response = await http.post(
+        '$API_MOUNTINGS/${mounting.id.toString()}',
+        headers: headers,
+        body: jsonEncode(mounting.toMap()),
+      );
+
+      if (response.statusCode != 200) return null;
+
+      /* TODO: how update and get avalible? */
+      return jsonDecode(response.body);
     } catch (e) {
       return null;
     }

@@ -88,9 +88,11 @@ packages:
   date_range_picker:
     dependency: "direct main"
     description:
-      name: date_range_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: "7e23f24d94c842d00ee28faa4caac57813b74d0c"
+      url: "git://github.com/justkawal/date_range_picker.git"
+    source: git
     version: "1.0.6"
   fake_async:
     dependency: transitive

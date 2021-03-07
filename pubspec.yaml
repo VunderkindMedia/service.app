@@ -52,6 +52,13 @@ dependencies:
   cached_network_image: ^2.5.0
   photo_view: ^0.10.3
 
+# TODO: delete after date_range_picker updates for flutter 2.0.1
+dependency_overrides:
+  date_range_picker:
+    git:
+      url: git://github.com/justkawal/date_range_picker.git
+      ref: master
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

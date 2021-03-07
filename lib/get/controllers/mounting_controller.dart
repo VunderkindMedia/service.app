@@ -21,12 +21,16 @@ class MountingController extends GetxController {
   final AccountController accountController = Get.find();
 
   RxBool locked = false.obs;
+  RxBool needSync = false.obs;
   Rx<Mounting> mounting = Mounting(-1).obs;
   Rx<Brand> brand = Brand(-1).obs;
   Rx<ConstructionType> constructionType = ConstructionType("").obs;
+  Rx<MountingStage> currentStage = MountingStage("").obs;
   RxList<Stage> constructionStages = <Stage>[].obs;
   RxList<MountingStage> mountingStages = <MountingStage>[].obs;
   RxList<MountingImage> mountingImages = <MountingImage>[].obs;
+
+  Rx<Widget> mainAction;
 
   RxString search = ''.obs;
 
@@ -68,12 +72,23 @@ class MountingController extends GetxController {
     ])) {
       locked.value = true;
     }
+
+    var button = await buildCurrentAction();
+    mainAction = button.obs;
+
+    mountingStages.listen((stage) async {
+      var button = await buildCurrentAction();
+      mainAction.value = button;
+    });
   }
 
   void disposeController() {
+    mountingStages.clear();
+    mountingImages.clear();
+
     locked = false.obs;
     mounting = Mounting(-1).obs;
-    mountingStages.clear();
+    currentStage = MountingStage("").obs;
   }
 
   Future<void> refreshMountingStages() async {
@@ -81,6 +96,21 @@ class MountingController extends GetxController {
     mountingStages.assignAll(dbStages);
 
     print('updt mounting stages');
+
+    switch (dbStages.length) {
+      case 0:
+        currentStage.value = MountingStage.initStage(
+            mounting.value, constructionStages[0], accountController.personId);
+        break;
+      case 1:
+        currentStage.value = MountingStage.initStage(
+            mounting.value, constructionStages[1], accountController.personId);
+        break;
+      case 2:
+        currentStage.value = MountingStage.initStage(
+            mounting.value, constructionStages[2], accountController.personId);
+        break;
+    }
   }
 
   Future<void> refreshMountingImages() async {
@@ -88,5 +118,128 @@ class MountingController extends GetxController {
     mountingImages.assignAll(dbImages);
 
     print('updt mounting images');
+  }
+
+  Widget mountingInit() {
+    return FloatingButton(
+      label: currentStage.value.stage.name,
+      heroTag: 'mfab',
+      color: kFabActionColor,
+      alignment: Alignment.bottomCenter,
+      onPressed: () async {
+        var finishedStage = currentStage.value;
+        finishedStage.result = StageResult.Done;
+        await _dbService
+            .addMountingStage(finishedStage)
+            .then((value) => syncController.syncMountingStage(finishedStage));
+
+        await refreshMountingStages();
+      },
+      iconData: Icons.handyman,
+      extended: true,
+      isSecondary: true,
+    );
+  }
+
+  Widget mountingDone() {
+    return FloatingButton(
+      label: currentStage.value.stage.name,
+      heroTag: 'mfab',
+      color: kFabAcceptColor,
+      alignment: Alignment.bottomCenter,
+      onPressed: () async {
+        var finishedStage = currentStage.value;
+        finishedStage.result = StageResult.Done;
+        await _dbService
+            .addMountingStage(finishedStage)
+            .then((value) => syncController.syncMountingStage(finishedStage));
+
+        await refreshMountingStages();
+      },
+      iconData: Icons.done,
+      extended: true,
+      isSecondary: true,
+    );
+  }
+
+  Widget mountingFinish() {
+    return FloatingButton(
+      label: currentStage.value.stage.name,
+      heroTag: 'mfab',
+      color: kFabAcceptColor,
+      alignment: Alignment.bottomCenter,
+      onPressed: () async {
+        var finishedStage = currentStage.value;
+        finishedStage.result = StageResult.Done;
+        await _dbService
+            .addMountingStage(finishedStage)
+            .then((value) => syncController.syncMountingStage(finishedStage));
+
+        await refreshMountingStages();
+      },
+      iconData: Icons.list_alt,
+      extended: true,
+      isSecondary: true,
+    );
+  }
+
+  Widget mountingFinished() {
+    return FloatingActionButton.extended(
+      onPressed: null,
+      backgroundColor: kFabAcceptColor,
+      label: Text('Монтаж завершен'),
+    );
+  }
+
+  Future<Widget> buildCurrentAction() async {
+    var actionWidget;
+
+    if (currentStage.value.id.isEmpty) return mountingFinished();
+
+    switch (mountingStages.length) {
+      case 0:
+        actionWidget = mountingInit();
+        break;
+      case 1:
+        actionWidget = mountingDone();
+        break;
+      case 2:
+        actionWidget = mountingFinish();
+        break;
+      case 3:
+        actionWidget = mountingFinished();
+        break;
+    }
+
+    var gotUnstagedChanges = false;
+    mountingStages?.forEach((st) {
+      if (st != currentStage.value)
+        gotUnstagedChanges = gotUnstagedChanges || st.export;
+    });
+    needSync.value = !gotUnstagedChanges;
+
+    return actionWidget;
+  }
+
+  Future<void> addMountingImage(MountingStage stage, String imagePath) async {
+    var mountingImage = new MountingImage(
+      Uuid().v5(stage.mountingId.toString(), stage.stageId.toString()),
+    );
+
+    mountingImage.mountingId = stage.mountingId;
+    mountingImage.stageId = stage.stageId;
+    mountingImage.local = imagePath;
+    mountingImage.export = true;
+
+    await syncController.saveMountingImage(mountingImage).whenComplete(() =>
+        syncController
+            .syncMountingImage(mountingImage)
+            .then((value) => refreshMountingImages()));
+  }
+
+  Future<void> deleteMountingImage(MountingImage mountingImage) async {
+    await syncController
+        .deleteMountingImage(mountingImage)
+        .then((value) => refreshMountingImages());
   }
 }

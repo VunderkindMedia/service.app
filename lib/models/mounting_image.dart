@@ -38,7 +38,7 @@ class MountingImage {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'serviceId': mountingId,
+      'mountingId': mountingId,
       'stageId': stageId,
       'fileId': fileId,
       'fileName': fileName,

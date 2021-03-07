@@ -14,7 +14,7 @@ import 'package:service_app/widgets/goods_page/goods_page.dart';
 import 'package:service_app/widgets/service_page/payment_page.dart';
 import 'package:service_app/widgets/service_page/refuse_page.dart';
 import 'package:service_app/widgets/service_page/reschedule_page.dart';
-import 'package:service_app/widgets/attachments_page/attachments_page.dart';
+import 'package:service_app/widgets/service_page/attachments_page/attachments_page.dart';
 import 'package:service_app/widgets/buttons/fab_button.dart';
 import 'package:service_app/widgets/buttons/action_button.dart';
 

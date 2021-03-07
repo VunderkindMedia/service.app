@@ -5,15 +5,17 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:service_app/get/controllers/mounting_controller.dart';
 import 'package:service_app/models/mounting.dart';
+import 'package:service_app/models/mounting_stage.dart';
 import 'package:service_app/models/stage.dart';
 import 'package:service_app/widgets/buttons/fab_button.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/widgets/text/commentField.dart';
 
 class MountStage extends StatefulWidget {
-  MountStage({this.mounting, this.stage});
+  MountStage({this.mounting, this.mountingStage, this.stage});
 
   final Mounting mounting;
+  final MountingStage mountingStage;
   final Stage stage;
 
   @override
@@ -68,10 +70,8 @@ class _MountStageState extends State<MountStage> {
                           loadingFlag.toggle();
                           String imagePath = image.path;
                           await ImageGallerySaver.saveFile(imagePath);
-                          /* await mountingController.addMountingStage(
-                              DateTime.now().microsecondsSinceEpoch.toString() +
-                                  '.png',
-                              imagePath); */
+                          await mountingController.addMountingImage(
+                              widget.mountingStage, imagePath);
                           loadingFlag.toggle();
                         }
                         print('galerry image');
@@ -93,10 +93,8 @@ class _MountStageState extends State<MountStage> {
                           loadingFlag.toggle();
                           String imagePath = image.path;
                           await ImageGallerySaver.saveFile(imagePath);
-                          /* await mountingController.addMountingStage(
-                              DateTime.now().microsecondsSinceEpoch.toString() +
-                                  '.png',
-                              imagePath); */
+                          await mountingController.addMountingImage(
+                              widget.mountingStage, imagePath);
                           loadingFlag.toggle();
                         }
                         print('camera image');

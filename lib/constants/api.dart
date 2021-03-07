@@ -1,7 +1,7 @@
 /* const SERVER = 'http://localhost:8081'; */
 /* const SERVER = 'https://willdo-api.framer.ru'; */
 /* const SERVER = 'http://dev-willdo-api.framer.ru'; */
-const SERVER = 'http://10.1.101.3:8081';
+const SERVER = 'http://192.168.1.3:8081';
 
 const API_LOGIN = '$SERVER/login';
 const API_SERVICES = '$SERVER/v1/services';

@@ -200,10 +200,13 @@ class DbService extends GetxService {
           '('
           'id TEXT,'
           'createdAt DATETIME,'
+          'updatedAt DATETIME,'
           'stageId TEXT,'
           'mountingId INTEGER,'
+          'personId TEXT,'
           'result TEXT,'
           'comment TEXT,'
+          'export BOOLEAN,'
           'UNIQUE(id, mountingId, stageId)'
           ')');
       await db.execute('CREATE TABLE $MOUNTINGS_IMAGES_TABLE_NAME'
@@ -260,6 +263,10 @@ class DbService extends GetxService {
       mountings.forEach((mounting) async {
         await txn.insert(MOUNTINGS_TABLE_NAME, mounting.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
+        mounting.mountingImages?.forEach((mountingImage) async {
+          await txn.insert(MOUNTINGS_IMAGES_TABLE_NAME, mountingImage.toMap(),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        });
         mounting.mountingStages?.forEach((mountingStage) async {
           await txn.insert(MOUNTINGS_STAGES_TABLE_NAME, mountingStage.toMap(),
               conflictAlgorithm: ConflictAlgorithm.replace);
@@ -509,12 +516,26 @@ class DbService extends GetxService {
     });
   }
 
-  Future<void> saveMountingimages(List<MountingImage> mountingImage) async {
+  Future<void> saveMountingImages(List<MountingImage> mountingImage) async {
     await _database.transaction((txn) async {
       mountingImage.forEach((si) async {
         await txn.insert(MOUNTINGS_IMAGES_TABLE_NAME, si.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
       });
+    });
+  }
+
+  Future<void> addMountingStage(MountingStage mountingStage) async {
+    await _database.transaction((txn) async {
+      await txn.insert(MOUNTINGS_STAGES_TABLE_NAME, mountingStage.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    });
+  }
+
+  Future<void> addMountingImage(MountingImage mountingImage) async {
+    await _database.transaction((txn) async {
+      await txn.insert(MOUNTINGS_IMAGES_TABLE_NAME, mountingImage.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
     });
   }
 
@@ -546,6 +567,13 @@ class DbService extends GetxService {
     });
   }
 
+  Future<void> deleteMountingImage(MountingImage mountingImage) async {
+    await _database.transaction((txn) async {
+      await txn.delete(MOUNTINGS_IMAGES_TABLE_NAME,
+          where: 'id = ?', whereArgs: [mountingImage.id]);
+    });
+  }
+
   Future<List<MountingStage>> getMountingStages(int mountingId) async {
     var _query = "mountingId = ?";
 
@@ -553,6 +581,7 @@ class DbService extends GetxService {
       MOUNTINGS_STAGES_TABLE_NAME,
       where: _query,
       whereArgs: [mountingId],
+      orderBy: "createdAt ASC",
     );
     return List.generate(maps.length, (i) => MountingStage.fromMap(maps[i]));
   }

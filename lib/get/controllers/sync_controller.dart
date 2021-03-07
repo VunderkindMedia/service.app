@@ -4,6 +4,9 @@ import 'package:service_app/get/controllers/account_controller.dart';
 import 'package:service_app/get/services/api_service.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/services/shared_preferences_service.dart';
+import 'package:service_app/models/mounting.dart';
+import 'package:service_app/models/mounting_stage.dart';
+import 'package:service_app/models/mounting_image.dart';
 import 'package:service_app/models/service.dart';
 import 'package:service_app/models/service_good.dart';
 import 'package:service_app/models/service_image.dart';
@@ -200,6 +203,10 @@ class SyncController extends GetxController {
     return false;
   }
 
+  void _setNeedSync() {
+    if (!_needSync.value) _needSync.value = true;
+  }
+
   Future<void> _syncServices(DateTime dateStart, DateTime dateEnd,
       [bool syncAll = false]) async {
     var services = await _apiService.getServices(accountController.token,
@@ -258,12 +265,28 @@ class SyncController extends GetxController {
     await _dbService.saveServices([service]);
   }
 
+  Future<void> saveMounting(Mounting mounting) async {
+    await _dbService.saveMountings([mounting]);
+  }
+
   Future<void> syncService(Service service, {bool resync = false}) async {
     await _apiService
         .setService(service, accountController.token)
         .then((result) async {
       if (result != null) {
         await saveService(result);
+      } else if (!_needSync.value) {
+        _needSync.value = true;
+      }
+    });
+  }
+
+  Future<void> syncMounting(Mounting mounting, {bool resync = false}) async {
+    await _apiService
+        .setMounting(mounting, accountController.token)
+        .then((result) async {
+      if (result != null) {
+        await saveMounting(result);
       } else if (!_needSync.value) {
         _needSync.value = true;
       }
@@ -281,8 +304,8 @@ class SyncController extends GetxController {
         .then((result) async {
       if (result != null) {
         await _dbService.addServiceGood(result);
-      } else if (!_needSync.value) {
-        _needSync.value = true;
+      } else {
+        _setNeedSync();
       }
     });
   }
@@ -295,6 +318,46 @@ class SyncController extends GetxController {
           serviceGood, accountController.token);
 
     if (deleted) await _dbService.deleteServiceGood(serviceGood);
+  }
+
+  Future<void> saveMountingImage(MountingImage mountingImage) async {
+    await _dbService.addMountingImage(mountingImage);
+  }
+
+  Future<void> syncMountingImage(MountingImage mountingImage,
+      {bool resync = false}) async {
+    await _apiService
+        .addMountingImage(mountingImage, accountController.token)
+        .then((mountingImage) async {
+      if (mountingImage != null) {
+        await _dbService.addMountingImage(mountingImage);
+      } else if (!_needSync.value) {
+        _needSync.value = true;
+      }
+    });
+  }
+
+  Future<void> syncMountingStage(MountingStage mountingStage,
+      {bool resync = false}) async {
+    await _apiService
+        .addMountingStage(mountingStage, accountController.token)
+        .then((syncmStage) async {
+      if (syncmStage != null) {
+        await _dbService.addMountingStage(syncmStage);
+      } else {
+        _setNeedSync();
+      }
+    });
+  }
+
+  Future<void> deleteMountingImage(MountingImage mountingImage) async {
+    if (!mountingImage.export)
+      await _apiService
+          .deleteDocumentImage(
+              mountingImage.fileId.toString(), accountController.token)
+          .then((deleted) {
+        if (deleted) _dbService.deleteMountingImage(mountingImage);
+      });
   }
 
   Future<void> saveServiceImage(ServiceImage serviceImage) async {
@@ -317,13 +380,13 @@ class SyncController extends GetxController {
   Future<void> deleteServiceImage(ServiceImage serviceImage) async {
     var deleted = true;
     if (!serviceImage.export)
-      deleted = await _apiService.deleteServiceImage(
-          serviceImage, accountController.token);
+      deleted = await _apiService.deleteDocumentImage(
+          serviceImage.fileId.toString(), accountController.token);
 
     if (deleted) await _dbService.deleteServiceImage(serviceImage);
   }
 
-  String getServiceImageUrl(ServiceImage serviceImage) {
+  String getFileImageUrl(ServiceImage serviceImage) {
     return '$API_FILES/service/${serviceImage.fileId}';
   }
 }

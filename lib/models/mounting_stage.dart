@@ -1,4 +1,9 @@
-class MountingResult {
+import 'package:uuid/uuid.dart';
+import 'mounting.dart';
+import 'stage.dart';
+
+class StageResult {
+  static const Initialized = "initialized";
   static const Done = "done";
   static const Cancel = "cancel";
 }
@@ -6,26 +11,48 @@ class MountingResult {
 class MountingStage {
   final String id;
   DateTime createdAt;
+  DateTime updatedAt;
   String stageId;
-  String mountingId;
+  int mountingId;
+  String personId;
   String result;
-  int fileId;
-  String local;
   String comment;
   bool export;
 
+  Mounting mounting;
+  Stage stage;
+
   MountingStage(this.id);
 
+  factory MountingStage.initStage(
+      Mounting mounting, Stage stage, String personId) {
+    var mountingStage = MountingStage(Uuid().v5("mounting", "stage"));
+
+    mountingStage.createdAt = DateTime.now();
+    mountingStage.updatedAt = DateTime.now();
+    mountingStage.stageId = stage.id;
+    mountingStage.mountingId = mounting.id;
+    mountingStage.personId = personId;
+    mountingStage.result = StageResult.Initialized;
+    mountingStage.comment = "";
+    mountingStage.export = true;
+
+    mountingStage.mounting = mounting;
+    mountingStage.stage = stage;
+
+    return mountingStage;
+  }
+
   factory MountingStage.fromJson(Map<String, dynamic> json) {
-    var mountingStage = MountingStage(json['id']);
+    var mountingStage = MountingStage(json['ID']);
 
     mountingStage.createdAt = DateTime.parse(json['CreatedAt']);
+    mountingStage.updatedAt = DateTime.parse(json['UpdatedAt']);
     mountingStage.stageId = json['stageId'];
     mountingStage.mountingId = json['mountingId'];
+    mountingStage.personId = json['personId'];
     mountingStage.result = json['result'];
-    mountingStage.fileId = json['fileId'];
     mountingStage.comment = json['comment'];
-    mountingStage.local = json['local'];
     mountingStage.export = false;
 
     return mountingStage;
@@ -35,12 +62,12 @@ class MountingStage {
     var mountingStage = MountingStage(map['id']);
 
     mountingStage.createdAt = DateTime.parse(map['createdAt']);
+    mountingStage.updatedAt = DateTime.parse(map['updatedAt']);
     mountingStage.stageId = map['stageId'];
     mountingStage.mountingId = map['mountingId'];
-    mountingStage.result = map['DeleteMark'];
-    mountingStage.fileId = map['fileId'];
+    mountingStage.personId = map['personId'];
+    mountingStage.result = map['result'];
     mountingStage.comment = map['comment'];
-    mountingStage.local = map['local'];
     mountingStage.export = map['export'] == 1 ? true : false;
 
     return mountingStage;
@@ -49,13 +76,13 @@ class MountingStage {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'createdAt': createdAt.toString(),
+      'updatedAt': updatedAt.toString(),
       'stageId': stageId,
       'mountingId': mountingId,
+      'personId': personId,
       'result': result,
-      'fileId': fileId,
       'comment': comment,
-      'local': local,
       'export': export ? 1 : 0,
     };
   }

@@ -1,3 +1,4 @@
+import 'package:service_app/models/mounting_image.dart';
 import 'package:service_app/models/mounting_stage.dart';
 
 class Mounting {
@@ -34,7 +35,9 @@ class Mounting {
   int sumPayment;
   int sumDiscount; */
   bool export;
+
   List<dynamic> mountingStages;
+  List<dynamic> mountingImages;
 
   Mounting(this.id);
 
@@ -82,9 +85,12 @@ class Mounting {
         json['MountingStages']?.map((json) => MountingStage.fromJson(json)) ??
             [];
 
-    if (mountingStages.isNotEmpty) {
-      mounting.mountingStages = mountingStages.toList();
-    }
+    var mountingImages =
+        json['MountingImages']?.map((json) => MountingImage.fromJson(json)) ??
+            [];
+
+    mounting.mountingStages = mountingStages.toList();
+    mounting.mountingImages = mountingImages.toList();
 
     return mounting;
   }
