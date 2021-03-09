@@ -290,8 +290,7 @@ class DbService extends GetxService {
   }
 
   Future<List<Mounting>> getMountings(DateTime dStart, DateTime dEnd) async {
-    String _query =
-        "avalible == 1 AND (dateStart >= ? AND dateStart <= ?) AND deleteMark == 0";
+    String _query = "(dateStart >= ? AND dateStart <= ?) AND deleteMark == 0";
 
     final List<Map<String, dynamic>> maps = await _database.query(
       MOUNTINGS_TABLE_NAME,

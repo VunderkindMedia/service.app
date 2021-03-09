@@ -6,7 +6,7 @@ import 'package:service_app/constants/app_fonts.dart';
 import 'package:service_app/get/controllers/mounting_controller.dart';
 import 'package:service_app/models/mounting.dart';
 import 'package:service_app/models/mounting_stage.dart';
-import 'package:service_app/widgets/mounting_page/mounting_stage.dart';
+import 'package:service_app/widgets/mounting_page/pages/mounting_stage.dart';
 
 class MountingStages extends StatefulWidget {
   MountingStages({this.mounting});
@@ -51,30 +51,6 @@ class _MountingStagesState extends State<MountingStages> {
             ),
           ),
           child: Card(
-            /* child: ExpansionTile(
-            initiallyExpanded: false,
-            title: 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(cStage.name, style: kCardTextStyle),
-                Spacer(),
-                Text(
-                  done ? 'Выполнен' : 'Не выполнен',
-                  style: TextStyle(fontSize: 14.0, color: textColor),
-                ),
-                SizedBox(width: 6.0),
-                Icon(
-                  done ? Icons.check_box : Icons.check_box_outline_blank,
-                  color: textColor,
-                ),
-              ],
-            ),
-            children: [
-              Text(actionDate, style: TextStyle(fontSize: 12.0)),
-              TextField(),
-            ],
-          ) */
             child: ListTile(
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -82,7 +58,7 @@ class _MountingStagesState extends State<MountingStages> {
                   Text(cStage.name, style: kCardTextStyle),
                   Spacer(),
                   Text(
-                    done ? 'Выполнен' : 'Не выполнен',
+                    done ? 'Завершен' : 'Не выполнен',
                     style: TextStyle(fontSize: 14.0, color: textColor),
                   ),
                   SizedBox(width: 6.0),

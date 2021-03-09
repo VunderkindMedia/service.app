@@ -410,7 +410,7 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<dynamic> setMounting(Mounting mounting, String accessToken) async {
+  Future<Mounting> setMounting(Mounting mounting, String accessToken) async {
     try {
       var headers = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
       var response = await http.post(
@@ -421,8 +421,7 @@ class ApiService extends GetxService {
 
       if (response.statusCode != 200) return null;
 
-      /* TODO: how update and get avalible? */
-      return jsonDecode(response.body);
+      return Mounting.fromJson(jsonDecode(response.body), "");
     } catch (e) {
       return null;
     }

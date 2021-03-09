@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_app/constants/app_fonts.dart';
+import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:service_app/models/construction_type.dart';
 import 'package:service_app/models/mounting_image.dart';
 import 'package:service_app/models/mounting_stage.dart';
 import 'package:service_app/models/service_status.dart';
-import 'package:uuid/uuid.dart';
 import 'package:service_app/get/services/db_service.dart';
 import 'package:service_app/get/controllers/sync_controller.dart';
 import 'package:service_app/get/controllers/account_controller.dart';
@@ -19,9 +22,11 @@ class MountingController extends GetxController {
   final SyncController syncController = Get.find();
   final MountingsController mountingsController = Get.find();
   final AccountController accountController = Get.find();
+  final picker = ImagePicker();
 
   RxBool locked = false.obs;
   RxBool needSync = false.obs;
+  RxBool isLoading = false.obs;
   Rx<Mounting> mounting = Mounting(-1).obs;
   Rx<Brand> brand = Brand(-1).obs;
   Rx<ConstructionType> constructionType = ConstructionType("").obs;
@@ -80,6 +85,10 @@ class MountingController extends GetxController {
       var button = await buildCurrentAction();
       mainAction.value = button;
     });
+    currentStage.listen((stage) async {
+      var button = await buildCurrentAction();
+      mainAction.value = button;
+    });
   }
 
   void disposeController() {
@@ -87,6 +96,7 @@ class MountingController extends GetxController {
     mountingImages.clear();
 
     locked = false.obs;
+    needSync = false.obs;
     mounting = Mounting(-1).obs;
     currentStage = MountingStage("").obs;
   }
@@ -120,6 +130,38 @@ class MountingController extends GetxController {
     print('updt mounting images');
   }
 
+  Future<void> stageCheck() async {
+    var finishedStage = currentStage.value;
+
+    await Get.defaultDialog(
+        title: 'Подтвердите выполнение',
+        titleStyle: kCardTitleStyle,
+        content: Text(
+          'Этап ${finishedStage.stage.name}',
+          style: kCardTextStyle,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              finishedStage.result = StageResult.Done;
+              await _dbService.addMountingStage(finishedStage).then(
+                  (value) => syncController.syncMountingStage(finishedStage));
+
+              await refreshMountingStages();
+
+              Get.back();
+            },
+            child: Text('Выполнен'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+            },
+            child: Text('Отмена'),
+          )
+        ]);
+  }
+
   Widget mountingInit() {
     return FloatingButton(
       label: currentStage.value.stage.name,
@@ -127,13 +169,7 @@ class MountingController extends GetxController {
       color: kFabActionColor,
       alignment: Alignment.bottomCenter,
       onPressed: () async {
-        var finishedStage = currentStage.value;
-        finishedStage.result = StageResult.Done;
-        await _dbService
-            .addMountingStage(finishedStage)
-            .then((value) => syncController.syncMountingStage(finishedStage));
-
-        await refreshMountingStages();
+        await stageCheck();
       },
       iconData: Icons.handyman,
       extended: true,
@@ -148,13 +184,7 @@ class MountingController extends GetxController {
       color: kFabAcceptColor,
       alignment: Alignment.bottomCenter,
       onPressed: () async {
-        var finishedStage = currentStage.value;
-        finishedStage.result = StageResult.Done;
-        await _dbService
-            .addMountingStage(finishedStage)
-            .then((value) => syncController.syncMountingStage(finishedStage));
-
-        await refreshMountingStages();
+        await stageCheck();
       },
       iconData: Icons.done,
       extended: true,
@@ -169,13 +199,39 @@ class MountingController extends GetxController {
       color: kFabAcceptColor,
       alignment: Alignment.bottomCenter,
       onPressed: () async {
-        var finishedStage = currentStage.value;
-        finishedStage.result = StageResult.Done;
-        await _dbService
-            .addMountingStage(finishedStage)
-            .then((value) => syncController.syncMountingStage(finishedStage));
+        isLoading.value = true;
 
-        await refreshMountingStages();
+        PickedFile image = await picker.getImage(
+          source: ImageSource.camera,
+          imageQuality: 60,
+        );
+        if (image != null) {
+          var finishedStage = currentStage.value;
+          finishedStage.result = StageResult.Done;
+          await _dbService
+              .addMountingStage(finishedStage)
+              .then((value) => syncController.syncMountingStage(finishedStage));
+
+          String imagePath = image.path;
+          await ImageGallerySaver.saveFile(imagePath);
+          await addMountingImage(currentStage.value, imagePath);
+
+          await refreshMountingStages();
+          await finishMounting();
+        } else {
+          Get.defaultDialog(
+            title: 'Ошибка',
+            titleStyle: kCardTitleStyle,
+            content: Center(
+              child: Text(
+                'Для завершения этапа нужно сфотографировать акт выполненных работ',
+                style: kCardTextStyle,
+              ),
+            ),
+          );
+        }
+
+        isLoading.value = false;
       },
       iconData: Icons.list_alt,
       extended: true,
@@ -184,10 +240,13 @@ class MountingController extends GetxController {
   }
 
   Widget mountingFinished() {
-    return FloatingActionButton.extended(
-      onPressed: null,
-      backgroundColor: kFabAcceptColor,
-      label: Text('Монтаж завершен'),
+    return Visibility(
+      visible: false,
+      child: FloatingActionButton.extended(
+        onPressed: null,
+        backgroundColor: kFabAcceptColor,
+        label: Text('Монтаж завершен'),
+      ),
     );
   }
 
@@ -213,18 +272,34 @@ class MountingController extends GetxController {
 
     var gotUnstagedChanges = false;
     mountingStages?.forEach((st) {
-      if (st != currentStage.value)
-        gotUnstagedChanges = gotUnstagedChanges || st.export;
+      gotUnstagedChanges = gotUnstagedChanges || st.export;
     });
-    needSync.value = !gotUnstagedChanges;
+    mountingImages?.forEach((im) {
+      gotUnstagedChanges = gotUnstagedChanges || im.export;
+    });
+    needSync.value = gotUnstagedChanges;
 
     return actionWidget;
   }
 
+  Future<void> finishMounting() async {
+    mounting.value.actCommited = true;
+
+    await _dbService.saveMountings([mounting.value]).then(
+        (value) => syncController.syncMounting(mounting.value));
+  }
+
+  Future<void> editMountingStage(MountingStage stage, String comment) async {
+    stage.comment = comment;
+    stage.export = true;
+
+    await _dbService
+        .addMountingStage(stage)
+        .then((value) => syncController.syncMountingStage(stage, resync: true));
+  }
+
   Future<void> addMountingImage(MountingStage stage, String imagePath) async {
-    var mountingImage = new MountingImage(
-      Uuid().v5(stage.mountingId.toString(), stage.stageId.toString()),
-    );
+    var mountingImage = new MountingImage(Uuid().v1());
 
     mountingImage.mountingId = stage.mountingId;
     mountingImage.stageId = stage.stageId;

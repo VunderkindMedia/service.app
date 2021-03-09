@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/get/controllers/mounting_controller.dart';
 import 'package:service_app/get/controllers/mountings_controller.dart';
@@ -24,6 +25,8 @@ class _MountingPageState extends State<MountingPage> {
   final MountingController mountingController = Get.find();
   final MountingsController mountingsController = Get.find();
   final SyncController syncController = Get.find();
+
+  RxBool mountingFinished = false.obs;
 
   @override
   void dispose() {
@@ -50,7 +53,7 @@ class _MountingPageState extends State<MountingPage> {
         actions: [
           Obx(
             () => Visibility(
-              visible: !mountingController.needSync.value,
+              visible: mountingController.needSync.value,
               child: MainActionButton(
                 label: 'Сохранить',
                 color: kFabAcceptColor,
@@ -58,38 +61,43 @@ class _MountingPageState extends State<MountingPage> {
                 onPressed: () async {},
               ),
             ),
-          )
+          ),
         ],
       ),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Obx(() => MountingHeader(
-                        mounting: mountingController.mounting.value,
-                        constructionType:
-                            mountingController.constructionType.value,
-                      )),
-                  Obx(() => MountingBody(
-                        mounting: mountingController.mounting.value,
-                        callPhone: () => mountingsController.callMethod(
-                            context, mounting.phone),
-                        openNavigator: () =>
-                            mountingsController.openNavigator(mounting),
-                      )),
-                  Obx(
-                    () => mountingController.mountingStages.length > 0
-                        ? MountingStages(
-                            mounting: mountingController.mounting.value)
-                        : SizedBox(),
+        child: Obx(
+          () => ModalProgressHUD(
+            inAsyncCall: mountingController.isLoading.value,
+            child: CustomScrollView(
+              slivers: [
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Obx(() => MountingHeader(
+                            mounting: mountingController.mounting.value,
+                            constructionType:
+                                mountingController.constructionType.value,
+                          )),
+                      Obx(() => MountingBody(
+                            mounting: mountingController.mounting.value,
+                            callPhone: () => mountingsController.callMethod(
+                                context, mounting.phone),
+                            openNavigator: () =>
+                                mountingsController.openNavigator(mounting),
+                          )),
+                      Obx(
+                        () => mountingController.mountingStages.length > 0
+                            ? MountingStages(
+                                mounting: mountingController.mounting.value)
+                            : SizedBox(),
+                      ),
+                      SizedBox(height: 70.0),
+                    ],
                   ),
-                  SizedBox(height: 70.0),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

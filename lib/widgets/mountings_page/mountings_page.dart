@@ -35,7 +35,6 @@ class _MountingsPageState extends State<MountingsPage> {
 
   DateTime selectedDateStart;
   DateTime selectedDateEnd;
-  bool showFAB = true;
 
   @override
   void initState() {
@@ -75,6 +74,10 @@ class _MountingsPageState extends State<MountingsPage> {
     _firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _refKey.currentState.show();
     });
   }
 
@@ -174,35 +177,32 @@ class _MountingsPageState extends State<MountingsPage> {
       ),
       drawer: SideMenu(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Visibility(
-        visible: showFAB,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Obx(
-                () => syncController.needSync
-                    ? FloatingActionButton.extended(
-                        onPressed: () => mountingsController.sync(true),
-                        label: Row(
-                          children: [
-                            Icon(
-                              Icons.sync_problem,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 5.0),
-                            Text(
-                              'Синхронизировать',
-                              style: TextStyle(color: Colors.white),
-                            )
-                          ],
-                        ),
-                      )
-                    : SizedBox(),
-              ),
-            ],
-          ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Obx(
+              () => syncController.needSync
+                  ? FloatingActionButton.extended(
+                      onPressed: () => mountingsController.sync(true),
+                      label: Row(
+                        children: [
+                          Icon(
+                            Icons.sync_problem,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 5.0),
+                          Text(
+                            'Синхронизировать',
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                    )
+                  : SizedBox(),
+            ),
+          ],
         ),
       ),
       body: SafeArea(

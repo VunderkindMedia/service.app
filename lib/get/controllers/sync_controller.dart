@@ -275,8 +275,8 @@ class SyncController extends GetxController {
         .then((result) async {
       if (result != null) {
         await saveService(result);
-      } else if (!_needSync.value) {
-        _needSync.value = true;
+      } else {
+        _setNeedSync();
       }
     });
   }
@@ -287,8 +287,8 @@ class SyncController extends GetxController {
         .then((result) async {
       if (result != null) {
         await saveMounting(result);
-      } else if (!_needSync.value) {
-        _needSync.value = true;
+      } else {
+        _setNeedSync();
       }
     });
   }
@@ -330,9 +330,11 @@ class SyncController extends GetxController {
         .addMountingImage(mountingImage, accountController.token)
         .then((mountingImage) async {
       if (mountingImage != null) {
+        /* DODO: need this? */
+        mountingImage.export = false;
         await _dbService.addMountingImage(mountingImage);
-      } else if (!_needSync.value) {
-        _needSync.value = true;
+      } else {
+        _setNeedSync();
       }
     });
   }
@@ -343,6 +345,7 @@ class SyncController extends GetxController {
         .addMountingStage(mountingStage, accountController.token)
         .then((syncmStage) async {
       if (syncmStage != null) {
+        syncmStage.export = false;
         await _dbService.addMountingStage(syncmStage);
       } else {
         _setNeedSync();
@@ -371,8 +374,8 @@ class SyncController extends GetxController {
         .then((imageModel) async {
       if (imageModel != null) {
         await _dbService.addServiceImage(imageModel);
-      } else if (!_needSync.value) {
-        _needSync.value = true;
+      } else {
+        _setNeedSync();
       }
     });
   }
@@ -386,8 +389,8 @@ class SyncController extends GetxController {
     if (deleted) await _dbService.deleteServiceImage(serviceImage);
   }
 
-  String getFileImageUrl(ServiceImage serviceImage) {
-    return '$API_FILES/service/${serviceImage.fileId}';
+  String getFileImageUrl(String table, int fileId) {
+    return '$API_FILES/$table/${fileId.toString()}';
   }
 }
 

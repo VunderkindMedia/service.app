@@ -39,7 +39,11 @@ class ServiceState {
 
       case ServiceState.WorkFinished:
         {
-          stateIcon = Icons.cloud_upload;
+          /* TODO: refactor to get normal icons for mounting */
+          if (status == ServiceStatus.Start)
+            stateIcon = Icons.check_box;
+          else
+            stateIcon = Icons.cloud_upload;
         }
         break;
 

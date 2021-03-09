@@ -49,7 +49,7 @@ class ImageWidget extends StatelessWidget {
         scale: imgFile.scale,
       );
     } else {
-      var url = syncController.getFileImageUrl(imageModel);
+      var url = syncController.getFileImageUrl("service", imageModel.fileId);
       var accessToken = accountController.token;
       return CachedNetworkImage(
         imageUrl: url,
