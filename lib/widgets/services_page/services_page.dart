@@ -1,131 +1,237 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
-import 'package:service_app/models/brand.dart';
-import 'package:service_app/models/service-status.dart';
+import 'package:get/get.dart';
+import 'package:date_range_picker/date_range_picker.dart' as drp;
+import 'package:service_app/get/controllers/notifications_controller.dart';
+import 'package:service_app/models/push_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/get/controllers/services_controller.dart';
 import 'package:service_app/models/service.dart';
-import 'package:service_app/redux/root_reducer.dart';
-import 'package:service_app/widgets/call_button/call_button.dart';
+import 'package:service_app/constants/app_colors.dart';
 import 'package:service_app/widgets/service_page/service_page.dart';
-import 'package:service_app/widgets/sync_button/sync_button.dart';
+import 'package:service_app/widgets/services_page/services_list_tile.dart';
+import 'package:service_app/widgets/side-menu/side-menu.dart';
 
-class ServicesPage extends StatelessWidget {
-  bool _hideFinished = false;
+class ServicesPage extends StatefulWidget {
+  @override
+  _ServicesPageState createState() => _ServicesPageState();
+}
 
-  Widget _buildRow(BuildContext context, Service service, List<Brand> brands) {
-    var brand = brands.firstWhere((brand) => brand.externalId == service.brandId, orElse: () => null)?.name ?? 'Неизвестный бренд';
+class _ServicesPageState extends State<ServicesPage> {
+  final SyncController syncController = Get.put(SyncController());
+  final ServicesController servicesController = Get.put(ServicesController());
+  final ServiceController serviceController = Get.put(ServiceController());
+  final NotificationsController notificationsController =
+      Get.put(NotificationsController());
+
+  final TextEditingController searchController = TextEditingController();
+
+  final GlobalKey<RefreshIndicatorState> _refKey =
+      GlobalKey<RefreshIndicatorState>();
+
+  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+
+  DateTime selectedDateStart;
+  DateTime selectedDateEnd;
+
+  @override
+  void initState() {
+    super.initState();
+
+    selectedDateStart = servicesController.selectedDateStart.value;
+    selectedDateEnd = servicesController.selectedDateEnd.value;
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        await servicesController.sync(false);
+        await notificationsController.ref();
+
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        await servicesController.sync(false);
+        await notificationsController.ref();
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        await servicesController.sync(false);
+        await notificationsController.ref();
+
+        notificationsController.openNotification(
+          PushNotification(
+              '', message['data']['item'], message['data']['guid']),
+        );
+
+        print("onResume: $message");
+      },
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(
+            sound: true, badge: true, alert: true, provisional: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _refKey.currentState.show();
+    });
+  }
+
+  Widget _buildRow(Service service) {
+    var brand = servicesController.brands.firstWhere(
+        (brand) => brand.externalId == service.brandId,
+        orElse: () => null);
+
     return Card(
       child: InkWell(
         splashColor: Colors.blue.withAlpha(30),
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(serviceId: service.id)));
+        onTap: () async {
+          await serviceController.init(service.id);
+          await serviceController.onInit();
+          await Get.to(ServicePage(serviceId: service.id));
         },
-        child: Container(
-          padding: EdgeInsets.all(8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(margin: EdgeInsets.only(right: 8), child: FlutterLogo(size: 24.0)),
-              Expanded(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('$brand, ${service.number}', overflow: TextOverflow.ellipsis, maxLines: 1),
-                  Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(service.comment),
-                  SizedBox(height: 8),
-                  Text(service.customerAddress),
-                ],
-              )),
-              Container(
-                margin: EdgeInsets.only(left: 8),
-                child: PhoneButton(phone: service.phone),
-              )
-            ],
-          ),
+        child: ServiceListTile(
+          service: service,
+          brand: brand,
         ),
       ),
     );
   }
 
+  Future<void> _clearSearch() async {
+    if (servicesController.searchString.length == 0)
+      servicesController.isSearching.value =
+          !servicesController.isSearching.value;
+    else {
+      servicesController.searchString = "";
+      searchController.clear();
+    }
+
+    await servicesController.sync(false);
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, _ViewModel>(
-      converter: _ViewModel.fromStore,
-      builder: (context, viewModel) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Заявки'),
+    return Scaffold(
+      appBar: AppBar(
+        title: !servicesController.isSearching.value
+            ? Row(children: [
+                Text("Заявки"),
+                Obx(() => Text(" (${servicesController.servicesCount})")),
+              ])
+            : TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.search, color: kTextLightColor),
+                  hintText: 'Поиск',
+                  hintStyle: kSearchBarTextStyle,
+                ),
+                style: kSearchBarTextStyle,
+                autofocus: true,
+                onChanged: (value) {
+                  servicesController.searchString = value;
+                },
+                onEditingComplete: () =>
+                    servicesController.ref(selectedDateStart, selectedDateEnd),
+              ),
+        actions: [
+          IconButton(
+            icon: !servicesController.isSearching.value
+                ? Icon(Icons.search)
+                : Icon(Icons.cancel),
+            onPressed: _clearSearch,
           ),
-          body: SafeArea(
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () async {
+              final List<DateTime> picked = await drp.showDatePicker(
+                  context: context,
+                  initialFirstDate: selectedDateStart,
+                  initialLastDate: selectedDateEnd,
+                  firstDate: DateTime.now().add(Duration(days: -30)),
+                  lastDate: DateTime.now().add(Duration(days: 30)),
+                  locale: Locale('ru'));
+
+              if (picked != null) {
+                selectedDateStart = picked[0];
+                selectedDateEnd = picked.length == 2 ? picked[1] : picked[0];
+
+                servicesController.selectedDateStart.value = selectedDateStart;
+                servicesController.selectedDateEnd.value = selectedDateEnd;
+
+                if (servicesController.isSearching.value) {
+                  await _clearSearch();
+                } else {
+                  await servicesController.ref(
+                      selectedDateStart, selectedDateEnd);
+                  await servicesController.sync(false, true);
+                }
+              }
+            },
+          ),
+        ],
+      ),
+      drawer: SideMenu(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Obx(
+              () => syncController.needSync
+                  ? FloatingActionButton.extended(
+                      onPressed: () => servicesController.sync(true),
+                      label: Row(
+                        children: [
+                          Icon(
+                            Icons.sync_problem,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 5.0),
+                          Text(
+                            'Синхронизировать',
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                    )
+                  : SizedBox(),
+            ),
+          ],
+        ),
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+            color: kAppHeaderColor,
+            backgroundColor: kBackgroundLight,
+            key: _refKey,
             child: Column(
               children: [
                 Expanded(
-                    child: ListView.builder(
-                  padding: EdgeInsets.all(16.0),
-                  itemBuilder: (context, i) {
-                    final filteredServices =
-                    viewModel.services.where((service) => this._hideFinished ? service.status != ServiceStatus.Finished.toString() : true).toList();
-
-                    if (i >= filteredServices.length) {
-                      return null;
-                    }
-
-                    return _buildRow(context, filteredServices[i], viewModel.brands);
-                  },
-                )),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(width: 1.0, color: Colors.grey),
+                  child: Obx(
+                    () => ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      itemCount: servicesController.filteredServices.length,
+                      itemBuilder: (context, i) {
+                        return _buildRow(
+                            servicesController.filteredServices[i]);
+                      },
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Flexible(flex: 1, child: SyncButton()),
-                      Flexible(
-                          flex: 1,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 16),
-                            child: Row(
-                              children: [
-                                Text('Скрыть\nзаверешнные', style: TextStyle(fontWeight: FontWeight.bold)),
-                                Container(
-                                  margin: EdgeInsets.only(left: 8),
-                                  child: Switch(
-                                      value: this._hideFinished,
-                                      onChanged: (value) => {
-//                                  setState(() {
-//                                    this._hideFinished = value;
-//                                  })
-                                          }),
-                                )
-                              ],
-                            ),
-                          )),
-                    ],
-                  ),
-                )
+                ),
               ],
             ),
-          ),
-        );
-      },
+            onRefresh: () async {
+              await servicesController.sync(true);
+              await notificationsController.ref();
+            }),
+      ),
     );
-  }
-}
-
-class _ViewModel {
-  final List<Service> services;
-  final List<Brand> brands;
-
-  _ViewModel({@required this.services, @required this.brands});
-
-  static _ViewModel fromStore(Store<AppState> store) {
-    return _ViewModel(
-        services: store.state.servicesState.services,
-        brands: store.state.catalogState.brands);
   }
 }

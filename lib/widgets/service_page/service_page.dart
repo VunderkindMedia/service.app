@@ -1,145 +1,187 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:service_app/models/service.dart';
-import 'package:service_app/redux/root_reducer.dart';
-import 'package:service_app/widgets/call_button/call_button.dart';
-import 'package:service_app/widgets/payment_page/payment_page.dart';
-import 'package:service_app/widgets/refuse_page/refuse_page.dart';
-import 'package:service_app/widgets/reschedule_page/reschedule_page.dart';
-import 'package:service_app/widgets/service-to-page-view/service-to-page-view.dart';
+import 'package:get/get.dart';
+import 'package:service_app/constants/app_colors.dart';
+import 'package:service_app/constants/app_fonts.dart';
+import 'package:service_app/get/services/db_service.dart';
+import 'package:service_app/get/controllers/service_controller.dart';
+import 'package:service_app/get/controllers/services_controller.dart';
+import 'package:service_app/get/controllers/sync_controller.dart';
+import 'package:service_app/models/service_status.dart';
+import 'package:service_app/widgets/service_page/service_goods_list.dart';
+import 'package:service_app/widgets/service_page/service_body.dart';
+import 'package:service_app/widgets/service_page/service_header.dart';
+import 'package:service_app/widgets/goods_page/goods_page.dart';
+import 'package:service_app/widgets/service_page/payment_page.dart';
+import 'package:service_app/widgets/service_page/refuse_page.dart';
+import 'package:service_app/widgets/service_page/reschedule_page.dart';
+import 'package:service_app/widgets/service_page/attachments_page/attachments_page.dart';
+import 'package:service_app/widgets/buttons/fab_button.dart';
+import 'package:service_app/widgets/buttons/action_button.dart';
 
-class ServicePage extends StatelessWidget {
+class ServicePage extends StatefulWidget {
   final int serviceId;
 
-  final controller = PageController(initialPage: 0);
+  ServicePage({Key key, @required this.serviceId});
 
-  ServicePage({Key key, @required this.serviceId}) : super(key: key);
+  @override
+  _ServicePageState createState() => _ServicePageState();
+}
+
+class _ServicePageState extends State<ServicePage> {
+  final ServiceController serviceController = Get.find();
+  final ServicesController servicesController = Get.find();
+  final SyncController syncController = Get.find();
+  final DbService _dbService = Get.find();
+
+  final List<String> lists = [WorkTypes.TO1, WorkTypes.TO2];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      serviceController.disposeController();
+      servicesController.ref(servicesController.selectedDateStart.value,
+          servicesController.selectedDateEnd.value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, Service>(
-      converter: (store) => store.state.servicesState.services.firstWhere((service) => service.id == serviceId),
-      builder: (context, service) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(service.number),
-          ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      ExpansionTile(
-                        initiallyExpanded: true,
-                        title: Text('Данные по заявке'),
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(service.customer, style: TextStyle(fontWeight: FontWeight.bold)),
-                                      SizedBox(height: 8),
-                                      Text('Адрес: ${service.customerAddress}'),
-                                      SizedBox(height: 8),
-                                      Text('Информация клиента: ${service.comment}'),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 8),
-                                  child: PhoneButton(phone: service.phone),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      Container(
-                        child: Expanded(
-                          child: PageView(
-                            controller: controller,
-                            children: [
-                              ServiceTOPageView(title: 'Услуги ТО-1'),
-                              ServiceTOPageView(title: 'Услуги ТО-2'),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(width: 1.0, color: Colors.grey),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => RefusePage()));
-                          },
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.cancel, color: Colors.red, size: 24.0),
-                              ),
-                              Text('Отказ')
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ReschedulePage()));
-                          },
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.calendar_today_rounded, color: Colors.blue, size: 24.0),
-                              ),
-                              Text('Перенести дату')
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage()));
-                          },
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(right: 8),
-                                child: Icon(Icons.check_circle, color: Colors.green, size: 24.0),
-                              ),
-                              Text('Завершить')
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+    var serviceState = serviceController.service.value.state;
+    var serviceStatus = serviceController.service.value.status;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Obx(() => serviceController.service.value.id != -1
+            ? Text('${serviceController.service.value.number ?? ''}')
+            : SizedBox()),
+        actions: [
+          Obx(
+            () => Visibility(
+              visible: !serviceController.locked.value &&
+                  serviceController.serviceGoods.length > 0,
+              child: MainActionButton(
+                label: 'Завершить',
+                color: kFabAcceptColor,
+                icon: Icons.check,
+                onPressed: () async {
+                  await syncController
+                      .syncClosedDates(serviceController.service.value.cityId)
+                      .then((updated) async {
+                    if (updated)
+                      await _dbService
+                          .getClosedDates(
+                              serviceController.service.value.cityId)
+                          .then((_) {
+                        serviceController.updateClosedDates();
+                      });
+                  });
+                  Get.to(PaymentPage());
+                },
+              ),
             ),
           ),
-        );
-      },
+        ],
+      ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Obx(() => ServiceHeader(
+                      service: serviceController.service.value,
+                      statusIcon: Icon(
+                        ServiceState()
+                            .getStateIcon(serviceState, serviceStatus),
+                        color: serviceController.brand.value.bColor(),
+                        size: 52.0,
+                      ),
+                    )),
+                Obx(() =>
+                    ServiceBody(service: serviceController.service.value)),
+                Obx(() {
+                  List<Widget> cards = [];
+                  lists.forEach((card) {
+                    cards.add(
+                      GoodsList(
+                        workType: card,
+                        goodsList: serviceController.serviceGoods
+                            .where((sg) => sg.workType == card)
+                            .toList(),
+                        onAdd: !serviceController.locked.value
+                            ? () {
+                                serviceController.workType.value = card;
+                                Get.to(GoodsPage());
+                                print(card);
+                              }
+                            : null,
+                      ),
+                    );
+                  });
+                  return Column(
+                    children: cards,
+                  );
+                }),
+                Card(
+                  child: ListTile(
+                    title: Obx(
+                      () => Text(
+                        'Вложения (${serviceController.serviceImages.length})',
+                        style: kCardTitleStyle,
+                      ),
+                    ),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Get.to(AttachmentsPage());
+                    },
+                  ),
+                ),
+                SizedBox(height: 70.0)
+              ]),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Obx(
+        () => Visibility(
+          visible: !serviceController.locked.value &&
+              serviceController.serviceGoods.length == 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FloatingButton(
+                label: 'Отменить',
+                heroTag: 'lfab',
+                alignment: Alignment.bottomLeft,
+                onPressed: () {
+                  Get.to(RefusePage());
+                },
+                iconData: Icons.cancel,
+                extended: true,
+                isSecondary: true,
+              ),
+              FloatingButton(
+                label: 'Перенести',
+                heroTag: 'mfab',
+                alignment: Alignment.bottomCenter,
+                onPressed: () {
+                  Get.to(ReschedulePage());
+                },
+                iconData: Icons.calendar_today_rounded,
+                extended: true,
+                isSecondary: true,
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,4 @@
-package com.steklodom.service_app
+package com.itswarm.willdo
 
 import io.flutter.embedding.android.FlutterActivity
 
